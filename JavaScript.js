@@ -6,9 +6,9 @@ let width = window.innerWidth;
 let height = window.innerHeight;
 let stars = [];
 
-const STAR_COUNT = 68;
+const STAR_COUNT = 150;
 const MAX_SPEED = 0.25;
-const LINK_DISTANCE = 160;
+const LINK_DISTANCE = 55;
 
 function randomBetween(min, max) {
   return Math.random() * (max - min) + min;
