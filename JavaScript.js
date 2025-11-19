@@ -9,8 +9,8 @@ let scaleFactor = width+height;
 
 let STAR_COUNT = 0;
 let LINK_DISTANCE = 0;
-uu
-const hMAX_SPEED = 0.25;
+ 
+const MAX_SPEED = 0.25;
 
 
 function randomBetween(min, max) {
