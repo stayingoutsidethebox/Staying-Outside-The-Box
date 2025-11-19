@@ -6,7 +6,7 @@ let width = window.innerWidth;
 let height = window.innerHeight;
 let stars = [];
 
-const STAR_COUNT = 150;
+const STAR_COUNT = 100;
 const MAX_SPEED = 0.25;
 const LINK_DISTANCE = 55;
 
@@ -97,7 +97,7 @@ function drawStars() {
     ctx.fillStyle = `rgba(255, 50, 100, ${s.opacity})`;
     ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
     ctx.fill();
-    s.opacityCounter-=.1;
+    s.opacityCounter-=.0001;
     if(s.opacity < 0.4){
       s.opacity = 1;
       }
