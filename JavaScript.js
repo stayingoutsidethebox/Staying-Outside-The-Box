@@ -87,10 +87,11 @@ function drawStars() {
       const b = stars[j];
       const dx = a.x - b.x;
       const dy = a.y - b.y;
+      const alphaModifier = (a.opacity + b.opacity) /2;
       const dist = Math.hypot(dx, dy);
 
       if (dist < LINK_DISTANCE) {
-        const alpha = 1 - dist / LINK_DISTANCE;
+        const alpha = (1 - dist / LINK_DISTANCE) * alphaModifier;
         ctx.strokeStyle = `rgba(0, 0, 0, ${alpha})`;
         ctx.beginPath();
         ctx.moveTo(a.x, a.y);
@@ -105,7 +106,7 @@ function drawStars() {
     ctx.fillStyle = `rgba(0, 0, 0, ${s.opacity})`;
     ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
     ctx.fill();
-    s.opacity-=.0001;
+    s.opacity-=.001;
     if(s.opacity < 0.4){
       s.opacity = 1;
       }
