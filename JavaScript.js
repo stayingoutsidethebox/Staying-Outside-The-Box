@@ -39,7 +39,7 @@ function moveStars() {
 function drawStarsWithLines() {
   brush.clearRect(0, 0, width, height);
    
-  //determine the lines
+  //determine the size and location of each possible line
   brush.lineWidth = 1;
   for (let i = 0; i < stars.length; i++) {
     for (let j = i + 1; j < stars.length; j++) {
@@ -70,8 +70,8 @@ function drawStarsWithLines() {
     star.opacity-=.001;
     if(star.opacity < 0.1){
       star.opacity = 1;
-      }
     }
+  }
 }
 
 /* Functional */
@@ -88,12 +88,12 @@ function resizeCanvas() {
   scaleFactor = width+height;
   if(scaleFactor>1500){
     scaleFactor = 1500;
-    }
+  }
   maxStarCount = scaleFactor/10;
   maxLinkDistance = scaleFactor/20;
 
-//resize stars, unless the page has just opened
-    if (oldWidth != 0) {
+  //if createStars() has been run (page is loaded) scale the stars with the new page size
+  if (stars.length > 0) {
     const scaleX = width / oldWidth;
     const scaleY = height / oldHeight;
     const scaleSize = scaleFactor / oldScaleFactor;
@@ -102,6 +102,7 @@ function resizeCanvas() {
       s.y *= scaleY;
       s.size *= scaleSize;
     }
+  }
 }
 
 function animate() {
