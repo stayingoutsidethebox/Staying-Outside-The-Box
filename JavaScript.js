@@ -106,7 +106,7 @@ function drawStars() {
     ctx.fillStyle = `rgba(0, 0, 0, ${s.opacity})`;
     ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
     ctx.fill();
-    s.opacity-=.005;
+    s.opacity-=.05;
     if(s.opacity < 0.1){
       s.opacity = 1;
       }
