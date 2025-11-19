@@ -40,10 +40,6 @@ img {
   padding:2dvmin;
   font: 1dvmin Arial;
 }
-
-h2{
-  z-index:-2;
-}
       
 h3 {
   font-size: 3dvmin;
@@ -52,7 +48,6 @@ h3 {
 
 h4 {
   font-size:3dvmin;
-  z-index:-2;
 }
 
 #constellation-bg {
