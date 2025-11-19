@@ -19,8 +19,8 @@ function createStars() {
       vx: randomBetween(-.25, .25),
       vy: randomBetween(-.25, .25),
       size: randomBetween(1, scaleFactor/400),
-      opacity: randomBetween(.1001, 1),
-      redValue: randomBetween(0, 170)
+      opacity: randomBetween(.005, 1),
+      redValue: randomBetween(0, 150)
     });
   }
 }
@@ -74,7 +74,7 @@ function drawStarsWithLines() {
       star.opacity = 1;
     }
     else if(star.opacity < 0.02){
-      star.opacity -= .0005;
+      star.opacity -= .0001;
     }
     else{
       star.opacity-=.005;
