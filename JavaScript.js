@@ -7,9 +7,11 @@ let height = window.innerHeight;
 let stars = [];
 let scaleFactor = width+height;
 
-const STAR_COUNT = 0;
-const MAX_SPEED = 0.25;
-const LINK_DISTANCE = 0;
+let STAR_COUNT = 0;
+let LINK_DISTANCE = 0;
+uu
+const hMAX_SPEED = 0.25;
+
 
 function randomBetween(min, max) {
   return Math.random() * (max - min) + min;
