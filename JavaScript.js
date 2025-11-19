@@ -1,14 +1,14 @@
 
-  const canvas = document.getElementById('constellation-bg');
+const canvas = document.getElementById('constellation-bg');
 const ctx = canvas.getContext('2d');
 
 let width = window.innerWidth;
 let height = window.innerHeight;
 let stars = [];
 
-const STAR_COUNT = 120;
+const STAR_COUNT = 100;
 const MAX_SPEED = 0.25;
-const LINK_DISTANCE = 130;
+const LINK_DISTANCE = 100;
 
 function randomBetween(min, max) {
   return Math.random() * (max - min) + min;
@@ -81,7 +81,7 @@ function drawStars() {
 
       if (dist < LINK_DISTANCE) {
         const alpha = 1 - dist / LINK_DISTANCE;
-        ctx.strokeStyle = `rgba(0, 0, 0, ${alpha * 0.2})`;
+        ctx.strokeStyle = `rgba(0, 0, 0, ${alpha})`;
         ctx.beginPath();
         ctx.moveTo(a.x, a.y);
         ctx.lineTo(b.x, b.y);
@@ -93,7 +93,7 @@ function drawStars() {
   // stars
   for (const s of stars) {
     ctx.beginPath();
-    ctx.fillStyle = `rgba(randomBetween(0, 200), 0, 50, ${s.opacity})`;
+    ctx.fillStyle = `rgba(randomBetween(0, 255), 50, 100, ${s.opacity})`;
     ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
     ctx.fill();
   }
