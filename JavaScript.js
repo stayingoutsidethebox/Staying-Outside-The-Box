@@ -19,7 +19,8 @@ function createStars() {
       vx: randomBetween(-.25, .25),
       vy: randomBetween(-.25, .25),
       size: randomBetween(1, scaleFactor/400),
-      opacity: randomBetween(.1001, 1)
+      opacity: randomBetween(.1001, 1),
+      redValue: randomBetween(0,200)
     });
   }
 }
@@ -39,7 +40,7 @@ function moveStars() {
 function drawStarsWithLines() {
   brush.clearRect(0, 0, width, height);
    
-  //determine the size and location of each possible line
+  //determine the lines
   brush.lineWidth = 1;
   for (let i = 0; i < stars.length; i++) {
     for (let j = i + 1; j < stars.length; j++) {
@@ -64,12 +65,17 @@ function drawStarsWithLines() {
   //draw stars
   for (const star of stars) {
     brush.beginPath();
-    brush.fillStyle = `rgba(0, 0, 0, ${star.opacity})`;
+    brush.fillStyle = `rgba(star.redValue, 0, 0, ${star.opacity})`;
     brush.arc(star.x, star.y, star.size, 0, Math.PI * 2);
     brush.fill();
-    star.opacity-=.001;
-    if(star.opacity < 0.1){
+    if(star.opacity < 0.02){
+      star.opacity -= .001;
+    }
+    else if(star.opacity < 0.005){
       star.opacity = 1;
+    }
+    else{
+      star.opacity-=.005;
     }
   }
 }
@@ -88,12 +94,12 @@ function resizeCanvas() {
   scaleFactor = width+height;
   if(scaleFactor>1500){
     scaleFactor = 1500;
-  }
+    }
   maxStarCount = scaleFactor/10;
   maxLinkDistance = scaleFactor/20;
 
-  //if createStars() has been run (page is loaded) scale the stars with the new page size
-  if (stars.length > 0) {
+//resize stars, unless the page has just opened
+    if (oldWidth != 0) {
     const scaleX = width / oldWidth;
     const scaleY = height / oldHeight;
     const scaleSize = scaleFactor / oldScaleFactor;
@@ -102,7 +108,6 @@ function resizeCanvas() {
       s.y *= scaleY;
       s.size *= scaleSize;
     }
-  }
 }
 
 function animate() {
@@ -122,4 +127,4 @@ createStars();
 animate();
 window.addEventListener('resize', () => {
   resizeCanvas();
-});
+});});
