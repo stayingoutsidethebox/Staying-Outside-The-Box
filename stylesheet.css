@@ -15,7 +15,7 @@ body::before {
   background-position: center;
   background-repeat: no-repeat;
 
-  z-index: -2; /* behind the constelation animation */
+  z-index: -3; /* behind the constelation animation */
 }
   
 body {
@@ -40,6 +40,10 @@ img {
   padding:2dvmin;
   font: 1dvmin Arial;
 }
+
+h2{
+  z-index:-2;
+}
       
 h3 {
   font-size: 3dvmin;
@@ -48,6 +52,7 @@ h3 {
 
 h4 {
   font-size:3dvmin;
+  z-index:-2;
 }
 
 #constellation-bg {
