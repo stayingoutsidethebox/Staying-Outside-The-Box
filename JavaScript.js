@@ -70,7 +70,7 @@ function drawStars() {
   ctx.clearRect(0, 0, width, height);
 
   // lines
-  ctx.lineWidth = 3;
+  ctx.lineWidth = 1.5;
   for (let i = 0; i < stars.length; i++) {
     for (let j = i + 1; j < stars.length; j++) {
       const a = stars[i];
