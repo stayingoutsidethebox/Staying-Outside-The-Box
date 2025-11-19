@@ -68,7 +68,12 @@ function updateStars() {
 
 function drawStars() {
   ctx.clearRect(0, 0, width, height);
-
+// stars
+  for (const s of stars) {
+    ctx.beginPath();
+    ctx.fillStyle = `rgba(255, 50, 100, ${s.opacity})`;
+    ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+    ctx.fill();
   // lines
   ctx.lineWidth = 1;
   for (let i = 0; i < stars.length; i++) {
@@ -89,13 +94,6 @@ function drawStars() {
       }
     }
   }
-
-  // stars
-  for (const s of stars) {
-    ctx.beginPath();
-    ctx.fillStyle = `rgba(255, 50, 100, ${s.opacity})`;
-    ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
-    ctx.fill();
   }
 }
 
