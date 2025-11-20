@@ -1,9 +1,6 @@
 /*html, body {
   background-color: #600090;
 }*/
-html{
-  background-color: #600090;
-}
 
 body::before {
   content: "";/* REQUIRED for ::before to exist */
@@ -13,7 +10,8 @@ body::before {
   width: 100dvw;
   height: 100dvh;
 
-  background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url("Background.jpg");
+  background-image: linear-gradient(to bottom right, #300060, #000000);
+  background-image: url("Background.jpg");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
