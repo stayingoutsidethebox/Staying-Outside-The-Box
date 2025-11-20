@@ -25,7 +25,7 @@ function createStars() {
       size: randomBetween(1, scaleFactor/400),
       opacity: randomBetween(.005, 2),
       redValue: randomBetween(0, 150),
-      white: false
+      whiteValue: 0
     });
   }
 }
@@ -69,14 +69,12 @@ function drawStarsWithLines() {
   }
   //draw stars
   for (const star of stars) {
-    let tempRed = star.redValue;
-    let tempGreen = 0;
-    let tempBlue = 0;
-    if(star.white){
+    let tempRed = 255 * star.whiteValue + star.redValue;
+    if (tempRed > 255){
       tempRed = 255;
-      tempGreen = 255;
-      tempBlue = 255;
     }
+    const tempGreen = 255 * star.whiteValue;
+    const tempBlue = 255 * star.whiteValue;
     brush.beginPath();
     brush.fillStyle = `rgba(${tempRed}, ${tempGreen}, ${tempBlue}, ${star.opacity})`;
     brush.arc(star.x, star.y, star.size, 0, Math.PI * 2);
@@ -85,15 +83,15 @@ function drawStarsWithLines() {
     //thinkle the stars
     {
       //return color from white
-      if(star.white){
-        star.white = false;
+      if(star.whiteValue > 0){
+        star.whiteValue -= .01;
       }
       //adjust opacity
       if(star.opacity < 0.005){
         star.opacity = 1;
         //chance to twinkle white 
         if(randomBetween(0, 10) == 1){
-          star.white = true;
+          star.whiteValue = 1;
         }
       }
       else if(star.opacity > 0.02){
