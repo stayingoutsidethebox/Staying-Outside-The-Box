@@ -1,6 +1,6 @@
 const canvas = document.getElementById('constellation-bg');
 const brush = canvas.getContext('2d');
-let stars = [];
+const stars = [];
 
  //defined in rescaleCanvas() to remove redundancy
 let width = 0;
