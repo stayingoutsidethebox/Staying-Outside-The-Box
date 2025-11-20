@@ -1,8 +1,10 @@
+/* Cliche Constellation Code */
+
 const canvas = document.getElementById('constellation-bg');
 const brush = canvas.getContext('2d');
 const stars = [];
 
- //defined in rescaleCanvas() to remove redundancy
+//defined in rescaleCanvas() to remove redundancy
 let width = 0;
 let height = 0;
 let scaleFactor = 0;
