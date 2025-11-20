@@ -42,6 +42,7 @@ img {
   height: 20vmin;
   padding: 2vmin;
   font: 1vmin Arial;
+  
   width: 20dvmin;
   height: 20dvmin;
   padding:2dvmin;
@@ -56,6 +57,7 @@ h2 {
   /* units for old browsers and modern browsers */
   font-size: 3vmin;
   margin-top:-7vmin;
+  
   font-size: 3dvmin;
   margin-top:-7dvmin;
 }
@@ -63,9 +65,10 @@ h2 {
 h3 {
   /* units for old browsers and modern browsers */
   font-size: 7.5vmin;
+  margin: -2vmin 0 0 0;
+  
   font-size: 7.5dvmin;
-  margin-top: -2dvmin;
-  margin-top: -2vmin;
+  margin: -2dvmin 0 0 0;
 }
 
 h4 {
