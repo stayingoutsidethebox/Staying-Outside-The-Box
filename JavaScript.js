@@ -20,7 +20,7 @@ let smoothSpeed = 0;         // smoothed value for jitter
 let cleanedUserSpeed = 0;     // 0 to 1 scale
 
 const SMOOTHING = 0.2;       // lower = smoother
-const MAX_RAW_SPEED = 5.0;   // adjust based on your testing
+const MAX_RAW_SPEED = 30;   // adjust based on your testing
 
 /* Stars */
 
