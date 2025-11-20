@@ -13,7 +13,7 @@ body::before {
   width: 100dvw;
   height: 100dvh;
 
-  background-image: linear-gradient(to bottom right, #300060, #000000);
+  background-color: #300060;
   background-image: url("Background.jpg");
   background-size: cover;
   background-position: center;
@@ -65,8 +65,8 @@ h2 {
       
 h3 {
   /* units for old browsers and modern browsers */
-  font-size: 3vmin;
-  font-size: 3dvmin;
+  font-size: 4vmin;
+  font-size: 4dvmin;
 }
 
 h4 {
