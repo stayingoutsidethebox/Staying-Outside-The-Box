@@ -24,7 +24,7 @@ body {
   min-height: 100dvh;
   background: transparent !important;
 
-  justify-content: center;
+  /*justify-content: center;*/
   text-align: center;
   font-family: 'New Rocker';
   font-size: 5dvmin;
