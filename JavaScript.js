@@ -32,8 +32,8 @@ function createStars() {
 
 function moveStars() {
   for (const star of stars) {
-    star.x += star.vx;
-    star.y += star.vy;
+    star.x += star.vx + (cleanedUserSpeed * 100);
+    star.y += star.vy + (cleanedUserSpeed * 100);
 
     if (star.x < 0) star.x = width;
     if (star.x > width) star.x = 0;
@@ -154,4 +154,51 @@ createStars();
 animate();
 window.addEventListener('resize', () => {
   resizeCanvas();
+});
+
+
+
+
+
+
+
+
+let lastX = 0, lastY = 0, lastTime = 0;
+
+let pointerSpeed = 0;        // raw px/ms
+let smoothSpeed = 0;         // smoothed value for jitter
+let cleanedUserSpeed = 0;     // 0 to 1 scale
+
+const SMOOTHING = 0.2;       // lower = smoother
+const MAX_RAW_SPEED = 5.0;   // adjust based on your testing
+
+function updateSpeed(x, y, time) {
+  const dx = x - lastX;
+  const dy = y - lastY;
+  const dt = time - lastTime;
+
+  if (dt > 0) {
+    pointerSpeed = Math.sqrt(dx * dx + dy * dy) / dt; // px per ms
+  }
+
+  // exponential smoothing
+  smoothSpeed = smoothSpeed * (1 - SMOOTHING) + pointerSpeed * SMOOTHING;
+
+  // normalize 0–1 scale
+  cleanedUserSpeed = Math.min(smoothSpeed / MAX_RAW_SPEED, 1);
+
+  lastX = x;
+  lastY = y;
+  lastTime = time;
+}
+
+/* Desktop */
+window.addEventListener("mousemove", (e) => {
+  updateSpeed(e.clientX, e.clientY, e.timeStamp);
+});
+
+/* Touch (Mobile) */
+window.addEventListener("touchmove", (e) => {
+  const t = e.touches[0];
+  updateSpeed(t.clientX, t.clientY, e.timeStamp);
 });
