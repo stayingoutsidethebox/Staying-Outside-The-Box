@@ -41,10 +41,14 @@ img {
   padding:2dvmin;
   font: 1dvmin Arial;
 }
+
+h2 {
+  font-size: 3dvmin;
+  margin-top:-7dvmin;
+}
       
 h3 {
   font-size: 3dvmin;
-  margin-top:-7dvmin;
 }
 
 h4 {
