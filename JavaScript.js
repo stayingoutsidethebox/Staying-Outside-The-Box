@@ -177,10 +177,10 @@ function updateSpeed(x, y, time) {
   }
 
   //smoothing for jitteriness
-  smoothSpeed = smoothSpeed * .8 + pointerSpeed * 6;
+  smoothSpeed = smoothSpeed * .8 + pointerSpeed * 10;
 
   //normalize to avoid extreme speeds
-  cleanedUserSpeed = Math.min(smoothSpeed, 6);
+  cleanedUserSpeed = Math.min(smoothSpeed, 10);
 
   lastX = x;
   lastY = y;
