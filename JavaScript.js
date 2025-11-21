@@ -20,7 +20,7 @@ let smoothSpeed = 0;         // smoothed value for jitter
 let cleanedUserSpeed = 0;     // 0 to 1 scale
 
 const SMOOTHING = 0.2;       // lower = smoother
-const MAX_RAW_SPEED = 5;   // adjust based on your testing
+const MAX_RAW_SPEED = 50;   // adjust based on your testing
 
 /* Stars */
 
@@ -41,7 +41,7 @@ function createStars() {
 
 function moveStars() {
   // base drift (1x) + up to +9x from user movement
-  const speedFactor = 1 + cleanedUserSpeed * 6;
+  const speedFactor = 1 + cleanedUserSpeed;
 
   for (const star of stars) {
     star.x += star.vx * speedFactor;
