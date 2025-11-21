@@ -168,12 +168,6 @@ window.addEventListener('resize', () => {
 /* Increase Constelation Speed With Cursor */
 /*-----------------------------------------*/
 
-
-
-
-
-
-
 function updateSpeed(x, y, time) {
   const dx = x - lastX;
   const dy = y - lastY;
@@ -187,7 +181,7 @@ function updateSpeed(x, y, time) {
   smoothSpeed = smoothSpeed * .8 + pointerSpeed * .2;
 
   //normalize to a 0–1 scale
-  cleanedUserSpeed = Math.min(smoothSpeed * 100, 1);
+  cleanedUserSpeed = Math.min(smoothSpeed * 500, 1);
 
   lastX = x;
   lastY = y;
