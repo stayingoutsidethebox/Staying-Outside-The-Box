@@ -15,11 +15,10 @@ let maxLinkDistance = 0;
 
 let lastX = 0, lastY = 0, lastTime = 0;
 
-let pointerSpeed = 0;        // raw px/ms
-let smoothSpeed = 0;         // smoothed value for jitter
-let cleanedUserSpeed = 0;     // 0 to 1 scale
+let pointerSpeed = 0;//raw px/ms
+let smoothSpeed = 0;//smoothed value for jitter
+let cleanedUserSpeed = 0;//0 to 1 scale
 
-const SMOOTHING = 0.2;       // lower = smoother
 const MAX_RAW_SPEED = 50;   // adjust based on your testing
 
 /* Stars */
@@ -40,12 +39,9 @@ function createStars() {
 }
 
 function moveStars() {
-  // base drift (1x) + up to +9x from user movement
-  const speedFactor = 1 + cleanedUserSpeed;
-
   for (const star of stars) {
-    star.x += star.vx * speedFactor;
-    star.y += star.vy * speedFactor;
+    star.x += star.vx * (cleanedUserSpeed + 1);
+    star.y += star.vy * (cleanedUserSpeed + 1);
 
     if (star.x < 0) star.x = width;
     if (star.x > width) star.x = 0;
@@ -171,7 +167,9 @@ window.addEventListener('resize', () => {
   resizeCanvas();
 });
 
-
+/*-----------------------------------------*/
+/* Increase Constelation Speed With Cursor */
+/*-----------------------------------------*/
 
 
 
@@ -188,10 +186,10 @@ function updateSpeed(x, y, time) {
     pointerSpeed = Math.sqrt(dx * dx + dy * dy) / dt; // px per ms
   }
 
-  // exponential smoothing
-  smoothSpeed = smoothSpeed * (1 - SMOOTHING) + pointerSpeed * SMOOTHING;
+  //smoothing
+  smoothSpeed = smoothSpeed * .08 + pointerSpeed * .08;
 
-  // normalize 0–1 scale
+  //normalize to a 0–1 scale
   cleanedUserSpeed = Math.min(smoothSpeed / MAX_RAW_SPEED, 1);
 
   lastX = x;
