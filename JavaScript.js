@@ -19,7 +19,7 @@ let pointerSpeed = 0;//raw px/ms
 let smoothSpeed = 0;//smoothed value for jitter
 let cleanedUserSpeed = 0;//0 to 1 scale
 
-const MAX_RAW_SPEED = 50;   // adjust based on your testing
+const MAX_RAW_SPEED = 4;   // adjust based on your testing
 
 /* Stars */
 
@@ -187,7 +187,7 @@ function updateSpeed(x, y, time) {
   }
 
   //smoothing
-  smoothSpeed = smoothSpeed * .08 + pointerSpeed * .08;
+  smoothSpeed = smoothSpeed * .8 + pointerSpeed * .2;
 
   //normalize to a 0–1 scale
   cleanedUserSpeed = Math.min(smoothSpeed / MAX_RAW_SPEED, 1);
