@@ -19,8 +19,6 @@ let pointerSpeed = 0;//raw px/ms
 let smoothSpeed = 0;//smoothed value for jitter
 let cleanedUserSpeed = 0;//0 to 1 scale
 
-const MAX_RAW_SPEED = 4;   // adjust based on your testing
-
 /* Stars */
 
 function createStars() {
@@ -48,9 +46,8 @@ function moveStars() {
     if (star.y < 0) star.y = height;
     if (star.y > height) star.y = 0;
   }
-
-  // after applying speed, let it naturally decay a bit every frame
-  cleanedUserSpeed *= 0.95; // 0.95 = keeps some momentum, but slows down
+    //decay the constelation speed smoothly
+    cleanedUserSpeed *= 0.95;
 }
 
 function drawStarsWithLines() {
@@ -190,7 +187,7 @@ function updateSpeed(x, y, time) {
   smoothSpeed = smoothSpeed * .8 + pointerSpeed * .2;
 
   //normalize to a 0–1 scale
-  cleanedUserSpeed = Math.min(smoothSpeed / MAX_RAW_SPEED, 1);
+  cleanedUserSpeed = Math.min(smoothSpeed, 1);
 
   lastX = x;
   lastY = y;
