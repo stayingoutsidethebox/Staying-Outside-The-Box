@@ -44,7 +44,7 @@ function moveStars() {
     if (star.y > height) star.y = 0;
   }
     //decay the constelation speed smoothly
-    cleanedUserSpeed *= 0.95;
+    cleanedUserSpeed *= .9;
 }
 
 function drawStarsWithLines() {
