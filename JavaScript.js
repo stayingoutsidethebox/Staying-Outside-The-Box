@@ -41,7 +41,7 @@ function createStars() {
 
 function moveStars() {
   // base drift (1x) + up to +9x from user movement
-  const speedFactor = 1 + cleanedUserSpeed * 9;
+  const speedFactor = 1 + cleanedUserSpeed * 6;
 
   for (const star of stars) {
     star.x += star.vx * 4 * speedFactor;
