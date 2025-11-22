@@ -96,7 +96,7 @@ h4 {
   font-size: 3dvmin;
 }
 
-#constellation-bg {
+#constellations {
   position: fixed;
   inset: 0;
   width: 100%;
@@ -107,7 +107,7 @@ h4 {
 
 /* for low motion settings */
 @media (prefers-reduced-motion: reduce) {
-  #constellation-bg {
+  #constellations {
     display: none;
   }
 }
