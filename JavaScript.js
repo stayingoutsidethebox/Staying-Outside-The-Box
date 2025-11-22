@@ -3,7 +3,7 @@
 /*---------------------------*/
 
 
-const canvas = document.getElementById('constellation-bg');
+const canvas = document.getElementById('constellations');
 const brush = canvas.getContext('2d');
 const stars = [];
 
