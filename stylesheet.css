@@ -83,8 +83,8 @@ img {
 
 h1 {
   /* units for old browsers and modern browsers */
-  font-size: 15vmin;
-  font-size: 15dvmin;
+  font-size: 35vmin;
+  font-size: 35dvmin;
 }
 
 h2 {
