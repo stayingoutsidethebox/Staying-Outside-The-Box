@@ -56,7 +56,8 @@ a {
 }
 
 a:hover, a:active {
-  color: #770000;
+  color: #880000;
+  border: 3px solid #880000;
 }
 
 .clean {
