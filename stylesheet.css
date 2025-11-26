@@ -50,6 +50,14 @@ hr{
   background-color: #bdbdbd;
 }
 
+a {
+  color: #BB0000;
+}
+
+a:hover, a:active {
+  color: #990000;
+}
+
 .clean {
   color: inherit;
   text-decoration:none;
