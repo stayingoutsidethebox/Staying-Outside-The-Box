@@ -67,7 +67,7 @@ function moveStars() {
   }
 
   //decay constellation speed smoothly
-  cleanedUserSpeed = Math.min(1, cleanedUserSpeed * 0.9);
+  cleanedUserSpeed = Math.max(1, cleanedUserSpeed * 0.9);
 }
 
 function drawStarsWithLines() {
