@@ -199,7 +199,7 @@ function updateSpeed(x, y, time) {
   smoothSpeed = smoothSpeed * .8 + pointerSpeed * 10;
 
   //normalize to avoid extreme speeds
-  cleanedUserSpeed = Math.min(smoothSpeed, 10) + 2;
+  cleanedUserSpeed = Math.min(smoothSpeed, 10) + 1;
 
   lastX = x;
   lastY = y;
