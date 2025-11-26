@@ -40,8 +40,8 @@ function createStars() {
 function moveStars() {
   for (const star of stars) {
     //passive constant star movement
-    star.x += star.vx;
-    star.y += star.vy;
+    star.x += star.vx * (1 + cleanedUserSpeed);
+    star.y += star.vy * (1 + cleanedUserSpeed);
 
     //attraction to cursor and touch
     if (lastTime !== 0) {
