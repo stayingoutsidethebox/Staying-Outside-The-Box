@@ -15,7 +15,7 @@ body::before {
   width: 100dvw;
   height: 100dvh;
 
-  background-image: url("Background.jpg");
+  background-image: url("/Resources/Background.jpg");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -50,8 +50,9 @@ hr{
   background-color: #bdbdbd;
 }
 
-a {
+.clean {
   color: inherit;
+  text-decoration:none;
 }
 
 img {
