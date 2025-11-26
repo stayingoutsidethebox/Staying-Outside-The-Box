@@ -7,6 +7,10 @@ const canvas = document.getElementById('constellations');
 const brush = canvas.getContext('2d');
 const stars = [];
 
+let lastX = 0, lastY = 0, lastTime = 0;
+let pointerSpeed = 0;
+let smoothSpeed = 0;
+
 //defined in rescaleCanvas() to remove redundancy
 let width = 0;
 let height = 0;
@@ -35,9 +39,30 @@ function createStars() {
 
 function moveStars() {
   for (const star of stars) {
+    //move stars passively
     star.x += star.vx * (cleanedUserSpeed + 1);
     star.y += star.vy * (cleanedUserSpeed + 1);
 
+    //stars follow cursor and touch
+    if (lastTime !== 0) {
+      const dx = lastX - star.x;
+      const dy = lastY - star.y;
+      const distSq = dx * dx + dy * dy;
+
+      const maxInfluence = 220 * 220;  // ~220px radius of influence
+      if (distSq > 4 && distSq < maxInfluence) {
+        const baseForce = 0.0006;
+        //stronger when closer
+        const strength = (maxInfluence - distSq) / maxInfluence;
+
+        // cleanedUserSpeed makes the pull a bit stronger when you're moving fast
+        const speedFactor = (cleanedUserSpeed + 1);
+        star.vx += dx * baseForce * strength * speedFactor;
+        star.vy += dy * baseForce * strength * speedFactor;
+      }
+    }
+    
+    //wrap stars around the edges
     if (star.x < 0) star.x = width;
     if (star.x > width) star.x = 0;
     if (star.y < 0) star.y = height;
@@ -161,13 +186,7 @@ window.addEventListener('resize', () => {
   resizeCanvas();
 });
 
-/*-----------------------------------------*/
 /* Increase Constelation Speed With Cursor */
-/*-----------------------------------------*/
-
-let lastX = 0, lastY = 0, lastTime = 0;
-let pointerSpeed = 0;
-let smoothSpeed = 0;
 
 function updateSpeed(x, y, time) {
   const dx = x - lastX;
