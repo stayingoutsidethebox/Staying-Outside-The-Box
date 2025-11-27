@@ -1,4 +1,4 @@
-/* there are no easter eggs here, I just suck at programming */
+=/* there are no easter eggs here, I just suck at programming */
 
 html {
   background-color: #300060;
@@ -139,6 +139,11 @@ font-weight: bold;
 
 .elena {
 margin-top:1em;
-color:red;
+color:yellow;
+font-weight: bold;
+}
+.iris {
+margin-top:1em;
+color:blue;
 font-weight: bold;
 }
