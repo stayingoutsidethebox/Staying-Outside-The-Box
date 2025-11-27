@@ -123,3 +123,22 @@ h4 {
     display: none;
   }
 }
+/*-------------*/
+/* For Scripts */
+/*-------------*/
+
+p {
+margin:0;
+}
+
+.roman, .sage{
+margin-top:1em;
+color:red;
+font-weight: bold;
+}
+
+.elena {
+margin-top:1em;
+color:red;
+font-weight: bold;
+}
