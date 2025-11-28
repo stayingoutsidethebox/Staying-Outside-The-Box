@@ -108,13 +108,18 @@ h2 {
     display: none;
   }
 }
-/*-------------*/
-/* For Scripts */
-/*-------------*/
 
 p {
 margin:0;
 }
+
+.premium{
+  color:purple;
+  }
+
+/*-------------*/
+/* Characters */
+/*-------------*/
 
 .roman, .sage{
 margin-top:1em;
