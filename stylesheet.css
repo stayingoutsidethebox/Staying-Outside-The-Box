@@ -83,6 +83,7 @@ hr {
 a {
   display: inline-flex;
   flex-direction: column;
+  margin:0 auto;
   align-items: center;
   color: #EE0000;
   padding-bottom:1dvmin;
