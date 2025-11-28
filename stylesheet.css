@@ -99,8 +99,8 @@ a:hover, a:active, button:hover, button:active {
   color: #880000;
 }
 
-.dead:hover, .dead:active {
-  color: #EE0000;
+.dead, .dead:hover, .dead:active {
+  color: #880000;
 }
 
 button {
