@@ -12,19 +12,24 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=New+Rocker&display=swap" rel="stylesheet">
 </head><body>
+  
+  
+  <header>
   <canvas id="constellations"></canvas>
   <h1>Chapter 1</h1>
   <h2>Trapped</h2>
-  <a href="/"><h3>Homepage</h3></a>
-  <a href="./index.html"><h3>&lt; Back</h3></a>
+  <a href="/">Homepage</a>
+  <a href="./index.html">&lt; Back</a>
   <hr>
-  <h4>Part 2</h4>
-    <h4>Part 3</h4>
+  <a href="#part2">Part 2</a>
+    <a href="#part3">Part 3</a>
   <hr>
-    
-    
+  </header>  
+  
+  
+    <main>
 <button onclick="toggleElement("part1")">Part 1</button>
-<div id="part1">
+<section id="part1">
 <!— Scene 1 - The Void —>
 <p class="sage">
 Sage:
@@ -393,7 +398,7 @@ Sage:
 </p><p>
 "...She made it for me…"
 </p>
-</div>
+</section>
 
 
 <!------------>
@@ -402,9 +407,9 @@ Sage:
 
 
 <button onclick="toggleElement("part2")">Part 2</button>
-<div id="part2">
+<section id="part2">
 <p>(Redacted)</p>
-</div>
+</section>
 
 
 
@@ -414,8 +419,9 @@ Sage:
 
 
 <button onclick="toggleElement("part3")">Part 3</button>
-<div id="part3">
+<section id="part3">
 <p>(Redacted)</p>
-</div>
+</section>
+</main>
 	<script src="/JavaScript.js"></script>
 </body></html>
