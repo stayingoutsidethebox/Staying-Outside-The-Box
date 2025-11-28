@@ -46,6 +46,12 @@ button{
   background:none;
   border:none;
   }
+  
+  a {
+    display: flex;
+  flex-direction: column;
+  align-items: center;
+    }
 
 a, button {
   color: #BB0000;
