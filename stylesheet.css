@@ -45,18 +45,15 @@ hr{
 button{
   background:none;
   border:none;
+  color: #BB0000;
   }
   
   a {
     display: flex;
   flex-direction: column;
   align-items: center;
-    }
-
-a, button {
   color: #BB0000;
-  display: block;
-}
+    }
 
 a:hover, a:active, button:hover, button:active {
   color: #880000;
