@@ -1,7 +1,7 @@
 html, body {
   margin: 0;
   padding: 0;
-  height: 100%;          /* tie them together */
+  height: 100%;
 }
 
 html {
@@ -12,8 +12,8 @@ body::before {
   content: ""; /* required to make this element exist */
   position: fixed;
   inset: 0;
-  width: 100dvw;   /* dynamic viewport width */
-  height: 100dvh;  /* dynamic viewport height (fixes mobile bar weirdness) */
+  width: 100dvw;
+  height: 100dvh;
 
   background-image: url("/Resources/Background.jpg");
   background-size: cover;
