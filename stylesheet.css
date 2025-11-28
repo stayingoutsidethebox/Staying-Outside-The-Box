@@ -1,14 +1,19 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;          /* tie them together */
+}
+
 html {
-  background-color: #300060; /* fallback */
-  height: 100%;
+  background-color: #300060; /* fallback only, won't be seen normally */
 }
 
 body::before {
   content: ""; /* required to make this element exist */
   position: fixed;
   inset: 0;
-  width: 100dvw;
-  height: 100dvh;
+  width: 100dvw;   /* dynamic viewport width */
+  height: 100dvh;  /* dynamic viewport height (fixes mobile bar weirdness) */
 
   background-image: url("/Resources/Background.jpg");
   background-size: cover;
@@ -16,14 +21,13 @@ body::before {
   background-repeat: no-repeat;
 
   z-index: -2; /* behind constellations */
+  pointer-events: none; /* just in case */
 }
   
 body {
-  margin: 0;
-  padding: 0;
-  min-height: 100dvh;
-  background: transparent; /* important so body doesn’t cover the bg */
-  
+  min-height: 100dvh;  /* at least full screen */
+  background: transparent; /* don't paint over your image */
+
   text-align: center;
   font-family: 'New Rocker';
   color: #bdbdbd;
