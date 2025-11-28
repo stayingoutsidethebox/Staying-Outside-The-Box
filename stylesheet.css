@@ -33,6 +33,9 @@ body {
   font-family: 'New Rocker';
   color: #bdbdbd;
   font-size: 5dvmin;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 #constellations {
