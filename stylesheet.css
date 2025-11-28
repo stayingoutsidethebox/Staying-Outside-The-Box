@@ -42,20 +42,23 @@ hr{
   /* units for old browsers and modern browsers */
   width:50vw;
   width:50dvw;
-  margin-bottom:10vmin;
-  margin-bottom:10dvmin;
   
   border: none;
   height: 3px;
   background-color: #bdbdbd;
 }
 
-a {
+button{
+  background:none;
+  border:none;
+  }
+
+a, button {
   color: #BB0000;
   display: block;
 }
 
-a:hover, a:active {
+a:hover, a:active, button:hover, button:active {
   color: #880000;
 }
 
@@ -64,11 +67,11 @@ a:hover, a:active {
   text-decoration:none;
 }
 
-a img:acive, a img:hover {
+a img:active, a img:hover {
   border: 3px solid #880000;
 }
 
-img {
+.imgButton {
   /* units for old browsers and modern browsers */
   width: 20vmin;
   height: 20vmin;
@@ -85,37 +88,19 @@ img {
   object-fit: cover;
 }
 
-h1, button {
+h1 {
   /* units for old browsers and modern browsers */
-  font-size: 7vmin;
-  font-size: 7dvmin;
+  font-size: 9vmin;
+  font-size: 9dvmin;
   
 }
 
 h2 {
-  /* units for old browsers and modern browsers 
-  font-size: 3vmin;
+  /* units for old browsers and modern browsers */
+  font-size: 1vmin;
   margin-top:-7vmin;
-  font-size: 3dvmin;
+  font-size: 1dvmin;
   margin-top:-7dvmin;
-  */
-}
-      
-h3 {
-  /* units for old browsers and modern browsers 
-  font-size: 7.5vmin;
-  margin: -2vmin 0 10vmin 0;
-  
-  font-size: 7.5dvmin;
-  margin: -2dvmin 0 10dvmin 0;
-  */
-}
-
-h4 {
-  /* units for old browsers and modern browsers 
-  font-size: 3vmin;
-  font-size: 3dvmin;
-  */
 }
 
 #constellations {
