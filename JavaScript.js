@@ -282,16 +282,16 @@ window.addEventListener('load', () => {
  * Call this instead of a normal link click.
  * It slides content up, then navigates to `url`.
  */
-function navigateWithSlide(url) {
-  const wrapper = document.getElementById('page-wrapper');
+function transitionTo(url) {
+  const page = document.getElementById('transitionContainer');
 
   // Add the slide-out class to start the upward animation
-  wrapper.classList.add('slide-out');
+  page.classList.add('slide-out');
 
   // When the transition finishes, then change page
   const handler = (event) => {
     if (event.propertyName === 'transform') {
-      wrapper.removeEventListener('transitionend', handler);
+      page.removeEventListener('transitionend', handler);
       window.location.href = url;
     }
   };
