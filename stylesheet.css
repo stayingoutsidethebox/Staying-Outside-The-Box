@@ -47,6 +47,10 @@ body {
   pointer-events: none;
 }
 
+main {
+  padding-bottom:2dvmin;
+}
+
 /*---------*/
 /* Content */
 /*---------*/
