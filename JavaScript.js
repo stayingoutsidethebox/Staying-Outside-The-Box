@@ -1,11 +1,17 @@
 /*-------------------*/
-/* Open & Close Elements */
+/* HTML Elements */
 /*--------------------*/
 
+//open & close elements
 function toggleElement(x){
   const element = document.getElementById(x);
   element.hidden = !element.hidden;
   }
+  
+  //reset color of buttons when finger is lifted
+  document.addEventListener('touchend', () => {
+  document.activeElement?.blur();
+});
 
 /*---------------------------*/
 /* Cliche Constellation Code */
