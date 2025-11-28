@@ -113,7 +113,7 @@ color:yellow;
 font-weight: bold;
 }
 
-.iris {
+.iris, .darian {
 margin-top:1em;
 color:blue;
 font-weight: bold;
@@ -128,5 +128,23 @@ font-weight: bold;
 .trent {
 margin-top:1em;
 color:orange;
+font-weight: bold;
+}
+
+.dave {
+margin-top:1em;
+color:pink;
+font-weight: bold;
+}
+
+.fireRider {
+margin-top:1em;
+color:firebrick;
+font-weight: bold;
+}
+
+.sidecharacter {
+margin-top:1em;
+color:inherit;
 font-weight: bold;
 }
