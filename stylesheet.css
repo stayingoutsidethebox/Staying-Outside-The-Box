@@ -43,7 +43,7 @@ hr{
 
 button{
   background:none;
-  border:none;
+  border:3px solid #bb0000;
   text-align: center;
   font-family: 'New Rocker';
   color: #BB0000;
