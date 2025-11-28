@@ -44,8 +44,10 @@ hr{
 button{
   background:none;
   border:none;
-  font:inherit;
+  text-align: center;
+  font-family: 'New Rocker';
   color: #BB0000;
+  font-size: 5dvmin;
   }
   
   a {
