@@ -33,10 +33,7 @@ body {
 }
 
 hr{
-  /* units for old browsers and modern browsers */
-  width:50vw;
   width:50dvw;
-  
   border: none;
   height: 3px;
   background-color: #bdbdbd;
@@ -68,18 +65,11 @@ a:hover, a:active, button:hover, button:active {
   border: 3px solid #880000;
 }
 
-.imgButton {
-  /* units for old browsers and modern browsers */
-  width: 20vmin;
-  height: 20vmin;
-  padding: 2vmin;
-  font: 1vmin Arial;
-  
+.imgButton 
   width: 20dvmin;
   height: 20dvmin;
   padding:2dvmin;
   font: 1dvmin Arial;
-  
   border-radius: 50%;
   border: 3px solid #bdbdbd;
   object-fit: cover;
