@@ -20,8 +20,8 @@ function toggleElement(x){
 
 const canvas = document.getElementById('constellations');
 const brush = canvas.getContext('2d');
-const stars = [];
 
+let stars = [];
 let lastX = 0, lastY = 0, lastTime = 0;
 let pointerSpeed = 0;
 let smoothSpeed = 0;
@@ -55,7 +55,13 @@ function initStars() {
       createStars();
     }
   } else {
-    //if no save is found, then make stars
+    createStars();
+    }
+  }
+}
+
+  //if no save is found, then make stars
+function createStars(){
     for (let i = 0; i < maxStarCount; i++) {
       stars.push({
       x: Math.random() * width,
@@ -69,7 +75,6 @@ function initStars() {
       whiteValue: 0
     });
     }
-  }
 }
 
 function moveStars() {
