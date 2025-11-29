@@ -58,10 +58,11 @@ function initStars() {
     createStars();
     }
   }
-}
+
 
   //if no save is found, then make stars
 function createStars(){
+  stars = [];
     for (let i = 0; i < maxStarCount; i++) {
       stars.push({
       x: Math.random() * width,
@@ -276,7 +277,7 @@ window.addEventListener("mouseup", () => {
 /*--------------------------*/
 
 window.addEventListener('load', () => {
-  const wrapper = document.getElementById('page');
+  const wrapper = document.getElementById('transitionContainer');
   // Use rAF so the browser sees the initial translateY before we add "ready"
   requestAnimationFrame(() => {
     wrapper.classList.add('ready');
