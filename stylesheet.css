@@ -148,7 +148,7 @@ p {
 }
 
 .premium {
-  text-shadow: 3px 3px 3px purple;
+  text-shadow: var(--shadow);
 }
 
 
