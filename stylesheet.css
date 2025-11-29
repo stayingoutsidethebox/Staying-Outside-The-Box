@@ -143,13 +143,6 @@ p {
   text-shadow: 3px 3px 3px purple;
 }
 
-/* for low motion settings */
-@media (prefers-reduced-motion: reduce) {
-  #constellations {
-    display: none;
-  }
-}
-
 /*------------*/
 /* Characters */
 /*------------*/
@@ -200,4 +193,21 @@ font-weight: bold;
 margin-top:1em;
 color:inherit;
 font-weight: bold;
+}
+
+/*-------------------------*/
+/* For Low Motion Settings */
+/*-------------------------*/
+
+@media (prefers-reduced-motion: reduce) {
+  #constellations {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #transitionContainer {
+    transition: none;
+    transform: translateY(0);
+  }
 }
