@@ -301,7 +301,6 @@ window.addEventListener("mouseup", () => {
 /* Animate Page Transitions */
 /*--------------------------*/
 
-const BACK_KEY = 'homepageBackUrl';
 let isInternalReferrer = false;
 
 window.addEventListener('load', () => {
@@ -312,40 +311,43 @@ window.addEventListener('load', () => {
     });
   }
 
+  // 1) Determine if we came from inside the same origin
+  const ref = document.referrer;
+  if (ref) {
+    try {
+      const refUrl = new URL(ref);
+      isInternalReferrer = refUrl.origin === window.location.origin;
+    } catch (e) {
+      // bad referrer → treat as external
+      isInternalReferrer = false;
+    }
+  } else {
+    // no referrer at all → usually direct / external visit
+    isInternalReferrer = false;
+  }
+
+  // 2) If we did NOT come from inside the site, treat as fresh visit:
+  //    wipe old back URL and old starfield.
+  if (!isInternalReferrer) {
+    localStorage.removeItem('homepageBackUrl');
+    localStorage.removeItem('constellationStars');
+    localStorage.removeItem('constellationMeta');
+  }
+
+  // 3) Home page back button logic (if present)
   const backLink = document.getElementById('homepageBack');
   if (backLink) {
-    // Figure out if we came here from inside the site
-    const ref = document.referrer;
-
-    if (ref) {
-      try {
-        const refUrl = new URL(ref);
-        isInternalReferrer = refUrl.origin === window.location.origin;
-      } catch (e) {
-        // ignore parse errors, treat as external
-      }
-    }
-
-    let backUrl = localStorage.getItem(BACK_KEY);
-
-    // If we did NOT come from inside the site this time,
-    // treat this as a fresh visit and clear any old backUrl.
-    if (!isInternalReferrer) {
-      backUrl = null;
-      localStorage.removeItem(BACK_KEY);
-    }
-
+    const backUrl = localStorage.getItem('homepageBackUrl');
     backLink.style.display = backUrl ? 'block' : 'none';
   }
 });
-
 
 function transitionTo(url) {
   const page = document.getElementById('transitionContainer');
 
   // Special case: 'back'
   if (url === 'back') {
-    const stored = localStorage.getItem(BACK_KEY);
+    const stored = localStorage.getItem('homepageBackUrl');
     if (!stored) {
       // No back target; nothing to do, or fall back somewhere
       return;
@@ -362,7 +364,7 @@ function transitionTo(url) {
       target.includes('homepage') // optional fallback
     ) {
       try {
-        localStorage.setItem(BACK_KEY, window.location.href);
+        localStorage.setItem('homepageBackUrl', window.location.href);
       } catch (err) {
         console.warn('Could not save back URL:', err);
       }
@@ -410,10 +412,4 @@ function saveStarsToStorage() {
 //failsafe and reset stars
 window.addEventListener('beforeunload', () => {
   saveStarsToStorage();
-
-  // If the next page is NOT inside your site, reset stars
-  if (!isInternalReferrer) {
-    localStorage.removeItem('constellationStars');
-    localStorage.removeItem('constellationMeta');
-  }
 });
