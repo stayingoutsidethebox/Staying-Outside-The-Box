@@ -101,57 +101,57 @@ function createStars(){
 
 function moveStars() {
   for (const star of stars) {
-    //passive constant star movement
+    // passive constant star movement
     star.x += star.vx * (cleanedUserSpeed + 1);
     star.y += star.vy * (cleanedUserSpeed + 1);
 
-    //attraction to cursor and touch
+    // attraction to cursor and touch
     if (lastTime !== 0 && cleanedUserSpeed > 0.19) {
       const dx = lastX - star.x;
       const dy = lastY - star.y;
       const distSq = dx * dx + dy * dy;
 
-      const maxInfluence = 130 * 130;  //~130px influence radius
+      const maxInfluence = 130 * 130; // ~130px influence
       if (distSq > 4 && distSq < maxInfluence) {
         const baseForce = 0.008 * cleanedUserSpeed;
         const proximity = (maxInfluence - distSq) / maxInfluence;
         const pull = baseForce * proximity;
+
         star.x += dx * pull;
         star.y += dy * pull;
       }
-      
-      //twinkle the stars
-    {
-      //return color from white stars
-      if(star.whiteValue > 0){
-        star.whiteValue -= Math.max(0, star.whiteValue * .02);
-      }
-      //adjust opacity
-      if(star.opacity <= 0.005){
-        star.opacity = 1;
-        //chance to twinkle white 
-        if (Math.random() < 0.07) {
-          star.whiteValue = 1;
-        }
-      }
-      else if(star.opacity > 0.02){
-        star.opacity-=.005 * star.fadeSpeed;
-      }
-      //if the star is no longer visible, keep it hidden for a while
-      else{
-        star.opacity -= .0001;
-      }
-    }
     }
 
-    //wrap stars around the edges
+    // twinkle the stars
+    // --------------------------------
+    // return color from white stars
+    if (star.whiteValue > 0) {
+      star.whiteValue -= Math.max(0, star.whiteValue * 0.02);
+    }
+
+    // adjust opacity
+    if (star.opacity <= 0.005) {
+      star.opacity = 1;
+
+      // chance to twinkle white
+      if (Math.random() < 0.07) {
+        star.whiteValue = 1;
+      }
+    } else if (star.opacity > 0.02) {
+      star.opacity -= 0.005 * star.fadeSpeed;
+    } else {
+      // if the star is no longer visible, keep it hidden longer
+      star.opacity -= 0.0001;
+    }
+
+    // wrap stars around edges
     if (star.x < 0) star.x = width;
     if (star.x > width) star.x = 0;
     if (star.y < 0) star.y = height;
     if (star.y > height) star.y = 0;
   }
 
-  //decay constellation speed smoothly
+  // decay constellation speed smoothly
   cleanedUserSpeed *= 0.9;
 }
 
