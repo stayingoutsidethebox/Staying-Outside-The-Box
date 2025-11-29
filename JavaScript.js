@@ -21,6 +21,7 @@ function toggleElement(x){
 const canvas = document.getElementById('constellations');
 const brush = canvas.getContext('2d');
 
+let freezeConstellation = false;
 let stars = [];
 let lastX = 0, lastY = 0, lastTime = 0;
 let pointerSpeed = 0;
@@ -227,7 +228,9 @@ function resizeCanvas() {
 }
 
 function animate() {
-  moveStars();
+  if (!freezeConstellation) {
+    moveStars();
+  }
   drawStarsWithLines();
   requestAnimationFrame(animate);
 }
@@ -312,6 +315,7 @@ function transitionTo(url) {
     window.location.href = url;
     return;
   }
+  freezeConstellation = true;
   saveStarsToStorage();
   window.scrollTo(0, 0);
   page.classList.add('slide-out');
