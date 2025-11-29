@@ -109,7 +109,7 @@ button {
   font-family: 'New Rocker';
   color: #EE0000;
   font-size: 5dvmin;
-  border-radius: 20%;
+  border-radius: 9999px;
   padding:3dvmin;
   display: block;
   margin:1dvmin auto;
