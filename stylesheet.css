@@ -1,3 +1,11 @@
+:root {
+  --slide-duration: 0.6s;         /* Default animation duration */
+  --shadow: 0 0 20px rgba(150, 0, 255, 0.6); /* Drop shadow color */
+  --link-light: #ee0000);
+  --link-dark: #880000;
+  --no-link: #bdbdbd;
+}
+
 /*=============================*
  *  GLOBAL BACKGROUND & LAYOUT
  *=============================*/
@@ -32,7 +40,7 @@ body {
   padding: 0;
   text-align: center;
   font-family: 'New Rocker';
-  color: #bdbdbd;
+  color: var(--no-link);
   font-size: 7dvmin;
 
   display: flex;                  /* Layout: header (optional) + container */
@@ -67,7 +75,7 @@ hr {
   width: 50dvw;
   border: none;
   height: 3px;
-  background-color: #bdbdbd;
+  background-color: var(--no-link);
 }
 
 .divider {
@@ -79,22 +87,17 @@ hr {
   width: 20dvmin;
   height: 20dvmin;
   padding: 2dvmin;
-  font: 1dvmin Arial;
+  font: 1dvmin Arial; /* for if the image fails to load */
   border-radius: 50%;
-  border: 3px solid #bdbdbd;
+  border: 3px solid var(--no-link);
   object-fit: cover;
-}
-
-.imgButton:hover,
-.imgButton:active {
-  border-color: #880000;
 }
 
 a {
   display: block;
   width: fit-content;
   margin: 0 auto;
-  color: #EE0000;
+  color: var(--link-light);
   padding-bottom: 1dvmin;
 }
 
@@ -102,26 +105,36 @@ a:hover,
 a:active,
 button:hover,
 button:active {
-  color: #880000;
+  color: var(--link-dark);
 }
 
 /* Homepage social links */
 .clean{
-  color:#bdbdbd;
+  color:var(--no-link);
+}
+
+article:hover .imgButton, article:active .imgButton {
+  border-color: var(--link-dark);
+  box-shadow: var(--shadow);
+}
+
+article:hover a, article:active a {
+  color: var(--link-dark);
+  box-shadow: var(--shadow);
 }
 
 /* Placeholder links */
 .dead,
 .dead:hover,
 .dead:active {
-  color: #880000;
+  color: var(--link-dark);
 }
 
 button {
   background: none;
-  border: 3px solid #EE0000;
+  border: 3px solid var(--link-light);
   font-family: 'New Rocker';
-  color: #EE0000;
+  color: var(--link-light);
   font-size: 5dvmin;
   border-radius: 9999px;
   padding: 3dvmin;
@@ -195,10 +208,6 @@ p {
 /*=============================*
  *  SLIDE-IN / SLIDE-OUT SYSTEM
  *=============================*/
-
-:root {
-  --slide-duration: 0.6s;         /* Default animation duration */
-}
 
 /* Main scroll container (content area) */
 #transitionContainer {
