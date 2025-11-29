@@ -44,9 +44,29 @@ function initStars() {
     try {
       const parsed = JSON.parse(saved);
 
-      //sanity-check the data so we don’t blow up if it’s bad
       if (Array.isArray(parsed) && parsed.length) {
         stars = parsed;
+
+        // Try to scale from old canvas size to this one
+        const metaRaw = localStorage.getItem('constellationMeta');
+        if (metaRaw) {
+          try {
+            const meta = JSON.parse(metaRaw);
+            if (meta.width > 0 && meta.height > 0) {
+              const scaleX = width / meta.width;
+              const scaleY = height / meta.height;
+              const sizeScale = (width + height) / (meta.width + meta.height);
+
+              for (const star of stars) {
+                star.x *= scaleX;
+                star.y *= scaleY;
+                star.size *= sizeScale;
+              }
+            }
+          } catch (err) {
+            console.warn('Could not parse constellationMeta, skipping scale.', err);
+          }
+        }
       } else {
         createStars();
       }
@@ -56,8 +76,8 @@ function initStars() {
     }
   } else {
     createStars();
-    }
   }
+}
 
 
   //if no save is found, then make stars
@@ -309,16 +329,18 @@ function transitionTo(url) {
 function saveStarsToStorage() {
   try {
     localStorage.setItem('constellationStars', JSON.stringify(stars));
+    localStorage.setItem(
+      'constellationMeta',
+      JSON.stringify({
+        width,
+        height,
+        scaleFactor
+      })
+    );
   } catch (err) {
     console.warn('Could not save stars:', err);
   }
 }
 
-//failsafe
-window.addEventListener('beforeunload', () => {
-  try {
-    localStorage.setItem('constellationStars', JSON.stringify(stars));
-  } catch (err) {
-    console.warn('Could not save stars:', err);
-  }
-})
+//failsafe:
+window.addEventListener('beforeunload', saveStarsToStorage);
