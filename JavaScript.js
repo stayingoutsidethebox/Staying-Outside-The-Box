@@ -1,3 +1,110 @@
+/*--------------------------*/
+/* PAGE LOAD HANDLER */
+/*--------------------------*/
+
+window.addEventListener('load', () => {
+  const page = document.getElementById('transitionContainer');
+
+  // Remove hash if present (so #ids don't block the transition)
+  if (window.location.hash) {
+    history.replaceState(
+      null,
+      '',
+      window.location.pathname + window.location.search
+    );
+  }
+
+  if (page) {
+    // Measure height and set slide duration relative to content size
+    const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
+    const contentHeight = page.offsetHeight;
+
+    let ratio = contentHeight / viewportHeight;
+    ratio = Math.max(1, Math.min(ratio, 3)); // clamp between 1x and 3x
+
+    const baseDuration = 0.5;
+    const durationSeconds = baseDuration * ratio;
+
+    document.documentElement.style.setProperty(
+      '--slide-duration',
+      `${durationSeconds}s`
+    );
+
+    // Allow CSS to see the "ready" state for entrance animation
+    requestAnimationFrame(() => {
+      page.classList.add('ready');
+    });
+  }
+
+  // --- Referrer / back button / constellation reset logic ---
+
+  const ref = document.referrer;
+  if (ref) {
+    try {
+      const refUrl = new URL(ref);
+      isInternalReferrer = refUrl.origin === window.location.origin;
+    } catch (e) {
+      isInternalReferrer = false;
+    }
+  } else {
+    isInternalReferrer = false;
+  }
+
+  const backLink = document.getElementById('homepageBack');
+  if (backLink) {
+    if (isInternalReferrer && ref) {
+      try {
+        localStorage.setItem('homepageBackUrl', ref);
+      } catch (err) {
+        console.warn('Could not save homepageBackUrl:', err);
+      }
+    } else {
+      localStorage.removeItem('homepageBackUrl');
+    }
+
+    const backUrl = localStorage.getItem('homepageBackUrl');
+    backLink.style.display = backUrl ? 'block' : 'none';
+  }
+
+  // If we came from an external site, reset stored constellation
+  if (!isInternalReferrer) {
+    localStorage.removeItem('constellationStars');
+    localStorage.removeItem('constellationMeta');
+  }
+});
+
+/*--------------------------*/
+/* HANDLE BACK/FORWARD CACHE */
+/*--------------------------*/
+
+window.addEventListener('pageshow', (event) => {
+  const page = document.getElementById('transitionContainer');
+  if (!page) return;
+
+  // Guard for browsers that don't support PerformanceNavigationTiming
+  const navEntries = performance.getEntriesByType
+    ? performance.getEntriesByType('navigation')
+    : [];
+  const navType = navEntries[0] && navEntries[0].type;
+
+  if (event.persisted || navType === 'back_forward') {
+    // Make sure the content is visible, not stuck off-screen
+    page.classList.remove('slide-out');
+    page.classList.add('ready');
+
+    // Unfreeze constellation so it animates again
+    freezeConstellation = false;
+    cleanedUserSpeed = 0;
+    smoothSpeed = 0;
+    pointerSpeed = 0;
+
+    // Reset transition lock so links work again
+    isTransitioning = false;
+
+    page.scrollTop = 0;
+  }
+});
+
 /*-------------------*/
 /* HTML ELEMENTS */
 /*-------------------*/
@@ -416,81 +523,6 @@ function saveStarsToStorage() {
 /* Failsafe: save stars on normal page unload */
 window.addEventListener('beforeunload', () => {
   saveStarsToStorage();
-});
-
-/*--------------------------*/
-/* PAGE LOAD HANDLER */
-/*--------------------------*/
-
-window.addEventListener('load', () => {
-  const page = document.getElementById('transitionContainer');
-
-  // Remove hash if present (so #ids don't block the transition)
-  if (window.location.hash) {
-    history.replaceState(
-      null,
-      '',
-      window.location.pathname + window.location.search
-    );
-  }
-
-  if (page) {
-    // Measure height and set slide duration relative to content size
-    const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
-    const contentHeight = page.offsetHeight;
-
-    let ratio = contentHeight / viewportHeight;
-    ratio = Math.max(1, Math.min(ratio, 3)); // clamp between 1x and 3x
-
-    const baseDuration = 0.5;
-    const durationSeconds = baseDuration * ratio;
-
-    document.documentElement.style.setProperty(
-      '--slide-duration',
-      `${durationSeconds}s`
-    );
-
-    // Allow CSS to see the "ready" state for entrance animation
-    requestAnimationFrame(() => {
-      page.classList.add('ready');
-    });
-  }
-
-  // --- Referrer / back button / constellation reset logic ---
-
-  const ref = document.referrer;
-  if (ref) {
-    try {
-      const refUrl = new URL(ref);
-      isInternalReferrer = refUrl.origin === window.location.origin;
-    } catch (e) {
-      isInternalReferrer = false;
-    }
-  } else {
-    isInternalReferrer = false;
-  }
-
-  const backLink = document.getElementById('homepageBack');
-  if (backLink) {
-    if (isInternalReferrer && ref) {
-      try {
-        localStorage.setItem('homepageBackUrl', ref);
-      } catch (err) {
-        console.warn('Could not save homepageBackUrl:', err);
-      }
-    } else {
-      localStorage.removeItem('homepageBackUrl');
-    }
-
-    const backUrl = localStorage.getItem('homepageBackUrl');
-    backLink.style.display = backUrl ? 'block' : 'none';
-  }
-
-  // If we came from an external site, reset stored constellation
-  if (!isInternalReferrer) {
-    localStorage.removeItem('constellationStars');
-    localStorage.removeItem('constellationMeta');
-  }
 });
 
 /*--------------------------*/
