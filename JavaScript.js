@@ -92,7 +92,7 @@ function createStars(){
       size: randomBetween(3, scaleFactor/400),
       opacity: randomBetween(.005, 1.8),
       fadeSpeed: randomBetween(1,2.1),
-      redValue: randomBetween(0, 150),
+      redValue: randomBetween(0, 200),
       whiteValue: 0
     });
     }
