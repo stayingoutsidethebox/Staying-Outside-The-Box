@@ -305,43 +305,33 @@ let isInternalReferrer = false;
 
 window.addEventListener('load', () => {
   const page = document.getElementById('transitionContainer');
-  const hasHash = !!window.location.hash;
+
+  // Remove hash if present
+  if (window.location.hash) {
+    history.replaceState(null, '', window.location.pathname + window.location.search);
+  }
 
   if (page) {
-    if (hasHash) {
-      // If there's an anchor in the URL, don't animate the slide
-      page.style.transform = 'translateY(0)';
-      page.style.transition = 'none';
+    // measure height and set slide duration
+    const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
+    const contentHeight = page.offsetHeight;
 
-      // Optionally, make extra sure the anchor is in view AFTER layout
-      requestAnimationFrame(() => {
-        const id = window.location.hash.slice(1);
-        const target = document.getElementById(id);
-        if (target) {
-          target.scrollIntoView({ block: 'start' });
-        }
-      });
-    } else {
-      // Your existing "measure height and set slide duration" logic
-      const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
-      const contentHeight = page.offsetHeight;
+    let ratio = contentHeight / viewportHeight;
+    ratio = Math.max(1, Math.min(ratio, 3)); // clamp between 1x and 3x
 
-      let ratio = contentHeight / viewportHeight;
-      ratio = Math.max(1, Math.min(ratio, 3)); // clamp between 1x and 3x
+    const baseDuration = 0.5;
+    const durationSeconds = baseDuration * ratio;
 
-      const baseDuration = 0.5;
-      const durationSeconds = baseDuration * ratio;
+    document.documentElement.style.setProperty(
+      '--slide-duration',
+      `${durationSeconds}s`
+    );
 
-      document.documentElement.style.setProperty(
-        '--slide-duration',
-        `${durationSeconds}s`
-      );
-
-      requestAnimationFrame(() => {
-        page.classList.add('ready');
-      });
-    }
+    requestAnimationFrame(() => {
+      page.classList.add('ready');
+    });
   }
+});
 
   // --- your referrer / back button / constellation reset logic stays as-is below ---
   const ref = document.referrer;
