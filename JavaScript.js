@@ -386,10 +386,10 @@ function transitionTo(url) {
     return;
   }
 
+window.scrollTo({ top: 0, behavior: "smooth" });
   // Freeze and save stars before sliding out
   freezeConstellation = true;
   saveStarsToStorage();
-  window.scrollTo(0, 0);
 
   page.classList.add('slide-out');
 
