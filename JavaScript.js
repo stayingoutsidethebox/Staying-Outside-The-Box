@@ -355,50 +355,48 @@ let isTransitioning = false;
  * Smoothly scroll to top before starting a page transition.
  * Returns a Promise that resolves once scrolling finishes.
  */
-function scrollToTopSmooth(duration = 400, minDistance = 80) {
+function scrollToTopSmooth(duration = 400) {
   return new Promise((resolve) => {
-    const startY =
-      window.scrollY ||
-      document.documentElement.scrollTop ||
-      document.body.scrollTop ||
-      0;
+    // Prefer scrolling the main content container
+    const container = document.getElementById('transitionContainer');
+    let el = container;
 
-    // If we're already near the top, don't bother animating
-    if (startY <= minDistance) {
-      window.scrollTo(0, 0);
+    // If that doesn't actually scroll, fall back to the document scroll root
+    if (!el || el.scrollHeight <= el.clientHeight) {
+      el =
+        document.scrollingElement ||
+        document.documentElement ||
+        document.body;
+    }
+
+    const startY = el.scrollTop;
+
+    // Already at the top (or close enough)
+    if (startY <= 0) {
       resolve();
       return;
     }
 
-    const supportsNativeSmooth =
-      'scrollBehavior' in document.documentElement.style;
-
-    // Prefer native smooth scroll if available (much smoother)
-    if (supportsNativeSmooth) {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-
-      // Just wait roughly `duration` ms, then resolve
-      setTimeout(() => {
-        resolve();
-      }, duration);
-
-      return;
-    }
-
-    // Fallback: simple JS animation (linear to avoid end-slowdown)
     const startTime = performance.now();
+    const previousFreeze = freezeConstellation;
+    // Lighten the load while scrolling
+    freezeConstellation = true;
 
     function step(now) {
       const elapsed = now - startTime;
       const t = Math.min(elapsed / duration, 1); // 0 → 1
 
-      // Linear easing: constant speed
-      const newY = Math.round(startY * (1 - t));
-      window.scrollTo(0, newY);
+      // easeOutQuad: fast at first, gentle at the end
+      const eased = 1 - (1 - t) * (1 - t);
+
+      const newY = startY + (0 - startY) * eased;
+      el.scrollTop = newY;
 
       if (t < 1) {
         requestAnimationFrame(step);
       } else {
+        // Restore whatever freeze state we had before
+        freezeConstellation = previousFreeze;
         resolve();
       }
     }
