@@ -367,34 +367,37 @@ window.addEventListener('load', () => {
   }
 });
 
-function scrollToTopSmooth() {
+function scrollToTopSmooth(duration = 600) {
   return new Promise((resolve) => {
     const startY = window.scrollY || document.documentElement.scrollTop;
 
     // Already at top
-    if (startY === 0) {
+    if (startY <= 0) {
       resolve();
       return;
     }
 
-    // Trigger smooth scroll
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    const startTime = performance.now();
 
-    let lastY = startY;
+    function step(now) {
+      const elapsed = now - startTime;
+      const t = Math.min(elapsed / duration, 1); // 0 → 1
+      // easeInOutQuad
+      const eased = t < 0.5
+        ? 2 * t * t
+        : 1 - Math.pow(-2 * t + 2, 2) / 2;
 
-    function check() {
-      const y = window.scrollY || document.documentElement.scrollTop;
+      const newY = Math.round(startY * (1 - eased));
+      window.scrollTo(0, newY);
 
-      // If we reached (or basically reached) the top, or scrolling stopped
-      if (y === 0 || Math.abs(y - lastY) < 1) {
-        resolve();
+      if (t < 1) {
+        requestAnimationFrame(step);
       } else {
-        lastY = y;
-        requestAnimationFrame(check);
+        resolve();
       }
     }
 
-    requestAnimationFrame(check);
+    requestAnimationFrame(step);
   });
 }
 
