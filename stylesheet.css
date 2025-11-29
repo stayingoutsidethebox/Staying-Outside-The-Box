@@ -1,7 +1,7 @@
 :root {
   --slide-duration: 0.6s;         /* Default animation duration */
   --shadow: 0 0 20px rgba(150, 0, 255, 0.6); /* Drop shadow color */
-  --link-light: #ee0000);
+  --link-light: #ee0000;
   --link-dark: #880000;
   --no-link: #bdbdbd;
 }
@@ -121,6 +121,11 @@ article:hover .imgButton, article:active .imgButton {
 article:hover a, article:active a {
   color: var(--link-dark);
   box-shadow: var(--shadow);
+}
+
+article:hover, article:active{
+  border-color: none;
+  box-shadow: none;
 }
 
 /* Placeholder links */
