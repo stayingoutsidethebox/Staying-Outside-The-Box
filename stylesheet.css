@@ -51,7 +51,7 @@ body {
 
 #transitionContainer {
   min-height: 100dvh;
-  /* Start off-screen above */
+  width: 100%;
   transform: translateY(-100dvh);
   transition: transform 0.6s ease-in-out;
 }
@@ -198,14 +198,11 @@ font-weight: bold;
 /*-------------------------*/
 /* For Low Motion Settings */
 /*-------------------------*/
-
 @media (prefers-reduced-motion: reduce) {
   #constellations {
     display: none;
   }
-}
 
-@media (prefers-reduced-motion: reduce) {
   #transitionContainer {
     transition: none;
     transform: translateY(0);
