@@ -277,11 +277,11 @@ window.addEventListener("mouseup", () => {
 /*--------------------------*/
 
 window.addEventListener('load', () => {
-  const wrapper = document.getElementById('transitionContainer');
-  if (!wrapper) return;
+  const page = document.getElementById('transitionContainer');
+  if (!page) return;
   // Use rAF so the browser sees the initial translateY before we add "ready"
   requestAnimationFrame(() => {
-    wrapper.classList.add('ready');
+    page.classList.add('ready');
   });
 });
 
