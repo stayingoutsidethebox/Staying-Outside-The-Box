@@ -317,6 +317,9 @@ function transitionTo(url) {
     window.location.href = url;
     return;
   }
+  if(url = "back"){
+    url = localsave;
+    }
   freezeConstellation = true;
   saveStarsToStorage();
   window.scrollTo(0, 0);
