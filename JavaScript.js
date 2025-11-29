@@ -271,7 +271,7 @@ window.addEventListener("mouseup", () => {
 /*--------------------------*/
 
 window.addEventListener('load', () => {
-  const wrapper = document.getElementById('page-wrapper');
+  const wrapper = document.getElementById('page');
   // Use rAF so the browser sees the initial translateY before we add "ready"
   requestAnimationFrame(() => {
     wrapper.classList.add('ready');
@@ -296,7 +296,7 @@ function transitionTo(url) {
     }
   };
 
-  wrapper.addEventListener('transitionend', handler);
+  page.addEventListener('transitionend', handler);
 }
 
 // Save the latest stars state right before leaving the page to keep them on the next page
