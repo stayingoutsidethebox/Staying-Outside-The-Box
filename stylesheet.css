@@ -185,7 +185,7 @@ font-weight: bold;
   min-height: 100dvh;
   width: 100%;
   transform: translateY(-300%);
-  transition: transform 0.6s ease-in-out;
+  transition: transform 2s ease-in-out;
 }
 
 /* when homepage is "ready", slide it down into view */
