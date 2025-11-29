@@ -105,6 +105,10 @@ button:active {
   color: #880000;
 }
 
+.clean{
+  color:#bdbdbd;
+}
+
 .dead,
 .dead:hover,
 .dead:active {
