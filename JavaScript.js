@@ -357,9 +357,30 @@ let isTransitioning = false;
  */
 function scrollToTopSmooth(duration = 600) {
   return new Promise((resolve) => {
-    const startY = window.scrollY || document.documentElement.scrollTop;
+    const page = document.getElementById('transitionContainer');
 
-    // Already at top
+    // Potential scroll containers (in priority order)
+    const candidates = [
+      page,
+      document.scrollingElement,
+      document.documentElement,
+      document.body
+    ].filter(Boolean);
+
+    // Find the largest current scrollTop among all candidates
+    let startY = 0;
+    for (const el of candidates) {
+      if (el.scrollTop > startY) {
+        startY = el.scrollTop;
+      }
+    }
+
+    // Also look at window.scrollY just in case
+    if (window.scrollY > startY) {
+      startY = window.scrollY;
+    }
+
+    // If everything is already at the top, just resolve
     if (startY <= 0) {
       resolve();
       return;
@@ -377,6 +398,13 @@ function scrollToTopSmooth(duration = 600) {
         : 1 - Math.pow(-2 * t + 2, 2) / 2;
 
       const newY = Math.round(startY * (1 - eased));
+
+      // Apply to all candidate scroll containers
+      for (const el of candidates) {
+        el.scrollTop = newY;
+      }
+
+      // Also set window scroll for good measure
       window.scrollTo(0, newY);
 
       if (t < 1) {
