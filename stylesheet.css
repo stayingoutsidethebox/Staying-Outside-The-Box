@@ -66,6 +66,13 @@ body {
   transform: translateY(-100%);
 }
 
+/*JavaScript Failsafe*/
+#transitionContainer {
+  transform: none !important;
+  transition: none !important;
+  opacity: 1 !important;
+}
+
 main {
   padding-bottom:2dvmin;
 }
