@@ -306,6 +306,31 @@ let isInternalReferrer = false;
 window.addEventListener('load', () => {
   const page = document.getElementById('transitionContainer');
   if (page) {
+    // Measure content height vs viewport height
+    const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
+    const contentHeight = page.offsetHeight;
+
+    // Ratio: 1 = one-screen tall, 2 = twice screen height, etc.
+    let ratio = contentHeight / viewportHeight;
+
+    // Clamp ratio so it doesn't get ridiculous
+    ratio = Math.max(1, Math.min(ratio, 3)); // between 1x and 3x
+
+    // Base duration in seconds for a 1-screen-tall page
+    const baseDuration = 0.5; // adjust to taste
+
+    const durationSeconds = baseDuration * ratio;
+
+    // Put it into a CSS custom property
+    document.documentElement.style.setProperty(
+      '--slide-duration',
+      `${durationSeconds}s`
+    );
+
+    // Now trigger the slide-in
+    requestAnimationFrame(() => {
+      page.classList.add('ready');
+    });
     requestAnimationFrame(() => {
       page.classList.add('ready');
     });
