@@ -145,9 +145,9 @@ article:hover a, article:active a {
   object-fit: cover;
 }
 
-.navButtons:hover img, .navButtons:active img {
+.navButtons a:hover img, .navButtons a:active img {
   border-color: var(--link-dark);
-  box-shadow: var(--shadow); 
+  box-shadow: var(--shadow);
 }
 
 /* Placeholder links */
