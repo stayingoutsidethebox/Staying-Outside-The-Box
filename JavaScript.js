@@ -238,16 +238,6 @@ function createStars() {
   }
 }
 
-
-/*==============================*
- *  SOUND EFFECTS
- *==============================*/
-
-// Sound used for transitions
-const crunch = new Audio("/Resources/Crunch.wav");
-crunch.load();
-
-
 /*==============================*
  *  STAR ANIMATION LOGIC
  *==============================*/
@@ -471,10 +461,6 @@ let isTransitioning = false;
 function transitionTo(url, isMenu = false) {
   if (isTransitioning) return;
   isTransitioning = true;
-  
-  // Play crunch sound
-  crunch.currentTime = 0;
-  crunch.play().catch(console.warn);
 
   // If this navigation came from menu, tell the next page
   if (isMenu) {
