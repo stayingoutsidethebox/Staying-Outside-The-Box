@@ -91,6 +91,8 @@ hr {
   border-radius: 50%;
   border: 3px solid var(--no-link);
   object-fit: cover;
+  transition: box-shadow .2s ease-out,
+              border-color .2s ease-out;
 }
 
 a {
@@ -99,6 +101,8 @@ a {
   color: var(--link-light);
   padding-bottom: 1dvmin;
   margin:0 auto;
+  transition: color .2s ease-out,
+              text-shadow .2s ease-out;
 }
 
 a:hover, a:active, button:hover, button:active {
@@ -145,6 +149,8 @@ article:hover a, article:active a {
   border-radius: 50%;
   border: 3px solid var(--no-link);
   object-fit: cover;
+  transition: box-shadow .2s ease-out,
+              border-color .2s ease-out;
 }
 
 .navButtons a:hover img, .navButtons a:active img {
@@ -169,6 +175,10 @@ button {
   padding: 3dvmin;
   display: block;
   margin: 1dvmin auto;
+  transition: color .2s ease-out,
+              box-shadow .2s ease-out,
+              border-color .2s ease-out,
+              text-shadow .2s ease-out;
 }
 
 button:hover, button:active {
