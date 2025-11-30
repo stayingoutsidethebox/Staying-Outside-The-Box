@@ -45,11 +45,6 @@ window.addEventListener('load', () => {
     try {
       const refUrl = new URL(ref);
       isInternalReferrer = refUrl.origin === window.location.origin;
-      let isMenu = false;
-      //isMenu = if(local storage)
-      if (isMenu) {
-          isInternalReferrer = false;
-      }
     } catch (e) {
       isInternalReferrer = false;
     }
@@ -57,20 +52,26 @@ window.addEventListener('load', () => {
     isInternalReferrer = false;
   }
 
-  const backLink = document.getElementById('homepageBack');
+    const backLink = document.getElementById('homepageBack');
   if (backLink) {
-    if (isInternalReferrer && ref) {
+    if (!suppressHomeBack && isInternalReferrer && ref) {
+      // normal behavior: store back URL
       try {
         localStorage.setItem('homepageBackUrl', ref);
       } catch (err) {
         console.warn('Could not save homepageBackUrl:', err);
       }
+    } else if (suppressHomeBack) {
+      // explicit "no back button" request
+      localStorage.removeItem('homepageBackUrl');
     } else {
+      // external or no referrer
       localStorage.removeItem('homepageBackUrl');
     }
 
     const backUrl = localStorage.getItem('homepageBackUrl');
-    backLink.style.display = backUrl ? 'block' : 'none';
+    backLink.style.display =
+      !suppressHomeBack && backUrl ? 'block' : 'none';
   }
 
   // If we came from an external site, reset stored constellation
@@ -480,9 +481,12 @@ function transitionTo(url, isMenu = false) {
   if (isTransitioning) return;
   isTransitioning = true;
 
-    if (isMenu){
-      //save isMenu to local storage
-      }
+  // If this navigation came from menu, tell the next page
+  if (isMenu) {
+    sessionStorage.setItem('suppressHomeBack', '1');
+  } else {
+    sessionStorage.removeItem('suppressHomeBack');
+  }
   const page = document.getElementById('transitionContainer');
 
   // Special case: 'back'
