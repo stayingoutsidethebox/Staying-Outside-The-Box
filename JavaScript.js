@@ -466,8 +466,15 @@ function updateBgmVolumeFromSpeed() {
 
   // Smoothly interpolate volume toward target
   bgm.volume += (targetVol - bgm.volume) * BGM_LERP_FACTOR;
-}
 
+  // If both speed and volume are tiny, force true silence
+  if (cleanedUserSpeed === 0 && bgm.volume < 0.01) {
+    bgm.volume = 0;
+    //actually stop playback
+    bgm.pause();
+    bgmStarted = false;
+  }
+}
 
 /*==============================*
  *  POINTER SPEED TRACKING
