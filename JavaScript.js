@@ -443,32 +443,22 @@ function updateSpeed(x, y, time) {
  *  INTERACTION / SPEED HANDLERS
  *==============================*/
 
-function initInteractionHandlers() {
-  // Unified movement handler (mouse + touch + pointer)
-  const handleMove = (e) => {
-    let x, y, time = e.timeStamp;
+//Desktop cursor tracking
+window.addEventListener('mousemove', (e) => {
+  updateSpeed(e.clientX, e.clientY, e.timeStamp);
+});
 
-    if (e.touches && e.touches[0]) {
-      x = e.touches[0].clientX;
-      y = e.touches[0].clientY;
-    } else {
-      x = e.clientX;
-      y = e.clientY;
-    }
+// Touch tracking (mobile)
+window.addEventListener('touchmove', (e) => {
+  const t = e.touches[0];
+  updateSpeed(t.clientX, t.clientY, e.timeStamp);
+});
 
-    updateSpeed(x, y, time);
-  };
-
-  if (window.PointerEvent) {
-    window.addEventListener('pointerdown', handleMove);
-    window.addEventListener('pointermove', handleMove);
-  } else {
-    window.addEventListener('mousemove', handleMove);
-    window.addEventListener('touchmove', handleMove, { passive: true });
-    window.addEventListener('touchstart', handleMove, { passive: true });
-  }
-}
-
+// Also treat touchstart as activity so music can begin even before a drag
+window.addEventListener('touchstart', (e) => {
+  const t = e.touches[0];
+  updateSpeed(t.clientX, t.clientY, e.timeStamp);
+});
 
 /*==============================*
  *  PAGE TRANSITIONS & STORAGE
@@ -558,7 +548,6 @@ window.addEventListener('beforeunload', () => {
 resizeCanvas();
 initStars();
 animate();
-initInteractionHandlers();
 
 // Keep canvas in sync with viewport
 window.addEventListener('resize', () => {
