@@ -1,4 +1,4 @@
-/* thank heavens for chatGPT <3 */
+// thank heavens for chatGPT <3
 
 /*==============================*
  *  PAGE LOAD HANDLER (must be at the top)
@@ -7,9 +7,9 @@
 window.addEventListener('load', () => {
   const page = document.getElementById('transitionContainer');
   
-  // NEW: read the flag from sessionStorage
+  // Read the flag from sessionStorage
   const suppressHomeBack = sessionStorage.getItem('suppressHomeBack') === '1';
-  // Optional: clear it so it only applies once
+  // Clear it so it only applies once
   sessionStorage.removeItem('suppressHomeBack');
   
   // Remove hash if present (so #ids don't block the transition)
@@ -28,7 +28,8 @@ window.addEventListener('load', () => {
     const contentHeight = page.offsetHeight;
 
     let ratio = contentHeight / viewportHeight;
-    ratio = Math.max(1, Math.min(ratio, 3)); // clamp between 1× and 3×
+    // Clamp between 1× and 3×
+    ratio = Math.max(1, Math.min(ratio, 3));
 
     const baseDuration = 0.5;
     const durationSeconds = baseDuration * ratio;
@@ -44,8 +45,7 @@ window.addEventListener('load', () => {
     });
   }
 
-  // --- Referrer / back button / constellation reset logic ---
-
+  // Referrer / back button / constellation reset logic
   const ref = document.referrer;
   if (ref) {
     try {
@@ -61,17 +61,17 @@ window.addEventListener('load', () => {
   const backLink = document.getElementById('homepageBack');
   if (backLink) {
     if (!suppressHomeBack && isInternalReferrer && ref) {
-      // normal behavior: store back URL
+      // Normal behavior: store back URL
       try {
         localStorage.setItem('homepageBackUrl', ref);
       } catch (err) {
         console.warn('Could not save homepageBackUrl:', err);
       }
     } else if (suppressHomeBack) {
-      // explicit "no back button" request
+      // Explicit "no back button" request
       localStorage.removeItem('homepageBackUrl');
     } else {
-      // external or no referrer
+      // External or no referrer
       localStorage.removeItem('homepageBackUrl');
     }
 
@@ -124,9 +124,7 @@ window.addEventListener('pageshow', (event) => {
  *  SIMPLE HTML HELPERS
  *==============================*/
 
-/**
- * Toggle visibility of an element by id using the `hidden` attribute.
- */
+// Toggle visibility of an element by id using the `hidden` attribute.
 function toggleElement(id) {
   const element = document.getElementById(id);
   if (element) {
@@ -167,9 +165,7 @@ let stars = [];
  *  UTILITY FUNCTIONS
  *==============================*/
 
-/**
- * Return a random number between min (inclusive) and max (exclusive).
- */
+// Return a random number between min (inclusive) and max (exclusive).
 function randomBetween(min, max) {
   return Math.random() * (max - min) + min;
 }
@@ -179,10 +175,7 @@ function randomBetween(min, max) {
  *  STAR INITIALIZATION
  *==============================*/
 
-/**
- * Initialize stars from localStorage if possible,
- * otherwise create a fresh set.
- */
+// Initialize stars from localStorage if possible, otherwise create a fresh set.
 function initStars() {
   const saved = localStorage.getItem('constellationStars');
 
@@ -226,10 +219,7 @@ function initStars() {
   }
 }
 
-/**
- * Create a fresh star field sized to the current canvas.
- * Used on first load or when no saved stars are valid.
- */
+// Create a fresh star field sized to the current canvas.
 function createStars() {
   stars = [];
 
@@ -264,7 +254,7 @@ bgm.loop = true;
 bgm.volume = 0;
 let bgmStarted = false;
 
-/** Start audio only once on first user interaction */
+// Start audio only once on first user interaction
 function ensureBgmPlaying() {
   if (bgmStarted) return;
   bgmStarted = true;
@@ -279,10 +269,7 @@ function ensureBgmPlaying() {
  *  STAR ANIMATION & BGM VOLUME LOGIC
  *==============================*/
 
-/**
- * Move stars based on their velocity, pointer attraction,
- * opacity twinkling, and edge wrapping.
- */
+// Move stars based on their velocity, pointer attraction, opacity, and wrapping.
 function moveStars() {
   for (const star of stars) {
     // Passive star movement, amplified by user speed
@@ -313,7 +300,7 @@ function moveStars() {
 
     // Opacity / twinkle logic
     if (star.opacity <= 0.005) {
-      // "Respawn" invisible stars
+      // Respawn invisible stars
       star.opacity = 1;
 
       // Chance to flash white
@@ -335,13 +322,13 @@ function moveStars() {
     if (star.y > height) star.y = 0;
   }
   
-  //adjust bgm volume
-  bgm.volume = cleanedUserSpeed * .03;
+  // Adjust bgm volume based on current speed
+  bgm.volume = cleanedUserSpeed * 0.03;
 
   // Slow decay of star and sound speed after interactions
   cleanedUserSpeed *= 0.95;
 
-  // If it's tiny, just call it zero
+  // Stop audio when effectively still
   if (cleanedUserSpeed < 0.05) {
     cleanedUserSpeed = 0;
     bgm.pause();
@@ -349,9 +336,7 @@ function moveStars() {
   }
 }
 
-/**
- * Draw stars and connecting lines based on distances and opacity.
- */
+// Draw stars and connecting lines based on distances and opacity.
 function drawStarsWithLines() {
   brush.clearRect(0, 0, width, height);
 
@@ -401,9 +386,7 @@ function drawStarsWithLines() {
  *  CANVAS RESIZE HANDLING
  *==============================*/
 
-/**
- * Resize the canvas to match the viewport and scale stars accordingly.
- */
+// Resize the canvas to match the viewport and scale stars accordingly.
 function resizeCanvas() {
   const oldWidth = width;
   const oldHeight = height;
@@ -455,13 +438,14 @@ function animate() {
  *  POINTER SPEED TRACKING
  *==============================*/
 
+// Update pointer speed and smoothed speed from coordinates and timestamp.
 function updateSpeed(x, y, time) {
   const dx = x - lastX;
   const dy = y - lastY;
   const dt = time - lastTime;
 
   if (dt > 0) {
-    // px per ms
+    // Pixels per millisecond
     pointerSpeed = Math.sqrt(dx * dx + dy * dy) / dt;
   }
 
@@ -475,6 +459,7 @@ function updateSpeed(x, y, time) {
   lastY = y;
   lastTime = time;
 }
+
 
 /*==============================*
  *  INTERACTION / SPEED HANDLERS
@@ -504,13 +489,13 @@ function initInteractionHandlers() {
     window.addEventListener('pointerdown', handleMove);
     window.addEventListener('pointermove', handleMove);
   } else {
-    // Fallback for very old / weird browsers
+    // Fallback for older browsers
     window.addEventListener('mousemove', handleMove);
     window.addEventListener('touchmove', handleMove, { passive: true });
     window.addEventListener('touchstart', handleMove, { passive: true });
   }
 
-  // Extra "gesture" hooks that don't care about position, just user intent
+  // Extra gesture hooks that don't care about position, just user intent
   const startOnly = () => ensureBgmPlaying();
 
   window.addEventListener('click', startOnly);
@@ -525,23 +510,17 @@ function initInteractionHandlers() {
 let isInternalReferrer = false;
 let isTransitioning = false;
 
-/**
- * Transition to another URL with:
- *  - saving constellation state
- *  - slide-out CSS animation
- *
- * Special case: url === 'back' uses stored internal referrer.
- */
+// Transition to another URL (with constellation save and slide-out).
 function transitionTo(url, isMenu = false) {
   if (isTransitioning) return;
   isTransitioning = true;
 
-  //prevent bgm music from playing
-  bgmStarted=true;
-  bgm.volume=0;
+  // Prevent bgm music from playing during transition
+  bgmStarted = true;
+  bgm.volume = 0;
   bgm.pause();
   
-  // play crunch sound
+  // Play crunch sound
   crunch.currentTime = 0;
   crunch.play().catch(console.warn);
 
@@ -586,9 +565,7 @@ function transitionTo(url, isMenu = false) {
   page.addEventListener('transitionend', handler);
 }
 
-/**
- * Save stars + meta info to localStorage.
- */
+// Save stars + meta info to localStorage.
 function saveStarsToStorage() {
   try {
     localStorage.setItem('constellationStars', JSON.stringify(stars));
@@ -605,10 +582,11 @@ function saveStarsToStorage() {
   }
 }
 
-/* Failsafe: save stars on normal page unload */
+// Failsafe: save stars on normal page unload
 window.addEventListener('beforeunload', () => {
   saveStarsToStorage();
 });
+
 
 /*==============================*
  *  INITIALIZATION
