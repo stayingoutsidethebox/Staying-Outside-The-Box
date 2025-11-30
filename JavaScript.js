@@ -475,6 +475,31 @@ function transitionTo(url) {
   if (isTransitioning) return;
   isTransitioning = true;
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   const page = document.getElementById('transitionContainer');
 
   // Special case: 'back'
