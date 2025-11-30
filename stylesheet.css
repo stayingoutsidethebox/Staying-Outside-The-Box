@@ -171,6 +171,12 @@ button {
   margin: 1dvmin auto;
 }
 
+button:hover, button:active {
+  border-color: var(--link-dark);
+  color: var(--link-dark);
+  box-shadow: var(--shadow);
+}
+
 p {
   margin: 0;
   font-size: 6dvmin;
