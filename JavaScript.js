@@ -536,25 +536,6 @@ window.addEventListener('touchstart', (e) => {
   handlePointerActivityForAudio();
 });
 
-/* Release attraction / reset speed on end of interaction */
-window.addEventListener('touchend', () => {
-  cleanedUserSpeed = 0;
-  smoothSpeed = 0;
-  pointerSpeed = 0;
-
-  // force a fade out on release in case idle timer never fires
-  fadeBgmTo(0);
-});
-
-window.addEventListener('mouseup', () => {
-  cleanedUserSpeed = 0;
-  smoothSpeed = 0;
-  pointerSpeed = 0;
-
-  // force a fade out on release in case idle timer never fires
-  fadeBgmTo(0);
-});
-
 
 
 
