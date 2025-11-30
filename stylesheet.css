@@ -76,6 +76,7 @@ hr {
   border: none;
   height: 3px;
   background-color: var(--no-link);
+  margin: 0;
 }
 
 .divider {
