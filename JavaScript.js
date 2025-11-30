@@ -45,6 +45,28 @@ window.addEventListener('load', () => {
     try {
       const refUrl = new URL(ref);
       isInternalReferrer = refUrl.origin === window.location.origin;
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
     } catch (e) {
       isInternalReferrer = false;
     }
