@@ -335,7 +335,7 @@ function moveStars() {
   }
   
   //adjust bgm volume
-  bgm.volume = cleanedUserSpeed * .1;
+  bgm.volume = cleanedUserSpeed * .03;
 
   // Slow decay of star and sound speed after interactions
   cleanedUserSpeed *= 0.9;
