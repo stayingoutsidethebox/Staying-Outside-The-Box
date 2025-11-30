@@ -3,6 +3,8 @@
  *  PAGE LOAD HANDLER (must be at the top)
  *==============================*/
 
+let originIsMenie = false;
+
 window.addEventListener('load', () => {
   const page = document.getElementById('transitionContainer');
 
