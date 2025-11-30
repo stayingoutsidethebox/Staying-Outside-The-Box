@@ -145,7 +145,7 @@ article:hover a, article:active a {
   object-fit: cover;
 }
 
-navButtons:hover img, navButtons:active img {
+.navButtons:hover img, .navButtons:active img {
   border-color: var(--link-dark);
   box-shadow: var(--shadow); 
 }
