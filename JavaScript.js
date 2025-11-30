@@ -21,7 +21,7 @@ window.addEventListener('load', () => {
   }
 
   if (page) {
-    new Audio("/Resources/crunch.wav").play();
+    new Audio("/Resources/Crunch In.wav").play();
     // Measure height and set slide duration relative to content size
     const viewportHeight =
       window.innerHeight || document.documentElement.clientHeight;
