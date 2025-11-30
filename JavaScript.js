@@ -4,10 +4,13 @@
  *==============================*/
 
 const crunch = new Audio("/Resources/Crunch.wav");
+const bgm = new Audio("/Resources/AmbientLoop.mp3");
+
 window.addEventListener('load', () => {
   const page = document.getElementById('transitionContainer');
   //preload audio
-crunch.load();
+  crunch.load();
+  bgm.load();
   // NEW: read the flag from sessionStorage
   const suppressHomeBack = sessionStorage.getItem('suppressHomeBack') === '1';
   // Optional: clear it so it only applies once
@@ -416,14 +419,82 @@ function animate() {
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*==============================*
+ *  BACKGROUND AMBIENT AUDIO
+ *==============================*/
+
+bgm.loop = true;
+bgm.volume = 0; // start silent
+
+let bgmStarted = false;
+let bgmFadeInterval = null;
+let bgmIdleTimer = null;
+
+const BGM_TARGET_VOL = 0.4; // max volume when moving
+const BGM_FADE_MS = 500;    // fade in/out time in ms
+
+function fadeBgmTo(targetVol) {
+  if (bgmFadeInterval) clearInterval(bgmFadeInterval);
+
+  const steps = 20; // 20 steps over 500ms -> 25ms per step
+  const stepTime = BGM_FADE_MS / steps;
+  const startVol = bgm.volume;
+  const delta = (targetVol - startVol) / steps;
+  let currentStep = 0;
+
+  bgmFadeInterval = setInterval(() => {
+    currentStep++;
+    let v = startVol + delta * currentStep;
+
+    // clamp [0,1]
+    if (v < 0) v = 0;
+    if (v > 1) v = 1;
+
+    bgm.volume = v;
+
+    if (currentStep >= steps) {
+      clearInterval(bgmFadeInterval);
+      bgmFadeInterval = null;
+    }
+  }, stepTime);
+}
+
+function handlePointerActivityForAudio() {
+  // First interaction: start playback
+  if (!bgmStarted) {
+    bgmStarted = true;
+    bgm.play().catch(err => {
+      console.warn("BGM play blocked:", err);
+    });
+  }
+
+  // Fade in toward target volume
+  fadeBgmTo(BGM_TARGET_VOL);
+
+  // Reset idle timer; when pointer stops, fade out
+  if (bgmIdleTimer) clearTimeout(bgmIdleTimer);
+  bgmIdleTimer = setTimeout(() => {
+    fadeBgmTo(0);
+  }, BGM_FADE_MS); // start fading out after 0.5s of no movement
+}
+
 /*==============================*
  *  POINTER SPEED TRACKING
  *==============================*/
 
-/**
- * Update pointer speed and derived smoothed speed,
- * which controls how energetic the constellation is.
- */
 function updateSpeed(x, y, time) {
   const dx = x - lastX;
   const dy = y - lastY;
@@ -448,12 +519,21 @@ function updateSpeed(x, y, time) {
 /* Desktop cursor tracking */
 window.addEventListener('mousemove', (e) => {
   updateSpeed(e.clientX, e.clientY, e.timeStamp);
+  handlePointerActivityForAudio();
 });
 
 /* Touch tracking (mobile) */
 window.addEventListener('touchmove', (e) => {
   const t = e.touches[0];
   updateSpeed(t.clientX, t.clientY, e.timeStamp);
+  handlePointerActivityForAudio();
+});
+
+/* Also treat touchstart as activity so music can begin even before a drag */
+window.addEventListener('touchstart', (e) => {
+  const t = e.touches[0];
+  updateSpeed(t.clientX, t.clientY, e.timeStamp);
+  handlePointerActivityForAudio();
 });
 
 /* Release attraction / reset speed on end of interaction */
@@ -468,6 +548,18 @@ window.addEventListener('mouseup', () => {
   smoothSpeed = 0;
   pointerSpeed = 0;
 });
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 /*==============================*
