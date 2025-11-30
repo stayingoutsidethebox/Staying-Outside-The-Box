@@ -97,6 +97,7 @@ a {
   display: block;
   color: var(--link-light);
   padding-bottom: 1dvmin;
+  margin:0 auto;
 }
 
 a:hover, a:active, button:hover, button:active {
