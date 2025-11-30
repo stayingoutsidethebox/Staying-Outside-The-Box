@@ -431,10 +431,10 @@ function animate() {
  *  BACKGROUND AMBIENT AUDIO
  *==============================*/
 
-const crunch = new Audio("/Resources/Crunch.wav");
-const bgm = new Audio("/Resources/bgmFile.wav");
-crunch.load();
-bgm.load();
+// IMPORTANT: no leading slash if this is a GitHub project page
+const crunch = new Audio("Resources/Crunch.wav");
+const bgm    = new Audio("Resources/AmbientLoop.mp3");
+
 bgm.loop = true;
 bgm.volume = 0; // start silent
 
@@ -442,16 +442,17 @@ let bgmStarted = false;
 let bgmFadeInterval = null;
 let bgmIdleTimer = null;
 
-const BGM_TARGET_VOL = 0.4; // max volume when moving
-const BGM_FADE_MS = 500;    // fade in/out time in ms
+const BGM_TARGET_VOL   = 0.4;  // max volume when moving
+const BGM_FADE_MS      = 1000; // fade in/out time in ms (1s so you really notice)
+const BGM_IDLE_DELAYMS = 600;  // wait this long after last move before fading out
 
 function fadeBgmTo(targetVol) {
   if (bgmFadeInterval) clearInterval(bgmFadeInterval);
 
-  const steps = 20; // 20 steps over 500ms -> 25ms per step
+  const steps    = 40; // more steps = smoother
   const stepTime = BGM_FADE_MS / steps;
   const startVol = bgm.volume;
-  const delta = (targetVol - startVol) / steps;
+  const delta    = (targetVol - startVol) / steps;
   let currentStep = 0;
 
   bgmFadeInterval = setInterval(() => {
@@ -483,11 +484,11 @@ function handlePointerActivityForAudio() {
   // Fade in toward target volume
   fadeBgmTo(BGM_TARGET_VOL);
 
-  // Reset idle timer; when pointer stops, fade out
+  // Reset idle timer; when pointer stops, schedule fade out
   if (bgmIdleTimer) clearTimeout(bgmIdleTimer);
   bgmIdleTimer = setTimeout(() => {
     fadeBgmTo(0);
-  }, BGM_FADE_MS); // start fading out after 0.5s of no movement
+  }, BGM_IDLE_DELAYMS);
 }
 
 /*==============================*
@@ -540,12 +541,18 @@ window.addEventListener('touchend', () => {
   cleanedUserSpeed = 0;
   smoothSpeed = 0;
   pointerSpeed = 0;
+
+  // force a fade out on release in case idle timer never fires
+  fadeBgmTo(0);
 });
 
 window.addEventListener('mouseup', () => {
   cleanedUserSpeed = 0;
   smoothSpeed = 0;
   pointerSpeed = 0;
+
+  // force a fade out on release in case idle timer never fires
+  fadeBgmTo(0);
 });
 
 
