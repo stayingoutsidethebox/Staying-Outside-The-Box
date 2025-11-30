@@ -312,7 +312,7 @@ function moveStars() {
   cleanedUserSpeed *= 0.9;
 
   // If it's tiny, just call it zero
-  if (cleanedUserSpeed < 0.01) {
+  if (cleanedUserSpeed < 0.1) {
     cleanedUserSpeed = 0;
   }
 
@@ -455,28 +455,31 @@ function ensureBgmPlaying() {
 function updateBgmVolumeFromSpeed() {
   if (!bgmStarted) return;
 
-  if (cleanedUserSpeed > 0) {
-    // MOVING: volume follows speed (0–BGM_MAX_VOL)
-    const normalized = Math.max(
-      0,
-      Math.min(cleanedUserSpeed / BGM_SPEED_FOR_MAX, 1)
-    );
-    const targetVol = normalized * BGM_MAX_VOL;
+  // Map cleanedUserSpeed (0–something) to [0, 1]
+  const normalized = Math.max(
+    0,
+    Math.min(cleanedUserSpeed / BGM_SPEED_FOR_MAX, 1)
+  );
 
-    // Smoothly move toward target
-    bgm.volume += (targetVol - bgm.volume) * BGM_LERP_FACTOR;
+  // Desired volume for this frame
+  const targetVol = normalized * BGM_MAX_VOL;
+
+  // Smoothly move current volume toward target
+  const diff = targetVol - bgm.volume;
+
+  if (Math.abs(diff) < 0.001) {
+    // Close enough – snap to target to avoid tiny float drift
+    bgm.volume = targetVol;
   } else {
-    // NOT MOVING: fade down in fixed steps then stop
-    const STEP = 0.02; // volume step per frame
+    // Lerp toward target
+    bgm.volume += diff * BGM_LERP_FACTOR;
+  }
 
-    if (bgm.volume > 0) {
-      bgm.volume = Math.max(0, bgm.volume - STEP);
-    }
-
-    if (bgm.volume === 0) {
-      bgm.pause();
-      bgmStarted = false;
-    }
+  // If we *want* silence AND we're effectively silent, stop the audio
+  if (targetVol === 0 && bgm.volume < 0.005) {
+    bgm.volume = 0;
+    bgm.pause();
+    bgmStarted = false;
   }
 }
 
