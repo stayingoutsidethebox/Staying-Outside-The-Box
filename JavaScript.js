@@ -249,7 +249,39 @@ function createStars() {
 
 
 /*==============================*
- *  STAR ANIMATION LOGIC
+ *  BACKGROUND AMBIENT AUDIO
+ *==============================*/
+
+// Sound used for transitions
+const crunch = new Audio("/Resources/Crunch.wav");
+crunch.load();
+
+// Background ambience
+const bgm = new Audio("/Resources/bgmFile.wav");
+bgm.load();
+bgm.loop = true;
+bgm.volume = 0;
+let bgmStarted = false;
+
+/** Start audio only once on first user interaction */
+function ensureBgmPlaying() {
+  if (bgmStarted) return;
+  bgmStarted = true;
+
+  bgm.play().catch(err => {
+    console.warn("BGM play blocked or failed:", err);
+  });
+  
+  //stop bgm when its off
+  if (bgm.volume == 0) {
+    bgm.pause();
+    bgmStarted = false;
+  }
+}
+
+
+/*==============================*
+ *  STAR ANIMATION & BGM VOLUME LOGIC
  *==============================*/
 
 /**
@@ -307,8 +339,11 @@ function moveStars() {
     if (star.y < 0) star.y = height;
     if (star.y > height) star.y = 0;
   }
+  
+  //adjust bgm volume
+  bgm.volume = cleanedUserSpeed * .1;
 
-  // Slow decay of constellation speed after interactions
+  // Slow decay of star and sound speed after interactions
   cleanedUserSpeed *= 0.9;
 
   // If it's tiny, just call it zero
@@ -316,8 +351,6 @@ function moveStars() {
     cleanedUserSpeed = 0;
   }
 
-  // Update music volume based on current speed
-  updateBgmVolumeFromSpeed();
 }
 
 /**
@@ -421,67 +454,6 @@ function animate() {
   requestAnimationFrame(animate);
 }
 
-
-/*==============================*
- *  BACKGROUND AMBIENT AUDIO
- *==============================*/
-
-// Sound used for transitions
-const crunch = new Audio("/Resources/Crunch.wav");
-
-// Background ambience – change filename to your actual loop
-const bgm = new Audio("/Resources/bgmFile.wav");
-bgm.loop = true;
-bgm.volume = 0; // start silent
-
-let bgmStarted = false;
-
-// CONFIG
-const BGM_MAX_VOL       = 0.4; // max volume at high speed
-const BGM_SPEED_FOR_MAX = 5.0; // cleanedUserSpeed value that maps to BGM_MAX_VOL
-const BGM_LERP_FACTOR   = 0.05; // smoothing factor
-
-/** Start audio only once on first user interaction */
-function ensureBgmPlaying() {
-  if (bgmStarted) return;
-  bgmStarted = true;
-
-  bgm.play().catch(err => {
-    console.warn("BGM play blocked or failed:", err);
-  });
-}
-
-/** Called every frame — sync volume to current user speed */
-function updateBgmVolumeFromSpeed() {
-  if (!bgmStarted) return;
-
-  // Map cleanedUserSpeed (0–something) to [0, 1]
-  const normalized = Math.max(
-    0,
-    Math.min(cleanedUserSpeed / BGM_SPEED_FOR_MAX, 1)
-  );
-
-  // Desired volume for this frame
-  const targetVol = normalized * BGM_MAX_VOL;
-
-  // Smoothly move current volume toward target
-  const diff = targetVol - bgm.volume;
-
-  if (Math.abs(diff) < 0.001) {
-    // Close enough – snap to target to avoid tiny float drift
-    bgm.volume = targetVol;
-  } else {
-    // Lerp toward target
-    bgm.volume += diff * BGM_LERP_FACTOR;
-  }
-
-  // If we *want* silence AND we're effectively silent, stop the audio
-  if (targetVol === 0 && bgm.volume < 0.005) {
-    bgm.volume = 0;
-    bgm.pause();
-    bgmStarted = false;
-  }
-}
 
 /*==============================*
  *  POINTER SPEED TRACKING
