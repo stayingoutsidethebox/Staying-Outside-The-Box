@@ -240,33 +240,16 @@ function createStars() {
 
 
 /*==============================*
- *  BACKGROUND AMBIENT AUDIO
+ *  SOUND EFFECTS
  *==============================*/
 
 // Sound used for transitions
 const crunch = new Audio("/Resources/Crunch.wav");
 crunch.load();
 
-// Background ambience
-const bgm = new Audio("/Resources/bgmFile.wav");
-bgm.load();
-bgm.loop = true;
-bgm.volume = 0;
-let bgmStarted = false;
-
-// Start audio only once on first user interaction
-function ensureBgmPlaying() {
-  if (bgmStarted) return;
-  bgmStarted = true;
-
-  bgm.play().catch(err => {
-    console.warn("BGM play blocked or failed:", err);
-  });
-}
-
 
 /*==============================*
- *  STAR ANIMATION & BGM VOLUME LOGIC
+ *  STAR ANIMATION LOGIC
  *==============================*/
 
 // Move stars based on their velocity, pointer attraction, opacity, and wrapping.
@@ -321,18 +304,13 @@ function moveStars() {
     if (star.y < 0) star.y = height;
     if (star.y > height) star.y = 0;
   }
-  
-  // Adjust bgm volume based on current speed
-  bgm.volume = cleanedUserSpeed * 0.03;
 
-  // Slow decay of star and sound speed after interactions
+  // Slow decay of constellation speed after interactions
   cleanedUserSpeed *= 0.95;
 
-  // Stop audio when effectively still
+  // Clamp tiny values to zero
   if (cleanedUserSpeed < 0.05) {
     cleanedUserSpeed = 0;
-    bgm.pause();
-    bgmStarted = false;
   }
 }
 
@@ -466,40 +444,29 @@ function updateSpeed(x, y, time) {
  *==============================*/
 
 function initInteractionHandlers() {
-  // Unified movement handler
+  // Unified movement handler (mouse + touch + pointer)
   const handleMove = (e) => {
     let x, y, time = e.timeStamp;
 
     if (e.touches && e.touches[0]) {
-      // Touch event
       x = e.touches[0].clientX;
       y = e.touches[0].clientY;
     } else {
-      // Pointer / mouse event
       x = e.clientX;
       y = e.clientY;
     }
 
     updateSpeed(x, y, time);
-    ensureBgmPlaying();
   };
 
-  // Pointer events (modern browsers: mouse + touch)
   if (window.PointerEvent) {
     window.addEventListener('pointerdown', handleMove);
     window.addEventListener('pointermove', handleMove);
   } else {
-    // Fallback for older browsers
     window.addEventListener('mousemove', handleMove);
     window.addEventListener('touchmove', handleMove, { passive: true });
     window.addEventListener('touchstart', handleMove, { passive: true });
   }
-
-  // Extra gesture hooks that don't care about position, just user intent
-  const startOnly = () => ensureBgmPlaying();
-
-  window.addEventListener('click', startOnly);
-  window.addEventListener('keydown', startOnly);
 }
 
 
@@ -514,11 +481,6 @@ let isTransitioning = false;
 function transitionTo(url, isMenu = false) {
   if (isTransitioning) return;
   isTransitioning = true;
-
-  // Prevent bgm music from playing during transition
-  bgmStarted = true;
-  bgm.volume = 0;
-  bgm.pause();
   
   // Play crunch sound
   crunch.currentTime = 0;
