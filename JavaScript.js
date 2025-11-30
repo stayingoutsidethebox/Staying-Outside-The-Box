@@ -271,12 +271,6 @@ function ensureBgmPlaying() {
   bgm.play().catch(err => {
     console.warn("BGM play blocked or failed:", err);
   });
-  
-  //stop bgm when its off
-  if (bgm.volume == 0) {
-    bgm.pause();
-    bgmStarted = false;
-  }
 }
 
 
@@ -349,8 +343,9 @@ function moveStars() {
   // If it's tiny, just call it zero
   if (cleanedUserSpeed < 0.1) {
     cleanedUserSpeed = 0;
+    bgm.pause();
+    bgmStarted = false;
   }
-
 }
 
 /**
