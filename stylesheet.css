@@ -89,8 +89,8 @@ hr {
 }
 
 img {
-  width: 20dvmin;
-  height: 20dvmin;
+  width: 40dvmin;
+  height: 40dvmin;
   padding: 2dvmin;
   border-radius: 50%;
   border: 3px solid var(--no-link);
@@ -98,6 +98,8 @@ img {
 
 /* Homepage circular image buttons */
 .imgButton {
+  width: 20dvmin;
+  height: 20dvmin;
   font: 1dvmin Arial;              /* Backup text if image fails */
   object-fit: cover;
   transition: box-shadow .2s ease-out,
