@@ -23,7 +23,7 @@ body::before {
   inset: 0;
   width: 100dvw;
   height: 100dvh;
-  background-image: url("/Resources/Background.jpg");
+  background-image: url("/Resources/Background.webp");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -77,7 +77,7 @@ h2 {
 hr {
   border: none;
   height: 4px;
-  background-image: url('/Resources/Hr.png'); /* Custom horizontal rule */
+  background-image: url('/Resources/Hr.webp'); /* Custom horizontal rule */
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center;
