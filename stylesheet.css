@@ -88,14 +88,17 @@ hr {
   width: 45dvw;                    /* Smaller custom divider variant */
 }
 
-/* Homepage circular image buttons */
-.imgButton {
+img {
   width: 20dvmin;
   height: 20dvmin;
   padding: 2dvmin;
-  font: 1dvmin Arial;              /* Backup text if image fails */
   border-radius: 50%;
   border: 3px solid var(--no-link);
+}
+
+/* Homepage circular image buttons */
+.imgButton {
+  font: 1dvmin Arial;              /* Backup text if image fails */
   object-fit: cover;
   transition: box-shadow .2s ease-out,
               border-color .2s ease-out;
