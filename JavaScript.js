@@ -39,7 +39,7 @@ window.addEventListener('load', () => {
       `${durationSeconds}s`
     );
 
-    // Allow CSS to see the "ready" state AND do Safari repaint hack
+    // Allow CSS to see the "ready" state for entrance animation
     requestAnimationFrame(() => {
       page.classList.add('ready');
     });
