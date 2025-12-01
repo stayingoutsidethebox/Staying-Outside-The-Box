@@ -87,6 +87,21 @@ window.addEventListener('load', () => {
     localStorage.removeItem('constellationStars');
     localStorage.removeItem('constellationMeta');
   }
+  //redraw page to fix safari bug
+  if (page) {
+    requestAnimationFrame(() => {
+      page.classList.add('ready');
+
+      // Safari repaint hack for <hr> inside transformed container
+      const hrs = document.querySelectorAll('hr');
+      hrs.forEach(hr => {
+        // Toggle display to force a layout/repaint
+        hr.style.display = 'none';
+        void hr.offsetHeight; // trigger reflow
+        hr.style.display = '';
+      });
+    });
+  }
 });
 
 /*==============================*
