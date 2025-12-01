@@ -42,14 +42,6 @@ window.addEventListener('load', () => {
     // Allow CSS to see the "ready" state AND do Safari repaint hack
     requestAnimationFrame(() => {
       page.classList.add('ready');
-
-      // Safari repaint hack for <hr> inside transformed container
-      const hrs = document.querySelectorAll('hr');
-      hrs.forEach((hr) => {
-        hr.style.display = 'none';
-        void hr.offsetHeight; // force reflow
-        hr.style.display = '';
-      });
     });
   }
 
