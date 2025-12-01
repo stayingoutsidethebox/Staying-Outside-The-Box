@@ -11,9 +11,8 @@ window.addEventListener('load', () => {
   
   // Read the flag from sessionStorage
   const suppressHomeBack = sessionStorage.getItem('suppressHomeBack') === '1';
-  // Clear it so it only applies once
   sessionStorage.removeItem('suppressHomeBack');
-  
+
   // Remove hash if present (so #ids don't block the transition)
   if (window.location.hash) {
     history.replaceState(
@@ -30,8 +29,7 @@ window.addEventListener('load', () => {
     const contentHeight = page.offsetHeight;
 
     let ratio = contentHeight / viewportHeight;
-    // Clamp between 1× and 3×
-    ratio = Math.max(1, Math.min(ratio, 3));
+    ratio = Math.max(1, Math.min(ratio, 3)); // Clamp 1–3×
 
     const baseDuration = 0.5;
     const durationSeconds = baseDuration * ratio;
@@ -41,9 +39,17 @@ window.addEventListener('load', () => {
       `${durationSeconds}s`
     );
 
-    // Allow CSS to see the "ready" state for entrance animation
+    // Allow CSS to see the "ready" state AND do Safari repaint hack
     requestAnimationFrame(() => {
       page.classList.add('ready');
+
+      // Safari repaint hack for <hr> inside transformed container
+      const hrs = document.querySelectorAll('hr');
+      hrs.forEach((hr) => {
+        hr.style.display = 'none';
+        void hr.offsetHeight; // force reflow
+        hr.style.display = '';
+      });
     });
   }
 
@@ -63,17 +69,14 @@ window.addEventListener('load', () => {
   const backLink = document.getElementById('homepageBack');
   if (backLink) {
     if (!suppressHomeBack && isInternalReferrer && ref) {
-      // Normal behavior: store back URL
       try {
         localStorage.setItem('homepageBackUrl', ref);
       } catch (err) {
         console.warn('Could not save homepageBackUrl:', err);
       }
     } else if (suppressHomeBack) {
-      // Explicit "no back button" request
       localStorage.removeItem('homepageBackUrl');
     } else {
-      // External or no referrer
       localStorage.removeItem('homepageBackUrl');
     }
 
@@ -86,21 +89,6 @@ window.addEventListener('load', () => {
   if (!isInternalReferrer) {
     localStorage.removeItem('constellationStars');
     localStorage.removeItem('constellationMeta');
-  }
-  //redraw page to fix safari bug
-  if (page) {
-    requestAnimationFrame(() => {
-      page.classList.add('ready');
-
-      // Safari repaint hack for <hr> inside transformed container
-      const hrs = document.querySelectorAll('hr');
-      hrs.forEach(hr => {
-        // Toggle display to force a layout/repaint
-        hr.style.display = 'none';
-        void hr.offsetHeight; // trigger reflow
-        hr.style.display = '';
-      });
-    });
   }
 });
 
