@@ -78,7 +78,7 @@ hr {
   border: none;
   height: 4px;
   background-image: url('/Resources/Hr.png');
-  background-size: contain;
+  background-size: cover;
   background-repeat: no-repeat;
   background-position: center;
   width: 50dvw;
