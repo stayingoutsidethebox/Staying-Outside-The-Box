@@ -14,11 +14,11 @@ html {
   background-color: #300060;      /* Fallback background color */
   margin: 0;
   padding: 0;
-  overflow: hidden;               /* Disable window-level scrolling */
+  overflow: hidden;
 }
 
 body::before {
-  content: "";                    /* Required pseudo-element */
+  content: "";
   position: fixed;
   inset: 0;
   width: 100dvw;
@@ -27,8 +27,8 @@ body::before {
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  z-index: -3;                    /* Sits behind canvas layer */
-  pointer-events: none;           /* Prevent interaction */
+  z-index: -2;
+  pointer-events: none;
 }
 
 body {
@@ -69,10 +69,6 @@ section {
  *  GENERAL CONTENT STYLES
  *=============================*/
 
-h1 {
-  z-index: -2;
-}
-
 h2 {
   font-size: 4dvmin;
   margin-top: -7dvmin;
@@ -86,11 +82,10 @@ hr {
   background-repeat: no-repeat;
   background-position: center;
   width: 75dvw;
-  z-index:-2;
 }
 
 .divider {
-  width: 25dvw;
+  width: 45dvw;
 }
 
 /* Homepage circular image buttons */
