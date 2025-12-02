@@ -365,8 +365,8 @@ function resizeCanvas() {
   canvas.height = height;
 
   scaleFactor = width + height;
-  if (scaleFactor > 1500) {
-    scaleFactor = 1500;
+  if (scaleFactor > 2000) {
+    scaleFactor = 2000;
   }
 
   maxStarCount = scaleFactor / 10;
