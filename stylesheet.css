@@ -215,7 +215,7 @@ button {
   border-image-repeat: stretch;  /* or round if you want repeating texture */
 
   /* Text effect – background image fills the text */
-  background: url("/Resources/Hr.webp") center/cover;
+  background: url("/Resources/Button.png") center/cover;
   color: transparent;
   -webkit-background-clip: text;
   background-clip: text;
