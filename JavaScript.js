@@ -251,13 +251,14 @@ function moveStars() {
       const dx = lastX - star.x;
       const dy = lastY - star.y;
       const screenSizeModifier = (scaleFactor / 1250) ** 3;
-      const distSq = (dx * dx + dy * dy) * screenSizeModifier;
+      const distSq = dx * dx + dy * dy;
 
-      const maxInfluence = 130 * 130; // ~130px influence radius
+      const maxInfluence = 130 * 130 * screenSizeModifier;
       if (distSq > 4 && distSq < maxInfluence) {
+        //faster when closer
         const baseForce = 0.008 * cleanedUserSpeed;
         const proximity = (maxInfluence - distSq) / maxInfluence;
-        const pull = baseForce * proximity;
+        const pull = baseForce * proximity * screenSizeModifier;
 
         star.x += dx * pull;
         star.y += dy * pull;
