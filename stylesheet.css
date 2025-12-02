@@ -205,11 +205,15 @@ button {
               border-color .2s ease-out,
               text-shadow .2s ease-out;
               
-  border: 1dvmin solid transparent; /* required */
+  border: 1dvmin solid transparent;
+
+  /* Use a NUMBER for the slice (tune this) */
   border-image-source: url('/Resources/Hr.webp');
-  border-image-slice: 3dvmin;          /* tells CSS how to slice the image */
-  border-image-width: 1dvmin;        /* border thickness */
-  border-image-repeat: stretch;
+  border-image-slice: 30;        /* try 20–60 and see what looks right */
+  border-image-width: 1dvmin;    /* this can be dvmin – controls thickness */
+  border-image-repeat: stretch;  /* or round if you want repeating texture */
+
+  /* Text effect – background image fills the text */
   background: url("/Resources/Hr.webp") center/cover;
   color: transparent;
   -webkit-background-clip: text;
