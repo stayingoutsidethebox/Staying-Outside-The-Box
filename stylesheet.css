@@ -204,17 +204,15 @@ button {
 
   /* IMAGE BORDER */
   border-image-source: url('/Resources/Hr.png');
-  /* tune this for your asset – smaller if it’s a tall button image */
-  border-image-slice: 4;              /* try 2–8 and see what looks best */
+  border-image-slice: 8;
   border-image-width: 1dvmin;
-  border-image-repeat: round;         /* avoids ugly stretching */
-
-  cursor: pointer;
+  border-image-repeat: round;
 
   transition:
     box-shadow .2s ease-out,
     text-shadow .2s ease-out,
-    filter .2s ease-out;
+    color .2s ease-out,
+    border-color .2s ease-out;
 }
 
 /* INNER SPAN: hollow image text */
