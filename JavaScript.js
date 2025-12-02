@@ -256,7 +256,7 @@ function moveStars() {
       const maxInfluence = 130 * 130 * screenSizeModifier;
       if (distSq > 4 && distSq < maxInfluence) {
         //faster when closer
-        const baseForce = 0.001 * cleanedUserSpeed;
+        const baseForce = 0.005 * cleanedUserSpeed;
         const proximity = (maxInfluence - distSq) / maxInfluence;
         const pull = baseForce * proximity;
 
