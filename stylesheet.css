@@ -205,7 +205,7 @@ button {
               border-color .2s ease-out,
               text-shadow .2s ease-out;
               
-  border: 10px solid transparent; /* required */
+  border: 1dvmin solid transparent; /* required */
   border-image-source: url('/Resources/Hr.webp');
   border-image-slice: 3dvmin;          /* tells CSS how to slice the image */
   border-image-width: 1dvmin;        /* border thickness */
