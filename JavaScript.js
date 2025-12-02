@@ -250,7 +250,7 @@ function moveStars() {
     if (lastTime !== 0 && cleanedUserSpeed > 0.19) {
       const dx = lastX - star.x;
       const dy = lastY - star.y;
-      const screenSizeModifier = (scaleFactor / 1250) ** 3;
+      const screenSizeModifier = (scaleFactor / 1100) ** 3;
       const distSq = dx * dx + dy * dy;
 
       const maxInfluence = 130 * 130 * screenSizeModifier;
@@ -420,7 +420,7 @@ function updateSpeed(x, y, time) {
   smoothSpeed = smoothSpeed * 0.8 + pointerSpeed * 10;
 
   // Normalize to avoid extreme speeds
-  cleanedUserSpeed = Math.min(smoothSpeed * (scaleFactor / 1250) ** 2, 10);
+  cleanedUserSpeed = Math.min(smoothSpeed * (scaleFactor / 1100) ** 2, 10);
 
   lastX = x;
   lastY = y;
