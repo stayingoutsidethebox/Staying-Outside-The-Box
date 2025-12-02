@@ -216,7 +216,7 @@ button {
 button .innerButton {
   display: inline-block;
 
-  background-image: url("/Resources/Hr.png");
+  background-image: url("/Resources/Button.png");
   background-size: cover;
   background-position: center;
 
