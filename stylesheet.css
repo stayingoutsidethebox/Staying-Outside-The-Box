@@ -197,7 +197,7 @@ button {
   display: block;
   margin: 1dvmin auto;
   
-  background-image: url("/Resources/He.png");
+  background-image: url("/Resources/Hr.png");
   background-size: cover;
   background-position: center;
 
@@ -212,6 +212,10 @@ button {
     text-shadow .2s ease-out,
     color .2s ease-out,
     border-color .2s ease-out;
+}
+
+.innerButton{
+  /*url for image*/
 }
 
 /* HOVER: border + text react together */
