@@ -191,22 +191,18 @@ article:active a {
  *========================================*/
 
 button {
-  padding: 1dvmin 4dvmin;
   font-family: 'New Rocker';
   font-size: 5dvmin;
   border-radius: 9999px;
   display: block;
   margin: 1dvmin auto;
+  background-color:blue;
 
-  /* Transparent center, image border only */
-  background: transparent;
-  border: 1dvmin solid transparent;   /* required for border-image to show */
-
-  /* IMAGE BORDER */
-  border-image-source: url('/Resources/Hr.png');
-  border-image-slice: 8;
-  border-image-width: 1dvmin;
-  border-image-repeat: round;
+  border: 3dvmin solid transparent;
+  
+  color: transparent;
+  -webkit-background-clip: text;
+  background-clip: text;
 
   transition:
     box-shadow .2s ease-out,
@@ -215,23 +211,12 @@ button {
     border-color .2s ease-out;
 }
 
-/* INNER SPAN: hollow image text */
-.innerButton {
-  background: url("/Resources/Button.png") center/cover no-repeat;
-  color: transparent;
-  -webkit-background-clip: text;
-  background-clip: text;
-
-  transition:
-    color .2s ease-out,
-    background .2s ease-out,
-    text-shadow .2s ease-out;
-}
-
 /* HOVER: border + text react together */
 button:hover,
 button:active {
   box-shadow: var(--shadow);
+  border-color: var(--link-dark);
+  color: var(--link-dark);
   text-shadow: var(--shadow);
 }
 
