@@ -203,7 +203,7 @@ button {
   border: 1dvmin solid transparent;   /* required for border-image to show */
 
   /* IMAGE BORDER */
-  border-image-source: url('/Resources/Button.webp');
+  border-image-source: url('/Resources/Hr.png');
   /* tune this for your asset – smaller if it’s a tall button image */
   border-image-slice: 4;              /* try 2–8 and see what looks best */
   border-image-width: 1dvmin;
@@ -219,7 +219,7 @@ button {
 
 /* INNER SPAN: hollow image text */
 .innerButton {
-  background: url("/Resources/Button.webp") center/cover no-repeat;
+  background: url("/Resources/Button.png") center/cover no-repeat;
   color: transparent;
   -webkit-background-clip: text;
   background-clip: text;
