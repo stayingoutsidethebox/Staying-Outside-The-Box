@@ -37,6 +37,7 @@ body {
   align-items: stretch;
 
   min-height: 100dvh;                        /* Ensure body fills viewport */
+  height: 100dvh;                            /* <-- add this back */
   overflow: hidden;                          /* Prevent body-level scrolling */
   margin: 0;
   padding: 0;
