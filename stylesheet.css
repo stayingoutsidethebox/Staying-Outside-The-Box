@@ -1,9 +1,9 @@
 :root {
-  --slide-duration: 0.6s;          /* Shared duration for all slide animations */
-  --shadow: 0 0 20px rgba(150, 0, 255, 1);  /* Purple glow used for hover effects */
-  --link-light: #ee0000;           /* Default link color */
-  --link-dark: #880000;            /* Hover/active link color */
-  --no-link: #bdbdbd;              /* Neutral text / inactive icon color */
+  --slide-duration: 0.6s;                    /* Shared duration for all slide animations */
+  --shadow: 0 0 20px rgba(150, 0, 255, 1);   /* Purple glow used for hover effects */
+  --link-light: #ee0000;                     /* Default link color */
+  --link-dark: #880000;                      /* Hover/active link color */
+  --no-link: #bdbdbd;                        /* Neutral text / inactive icon color */
 }
 
 /*========================================*
@@ -11,15 +11,15 @@
  *========================================*/
 
 html {
-  background-color: #300060;       /* Fallback solid background */
   margin: 0;
   padding: 0;
   overflow: hidden;
+  background-color: #300060;                 /* Fallback solid background */
 }
 
 body::before {
-  content: "";                     /* Required to render ::before element */
-  position: fixed;                 /* Full-screen static background image */
+  content: "";                               /* Required to render ::before element */
+  position: fixed;                           /* Full-screen static background image */
   inset: 0;
   width: 100dvw;
   height: 100dvh;
@@ -27,42 +27,42 @@ body::before {
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  z-index: -2;                     /* Behind canvas + content */
-  pointer-events: none;            /* Allow clicks to pass through */
+  z-index: -2;                               /* Behind canvas + content */
+  pointer-events: none;                      /* Allow clicks to pass through */
 }
 
 body {
-  overflow: hidden;                /* Prevent body-level scrolling */
-  min-height: 100dvh;              /* Ensure body fills viewport */
-  height: 100dvh;
-  background: transparent;
-  margin: 0;
-  padding: 0;
-  text-align: center;
-  font-family: 'New Rocker';
-  color: var(--no-link);
-  font-size: 7dvmin;
-
-  display: flex;                   /* Vertical layout wrapper */
+  display: flex;                             /* Vertical layout wrapper */
   flex-direction: column;
   align-items: stretch;
+
+  min-height: 100dvh;                        /* Ensure body fills viewport */
+  overflow: hidden;                          /* Prevent body-level scrolling */
+  margin: 0;
+  padding: 0;
+  background: transparent;
+
+  text-align: center;
+  font-family: 'New Rocker';
+  font-size: 7dvmin;
+  color: var(--no-link);
 }
 
 #constellations {
-  position: fixed;                 /* Full-screen animated canvas overlay */
+  position: fixed;                           /* Full-screen animated canvas overlay */
   inset: 0;
   width: 100%;
   height: 100%;
-  z-index: -1;                     /* Above background, behind content */
-  pointer-events: none;            /* Don't block clicks */
+  z-index: -1;                               /* Above background, behind content */
+  pointer-events: none;                      /* Don't block clicks */
 }
 
 main {
-  padding-bottom: 2dvmin;          /* Breathing room at bottom of page */
+  padding-bottom: 2dvmin;                    /* Breathing room at bottom of page */
 }
 
 section {
-  padding: 1dvmin;                 /* Consistent section spacing */
+  padding: 1dvmin;                           /* Consistent section spacing */
 }
 
 /*========================================*
@@ -70,22 +70,22 @@ section {
  *========================================*/
 
 h2 {
+  margin-top: -7dvmin;                       /* Pull headings upward for styling */
   font-size: 4dvmin;
-  margin-top: -7dvmin;             /* Pull headings upward for styling */
 }
 
 hr {
-  border: none;
+  width: 75dvw;
   height: 4px;
-  background-image: url('/Resources/Hr.webp'); /* Custom horizontal rule */
+  border: none;
+  background-image: url("/Resources/Hr.webp"); /* Custom horizontal rule */
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center;
-  width: 75dvw;
 }
 
 .divider {
-  width: 45dvw;                    /* Smaller custom divider variant */
+  width: 45dvw;                              /* Smaller custom divider variant */
 }
 
 img {
@@ -100,25 +100,30 @@ img {
 .imgButton {
   width: 20dvmin;
   height: 20dvmin;
-  font: 1dvmin Arial;              /* Backup text if image fails */
+  font: 1dvmin Arial;                        /* Backup text if image fails */
   object-fit: cover;
-  transition: box-shadow .2s ease-out,
-              border-color .2s ease-out;
+  transition:
+    box-shadow 0.2s ease-out,
+    border-color 0.2s ease-out;
 }
 
 a {
-  display: block;                  /* Allows centered width control */
+  display: block;                            /* Allows centered width control */
   width: fit-content;
-  color: var(--link-light);
-  padding-bottom: 1dvmin;
   margin: 0 auto;
-  transition: color .2s ease-out,
-              text-shadow .2s ease-out;
+  padding-bottom: 1dvmin;
+  color: var(--link-light);
+  transition:
+    color 0.2s ease-out,
+    text-shadow 0.2s ease-out;
 }
 
-a:hover, a:active, button:hover, button:active {
-  color: var(--link-dark);         /* Hover link color */
-  text-shadow: var(--shadow);      /* Glow effect */
+a:hover,
+a:active,
+button:hover,
+button:active {
+  color: var(--link-dark);                   /* Hover link color */
+  text-shadow: var(--shadow);                /* Glow effect */
 }
 
 /* Light-colored, neutral links */
@@ -166,8 +171,9 @@ article:active a {
   border-radius: 50%;
   border: 3px solid var(--no-link);
   object-fit: cover;
-  transition: box-shadow .2s ease-out,
-              border-color .2s ease-out;
+  transition:
+    box-shadow 0.2s ease-out,
+    border-color 0.2s ease-out;
 }
 
 .navButtons a:hover img,
@@ -183,7 +189,7 @@ article:active a {
 .dead,
 .dead:hover,
 .dead:active {
-  color: var(--link-dark);         /* Always appear slightly dimmed */
+  color: var(--link-dark);                   /* Always appear slightly dimmed */
 }
 
 /*========================================*
@@ -191,33 +197,33 @@ article:active a {
  *========================================*/
 
 button {
-    -webkit-appearance: none;
+  -webkit-appearance: none;
   appearance: none;
-  
-font-family: 'New Rocker';
-  font-size: 5dvmin;
+
   display: block;
   margin: 1dvmin auto;
   padding: 0.5em 1.5em;
 
-  border-radius: 9999px;
   border: none;
+  border-radius: 9999px;
   background: transparent;
+
+  font-family: 'New Rocker';
+  font-size: 5dvmin;
 
   background-image: url("/Resources/Border.png");
   background-size: 110% 110%;
   background-position: center;
   background-repeat: no-repeat;
 
-  transition: 
-    box-shadow .2s ease-out,
-    text-shadow .2s ease-out,
-    color .2s ease-out;
+  transition:
+    box-shadow 0.2s ease-out,
+    text-shadow 0.2s ease-out,
+    color 0.2s ease-out;
 }
 
 button span {
-
-display: inline-block;
+  display: inline-block;
 
   background-image: url("/Resources/Hr.webp");
   background-size: cover;
@@ -230,19 +236,25 @@ display: inline-block;
   background-clip: text;
 }
 
-button:hover, button:active {
+button:hover,
+button:active {
   box-shadow: var(--shadow);
 }
 
-button:hover span, button:active span {
+button:hover span,
+button:active span {
   background-image: none;
   -webkit-background-clip: border-box;
   background-clip: border-box;
 
-text-shadow: var(--shadow);
   color: var(--link-light);
   -webkit-text-fill-color: var(--link-light);
+  text-shadow: var(--shadow);
 }
+
+/*========================================*
+ *  PARAGRAPHS & PREMIUM TEXT
+ *========================================*/
 
 p {
   margin: 0;
@@ -250,59 +262,61 @@ p {
 }
 
 .premium {
-  text-shadow: var(--shadow);      /* Highlighted premium text */
+  text-shadow: var(--shadow);                /* Highlighted premium text */
 }
 
 /*========================================*
  *  CHARACTER NAME COLORS (SCRIPT PAGES)
  *========================================*/
 
-.roman, .sage {
+/* Shared character name styling */
+.roman,
+.sage,
+.elena,
+.iris,
+.darian,
+.walter,
+.trent,
+.dave,
+.fireRider,
+.sidecharacter {
   margin-top: 1em;
-  color: red;
   font-weight: bold;
+}
+
+/* Individual colors */
+.roman,
+.sage {
+  color: red;
 }
 
 .elena {
-  margin-top: 1em;
   color: yellow;
-  font-weight: bold;
 }
 
-.iris, .darian {
-  margin-top: 1em;
+.iris,
+.darian {
   color: blue;
-  font-weight: bold;
 }
 
 .walter {
-  margin-top: 1em;
   color: brown;
-  font-weight: bold;
 }
 
 .trent {
-  margin-top: 1em;
   color: orange;
-  font-weight: bold;
 }
 
 .dave {
-  margin-top: 1em;
   color: pink;
-  font-weight: bold;
 }
 
 .fireRider {
-  margin-top: 1em;
   color: firebrick;
-  font-weight: bold;
 }
 
 .sidecharacter {
-  margin-top: 1em;
   color: inherit;
-  font-weight: bold;
 }
 
 /*========================================*
@@ -311,17 +325,17 @@ p {
 
 /* Scrollable content wrapper */
 #transitionContainer {
-  flex: 1;                         /* Take remaining vertical space */
+  flex: 1;                                   /* Take remaining vertical space */
   min-height: 100dvh;
   width: 100%;
-  overflow-y: auto;                /* Local vertical scroll */
+  overflow-y: auto;                          /* Local vertical scroll */
   overflow-x: hidden;
+  transition: transform var(--slide-duration) ease-in-out;
 }
 
 /*--- Homepage animation (slides downward into view) ---*/
 .homeJs #transitionContainer {
   transform: translateY(-100%);
-  transition: transform var(--slide-duration) ease-in-out;
 }
 
 .homeJs #transitionContainer.ready {
@@ -335,7 +349,6 @@ p {
 /*--- Other pages animation (slides upward into view) ---*/
 .otherJs #transitionContainer {
   transform: translateY(100%);
-  transition: transform var(--slide-duration) ease-in-out;
 }
 
 .otherJs #transitionContainer.ready {
@@ -358,11 +371,11 @@ p {
 
 @media (prefers-reduced-motion: reduce) {
   #constellations {
-    display: none;                 /* Disable animated starfield */
+    display: none;                           /* Disable animated starfield */
   }
 
   #transitionContainer {
-    transition: none;              /* Remove slide transitions */
     transform: translateY(0);
+    transition: none;
   }
 }
