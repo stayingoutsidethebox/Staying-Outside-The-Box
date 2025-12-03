@@ -309,7 +309,6 @@ function moveStars() {
   if (attractionValue > 1) attractionValue = 1;
   if (attractionValue < -1) attractionValue = -1;
 }
-}
 
 // Draw stars and connecting lines based on distances and opacity.
 function drawStarsWithLines() {
@@ -446,7 +445,6 @@ window.addEventListener('mousemove', (e) => {
 });
 
 window.addEventListener('mousedown', (e) => {
-  isPointerDown = true;
   attractionValue = -1; // start fully repulsive on press
 
   //avoid giant first movement spike
@@ -455,10 +453,6 @@ window.addEventListener('mousedown', (e) => {
   lastTime = e.timeStamp;
 
   updateSpeed(e.clientX, e.clientY, e.timeStamp);
-});
-
-window.addEventListener('mouseup', () => {
-  isPointerDown = false;
 });
 
 // Touch tracking (mobile)
@@ -471,7 +465,6 @@ window.addEventListener('touchmove', (e) => {
 window.addEventListener('touchstart', (e) => {
   const t = e.touches[0];
   if (!t) return;
-  isPointerDown = true;
   attractionValue = -1; // start repulsive on finger down
 
   // NEW: avoid giant first movement spike
@@ -480,10 +473,6 @@ window.addEventListener('touchstart', (e) => {
   lastTime = e.timeStamp;
 
   updateSpeed(t.clientX, t.clientY, e.timeStamp);
-});
-
-window.addEventListener('touchend', () => {
-  isPointerDown = false;
 });
 
 window.addEventListener('touchcancel', () => {
