@@ -260,7 +260,7 @@ function moveStars() {
       if (distSq > 4 && distSq < maxInfluence) {
         //faster when closer
         const proximity = (maxInfluence - distSq) / maxInfluence;
-        const pull = 0.005 * cleanedUserSpeed * proximity * attractionValue;
+        const pull = 0.005 * cleanedUserSpeed * proximity * (attractionValue < 0 ? attractionValue * 2.5 : attractionValue);
 
         star.x += dx * pull;
         star.y += dy * pull;
