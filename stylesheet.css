@@ -190,7 +190,6 @@ article:active a {
  *  GENERIC BUTTON STYLING
  *========================================*/
 
-/* GENERIC BUTTON STYLING */
 button {
   font-family: 'New Rocker';
   font-size: 5dvmin;
@@ -198,16 +197,15 @@ button {
   display: block;
   margin: 1dvmin auto;
 
-  padding: 0.5em 1.5em;             /* space around the text */
-  background: transparent;          /* no background on the pill */
-  border: 1dvmin solid var(--link-light);  /* visible baseline */
+  padding: 0.5em 1.5em;
+  background: transparent;
+  border: 1dvmin solid var(--link-light);
 
 border-image-source: url("/Resources/Button.png");
-  border-image-slice: 10;      /* tweak this based on your image */
-  border-image-width: 1;       /* relative to border-width */
+  border-image-slice: 10;
+  border-image-width: 1;
   border-image-repeat: round; 
   
-  /* do NOT make text transparent here anymore */
   color: var(--link-light);
 
   transition:
@@ -217,7 +215,6 @@ border-image-source: url("/Resources/Button.png");
     border-color .2s ease-out;
 }
 
-/* The text itself gets the image-clipped effect */
 button .innerButton {
   display: inline-block;
 
@@ -225,26 +222,24 @@ button .innerButton {
   background-size: cover;
   background-position: center;
 
-  /* Clip image to text */
   -webkit-background-clip: text;
   background-clip: text;
 
-  /* Make glyphs transparent so the image shows through */
   color: transparent;
   -webkit-text-fill-color: transparent;
 }
 
-/* HOVER: border + glow, keep text using the image */
 button:hover,
 button:active {
   box-shadow: var(--shadow);
   border-color: var(--link-dark);
-  /* don't touch color here, or you'll kill the clip effect */
+  text-shadow: var(--shadow);
+  color: var(--link-dark);
 }
 
 button:hover .innerButton,
 button:active .innerButton {
-  text-shadow: var(--shadow);  /* optional glow on the text */
+  
 }
 
 p {
