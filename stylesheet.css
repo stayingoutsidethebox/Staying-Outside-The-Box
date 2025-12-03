@@ -200,7 +200,7 @@ button {
 
   padding: 0.5em 1.5em;             /* space around the text */
   background: transparent;          /* no background on the pill */
-  border: 0.5dvmin solid var(--no-link);  /* visible baseline border */
+  border: 3dvmin solid var(--link-light);  /* visible baseline
 
 border-image-source: url("/Resources/Button.png");
   border-image-slice: 30;      /* tweak this based on your image */
@@ -208,7 +208,7 @@ border-image-source: url("/Resources/Button.png");
   border-image-repeat: round; 
   
   /* do NOT make text transparent here anymore */
-  color: var(--no-link);
+  color: var(--link-light);
 
   transition:
     box-shadow .2s ease-out,
