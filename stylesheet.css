@@ -202,8 +202,8 @@ button {
   border: 1dvmin solid var(--link-light);
 
 border-image-source: url("/Resources/Button.png");
-  border-image-slice: 10;
-  border-image-width: 1;
+  /*border-image-slice: 10;*/
+  border-image-width: 10;
   border-image-repeat: round; 
   
   color: var(--link-light);
@@ -213,12 +213,8 @@ border-image-source: url("/Resources/Button.png");
     text-shadow .2s ease-out,
     color .2s ease-out,
     border-color .2s ease-out;
-}
-
-button .innerButton {
-  display: inline-block;
-
-  background-image: url("/Resources/Button.png");
+    
+    background-image: url("/Resources/Button.png");
   background-size: cover;
   background-position: center;
 
@@ -235,11 +231,6 @@ button:active {
   border-color: var(--link-dark);
   text-shadow: var(--shadow);
   color: var(--link-dark);
-}
-
-button:hover .innerButton,
-button:active .innerButton {
-  
 }
 
 p {
