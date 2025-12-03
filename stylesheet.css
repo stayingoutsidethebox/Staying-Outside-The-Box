@@ -191,6 +191,12 @@ article:active a {
  *========================================*/
 
 button {
+    -webkit-appearance: none;
+  appearance: none;
+
+  background-color: transparent;
+  border: none;
+  
 font-family: 'New Rocker';
   font-size: 5dvmin;
   display: block;
