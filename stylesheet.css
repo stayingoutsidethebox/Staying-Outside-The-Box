@@ -92,7 +92,6 @@ hr {
 img {
   width: 40dvmin;
   height: 40dvmin;
-  padding: 2dvmin;
   border-radius: 50%;
   object-fit: cover;
 }
@@ -170,7 +169,6 @@ article {
 /* Hover effects for homepage items */
 article:hover .imgButton,
 article:active .imgButton {
-  border-color: var(--link-dark);
   box-shadow: var(--shadow);
 }
 
