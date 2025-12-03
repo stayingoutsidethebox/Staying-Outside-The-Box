@@ -457,7 +457,6 @@ window.addEventListener('mousedown', (e) => {
 
 // Touch tracking (mobile)
 window.addEventListener('touchmove', (e) => {
-  attractionValue = -2; // ensure repulsion ON movement start
   const t = e.touches[0];
   if (!t) return;
   updateSpeed(t.clientX, t.clientY, e.timeStamp);
