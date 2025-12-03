@@ -207,13 +207,11 @@ font-family: 'New Rocker';
   border: none;
   background: transparent;
 
-  /* BACKDROP / FRAME IMAGE (with transparency) */
   background-image: url("/Resources/Border.png");
-  background-size: 100% 100%;
+  background-size: 110% 110%;
   background-position: center;
   background-repeat: no-repeat;
 
-  /* Do NOT clip to text here */
   color: inherit;
 
   transition: 
