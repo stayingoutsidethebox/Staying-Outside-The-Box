@@ -254,7 +254,7 @@ button {
 button span {
   display: inline-block;
 
-  background-image: url("/Resources/ButtonText.webp");
+  background-image: url("/Resources/Button Text.webp");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
