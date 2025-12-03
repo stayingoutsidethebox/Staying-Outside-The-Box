@@ -206,7 +206,10 @@ function initStars() {
               star.size *= sizeScale;
             }
           }
-          attractionValue = meta.attractionValue ?? 1;
+          attractionValue   = meta.attractionValue   ?? 1;
+          cleanedUserSpeed  = meta.cleanedUserSpeed  ?? 0;
+          smoothSpeed       = meta.smoothSpeed       ?? 0;
+          pointerSpeed      = meta.pointerSpeed 
         } catch (err) {
           console.warn('Could not parse constellationMeta, skipping scale.', err);
         }
@@ -541,7 +544,10 @@ function saveStarsToStorage() {
         width,
         height,
         scaleFactor,
-        attractionValue
+        attractionValue,
+        cleanedUserSpeed,
+        smoothSpeed,
+        pointerSpeed
       })
     );
   } catch (err) {
