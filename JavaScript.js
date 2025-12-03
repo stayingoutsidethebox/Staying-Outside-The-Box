@@ -452,20 +452,42 @@ function updateSpeed(x, y, time) {
  *  INTERACTION / SPEED HANDLERS
  *==============================*/
 
-//Desktop cursor tracking
+// Desktop cursor tracking
 window.addEventListener('mousemove', (e) => {
   updateSpeed(e.clientX, e.clientY, e.timeStamp);
+});
+
+window.addEventListener('mousedown', (e) => {
+  isPointerDown = true;
+  attractionValue = -1; // start fully repulsive on press
+  updateSpeed(e.clientX, e.clientY, e.timeStamp);
+});
+
+window.addEventListener('mouseup', () => {
+  isPointerDown = false;
 });
 
 // Touch tracking (mobile)
 window.addEventListener('touchmove', (e) => {
   const t = e.touches[0];
+  if (!t) return;
   updateSpeed(t.clientX, t.clientY, e.timeStamp);
 });
 
 window.addEventListener('touchstart', (e) => {
   const t = e.touches[0];
+  if (!t) return;
+  isPointerDown = true;
+  attractionValue = -1; // start repulsive on finger down
   updateSpeed(t.clientX, t.clientY, e.timeStamp);
+});
+
+window.addEventListener('touchend', () => {
+  isPointerDown = false;
+});
+
+window.addEventListener('touchcancel', () => {
+  isPointerDown = false;
 });
 
 /*==============================*
