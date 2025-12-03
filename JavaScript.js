@@ -147,6 +147,9 @@ let pointerSpeed = 0;
 let smoothSpeed = 0;
 let cleanedUserSpeed = 0;
 
+let attractionValue = 1;   // 1 = normal attraction, 0 = neutral, -1 = full repulsion
+let isPointerDown = false;
+
 // Canvas & star scaling
 let width = 0;
 let height = 0;
@@ -257,7 +260,7 @@ function moveStars() {
       if (distSq > 4 && distSq < maxInfluence) {
         //faster when closer
         const proximity = (maxInfluence - distSq) / maxInfluence;
-        const pull = 0.005 * cleanedUserSpeed * proximity;
+        const pull = 0.005 * cleanedUserSpeed * proximity * attractionValue;
 
         star.x += dx * pull;
         star.y += dy * pull;
@@ -420,6 +423,24 @@ function updateSpeed(x, y, time) {
 
   // Normalize to avoid extreme speeds
   cleanedUserSpeed = Math.min(smoothSpeed * (scaleFactor / 1100) ** 2, 10);
+
+  //add repulsion on click
+  const movement = Math.sqrt(dx * dx + dy * dy);
+
+  if (isPointerDown) {
+    // While pressed: grow attractionValue based on movement
+    // Starts negative (repel), crosses 0 (neutral), up to 1 (normal attraction)
+    attractionValue += movement * 0.004; //check this later
+
+    // Clamp so we never exceed 1 (full normal attraction)
+    if (attractionValue > 1) attractionValue = 1;
+  } else {
+    // When not pressed, gently relax back toward 1
+    attractionValue += (1 - attractionValue) * 0.05;
+  }
+
+  // Clamp lower bound
+  if (attractionValue < -1) attractionValue = -1;
 
   lastX = x;
   lastY = y;
