@@ -147,7 +147,7 @@ let pointerSpeed = 0;
 let smoothSpeed = 0;
 let cleanedUserSpeed = 0;
 
-let attractionValue = 1;   // 1 = normal attraction, 0 = neutral, -1 = full repulsion
+let attractionValue = 0;
 let isPointerDown = false;
 
 // Canvas & star scaling
@@ -426,18 +426,8 @@ function updateSpeed(x, y, time) {
 
   //add repulsion
   if (isPointerDown) {
-    // While pressed: grow attractionValue based on movement
-    attractionValue += movement * .001 * Math.sqrt(dx * dx + dy * dy); //check this later
-
-    // Clamp so we never exceed 1 (full normal attraction)
-    if (attractionValue > 1) attractionValue = 1;
-  } else {
-    // When not pressed, gently relax back toward 1
-    attractionValue += (1 - attractionValue) * 0.05;
+    attractionValue = .001 * scaleFactor;
   }
-
-  // Clamp lower bound
-  if (attractionValue < -1) attractionValue = -1;
 
   lastX = x;
   lastY = y;
@@ -458,7 +448,7 @@ window.addEventListener('mousedown', (e) => {
   isPointerDown = true;
   attractionValue = -1; // start fully repulsive on press
 
-  // NEW: avoid giant first movement spike
+  //avoid giant first movement spike
   lastX = e.clientX;
   lastY = e.clientY;
   lastTime = e.timeStamp;
