@@ -37,7 +37,7 @@ body {
   align-items: stretch;
 
   min-height: 100dvh;                        /* Ensure body fills viewport */
-  height: 100dvh;                            /* <-- add this back */
+  height: 100dvh;
   overflow: hidden;                          /* Prevent body-level scrolling */
   margin: 0;
   padding: 0;
@@ -97,18 +97,23 @@ img {
   object-fit: cover;
 }
 
+/* Wrapper that auto-sizes to the img and adds a decorative border */
 .imgBorder {
   display: inline-block;                     /* shrink-wrap to image size */
-  position: relative;                        /* allow background behind the img */
+  position: relative;                        /* for ::before positioning */
+  border-radius: 50%;                        /* keeps wrapper circular */
+}
 
-  padding: 2dvmin;                           /* space for the decorative border */
-
+.imgBorder::before {
+  content: "";
+  position: absolute;
+  inset: -2dvmin;                            /* thickness of the border image */
   background-image: url("/Resources/Image Border.webp");
   background-size: 100% 100%;
   background-repeat: no-repeat;
   background-position: center;
-
-  border-radius: 50%;                         /* ensures wrapper is circular */
+  border-radius: 50%;                        /* circular border */
+  z-index: -1;                               /* sit behind the image */
 }
 
 /* Homepage circular image buttons */
