@@ -191,42 +191,55 @@ article:active a {
  *========================================*/
 
 button {
-  font-family: 'New Rocker';
+font-family: 'New Rocker';
   font-size: 5dvmin;
   display: block;
   margin: 1dvmin auto;
   padding: 0.5em 1.5em;
 
   border-radius: 9999px;
+  border: none;
   background: transparent;
 
-  /* Hollow text effect */
+  /* BACKDROP / FRAME IMAGE (with transparency) */
   background-image: url("/Resources/Border.jpg");
   background-size: cover;
   background-position: center;
+  background-repeat: no-repeat;
 
-  color: transparent;
-  -webkit-text-fill-color: transparent;
-  -webkit-background-clip: text;
-  background-clip: text;
+  /* Do NOT clip to text here */
+  color: inherit;
 
   transition: 
     box-shadow .2s ease-out,
     text-shadow .2s ease-out,
     color .2s ease-out,
-    border-color .2s ease-out;
+    filter .2s ease-out;
+}
+
+button span {
+
+display: inline-block;
+
+  background-image: url("/Resources/TextTexture.jpg"); /* or Border.jpg if you want */
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  -webkit-background-clip: text;
+  background-clip: text;
 }
 
 button:hover,
 button:active {
   box-shadow: var(--shadow);
   text-shadow: var(--shadow);
-  border-color: var(--link-dark);
+  filter: brightness(1.2);
 }
-  
 
-button span {
-  /* remove hollow-text image */
+button:hover span, button:active span {
   background-image: none;
   -webkit-background-clip: border-box;
   background-clip: border-box;
