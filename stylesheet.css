@@ -193,9 +193,6 @@ article:active a {
 button {
     -webkit-appearance: none;
   appearance: none;
-
-  background-color: transparent;
-  border: none;
   
 font-family: 'New Rocker';
   font-size: 5dvmin;
@@ -218,7 +215,6 @@ font-family: 'New Rocker';
     box-shadow .2s ease-out,
     text-shadow .2s ease-out,
     color .2s ease-out,
-    filter .2s ease-out;
 }
 
 button span {
@@ -238,7 +234,6 @@ display: inline-block;
 
 button:hover, button:active {
   box-shadow: var(--shadow);
-  text-shadow: var(--shadow);
 }
 
 button:hover span, button:active span {
@@ -246,8 +241,9 @@ button:hover span, button:active span {
   -webkit-background-clip: border-box;
   background-clip: border-box;
 
-  color: var(--link-dark);
-  -webkit-text-fill-color: var(--link-dark);
+text-shadow: var(--shadow);
+  color: var(--link-light);
+  -webkit-text-fill-color: var(--link-light);
 }
 
 p {
