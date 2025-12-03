@@ -193,44 +193,44 @@ article:active a {
 button {
   font-family: 'New Rocker';
   font-size: 5dvmin;
-  border-radius: 9999px;
   display: block;
   margin: 1dvmin auto;
-
   padding: 0.5em 1.5em;
-  background: transparent;
-  border: 1dvmin solid var(--link-light);
 
-border-image-source: url("/Resources/Button.png");
+  border-radius: 9999px;
+  background: transparent;
+
+  /* Border image */
+  border: 1dvmin solid transparent;
+  border-image-source: url("/Resources/Button.png");
   border-image-slice: 10;
   border-image-width: 1;
-  border-image-repeat: round; 
-  
-  color: var(--link-light);
+  border-image-repeat: round;
 
-  transition:
+  /* Hollow text effect */
+  background-image: url("/Resources/Button.png");
+  background-size: cover;
+  background-position: center;
+
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  -webkit-background-clip: text;
+  background-clip: text;
+
+  transition: 
     box-shadow .2s ease-out,
     text-shadow .2s ease-out,
     color .2s ease-out,
     border-color .2s ease-out;
-    
-    background-image: url("/Resources/Button.png");
-  background-size: cover;
-  background-position: center;
-
-  -webkit-background-clip: text;
-  background-clip: text;
-
-  color: transparent;
-  -webkit-text-fill-color: transparent;
 }
 
 button:hover,
 button:active {
   box-shadow: var(--shadow);
-  border-color: var(--link-dark);
   text-shadow: var(--shadow);
-  
+  border-color: var(--link-dark);
+
+  /* remove hollow-text image */
   background-image: none;
   -webkit-background-clip: border-box;
   background-clip: border-box;
