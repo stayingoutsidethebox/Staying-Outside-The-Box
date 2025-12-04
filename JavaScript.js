@@ -1,19 +1,19 @@
 // thank heavens for chatGPT <3
 
 /*==============================*
- *  PAGE LOAD HANDLER (must be at the top)
+ *  PAGE LOAD HANDLER
  *==============================*/
 
 let isInternalReferrer = false;
 
 window.addEventListener('load', () => {
   const page = document.getElementById('transitionContainer');
-  
-  // Read the flag from sessionStorage
+
+  // Read and clear the "came from menu" flag
   const suppressHomeBack = sessionStorage.getItem('suppressHomeBack') === '1';
   sessionStorage.removeItem('suppressHomeBack');
 
-  // Remove hash if present (so #ids don't block the transition)
+  // Remove URL hash so in-page anchors don't block transitions
   if (window.location.hash) {
     history.replaceState(
       null,
@@ -23,13 +23,13 @@ window.addEventListener('load', () => {
   }
 
   if (page) {
-    // Measure height and set slide duration relative to content size
+    // Set slide duration relative to content height (clamped 1–3×)
     const viewportHeight =
       window.innerHeight || document.documentElement.clientHeight;
     const contentHeight = page.offsetHeight;
 
     let ratio = contentHeight / viewportHeight;
-    ratio = Math.max(1, Math.min(ratio, 3)); // Clamp 1–3×
+    ratio = Math.max(1, Math.min(ratio, 3));
 
     const baseDuration = 0.5;
     const durationSeconds = baseDuration * ratio;
@@ -39,35 +39,32 @@ window.addEventListener('load', () => {
       `${durationSeconds}s`
     );
 
-    // Allow CSS to see the "ready" state for entrance animation
+    // Mark page as ready so CSS can run entrance animations
     requestAnimationFrame(() => {
       page.classList.add('ready');
     });
   }
 
-  // Referrer / back button / constellation reset logic
+  // Detect if we came from the same site
   const ref = document.referrer;
   if (ref) {
     try {
       const refUrl = new URL(ref);
       isInternalReferrer = refUrl.origin === window.location.origin;
-    } catch (e) {
+    } catch {
       isInternalReferrer = false;
     }
-  } else {
-    isInternalReferrer = false;
   }
 
   const backLink = document.getElementById('homepageBack');
   if (backLink) {
+    // Store a back URL only when coming from an internal page
     if (!suppressHomeBack && isInternalReferrer && ref) {
       try {
         localStorage.setItem('homepageBackUrl', ref);
       } catch (err) {
         console.warn('Could not save homepageBackUrl:', err);
       }
-    } else if (suppressHomeBack) {
-      localStorage.removeItem('homepageBackUrl');
     } else {
       localStorage.removeItem('homepageBackUrl');
     }
@@ -77,7 +74,7 @@ window.addEventListener('load', () => {
       !suppressHomeBack && backUrl ? 'block' : 'none';
   }
 
-  // If we came from an external site, reset stored constellation
+  // Clear saved constellations when entering from outside the site
   if (!isInternalReferrer) {
     localStorage.removeItem('constellationStars');
     localStorage.removeItem('constellationMeta');
@@ -92,24 +89,24 @@ window.addEventListener('pageshow', (event) => {
   const page = document.getElementById('transitionContainer');
   if (!page) return;
 
-  // Guard for browsers that don't support PerformanceNavigationTiming
+  // Safely read navigation type (if supported)
   const navEntries = performance.getEntriesByType
     ? performance.getEntriesByType('navigation')
     : [];
   const navType = navEntries[0] && navEntries[0].type;
 
   if (event.persisted || navType === 'back_forward') {
-    // Make sure the content is visible, not stuck off-screen
+    // Ensure content is visible (not stuck off-screen after bfcache)
     page.classList.remove('slide-out');
     page.classList.add('ready');
 
-    // Unfreeze constellation so it animates again
+    // Unfreeze constellation motion
     freezeConstellation = false;
     cleanedUserSpeed = 0;
     smoothSpeed = 0;
     pointerSpeed = 0;
 
-    // Reset transition lock so links work again
+    // Allow transitions again
     isTransitioning = false;
 
     // Reset scroll inside the transition container
@@ -121,14 +118,13 @@ window.addEventListener('pageshow', (event) => {
  *  SIMPLE HTML HELPERS
  *==============================*/
 
-// Toggle visibility of an element by id using the `hidden` attribute.
+// Toggle an element's visibility via the `hidden` attribute
 function toggleElement(id) {
   const element = document.getElementById(id);
   if (element) {
     element.hidden = !element.hidden;
   }
 }
-
 
 /*==============================*
  *  CONSTELLATION CANVAS SETUP
@@ -148,7 +144,6 @@ let smoothSpeed = 0;
 let cleanedUserSpeed = 0;
 
 let attractionValue = 1;
-let isPointerDown = false;
 
 // Canvas & star scaling
 let width = 0;
@@ -160,22 +155,20 @@ let maxLinkDistance = 0;
 // Star collection
 let stars = [];
 
-
 /*==============================*
  *  UTILITY FUNCTIONS
  *==============================*/
 
-// Return a random number between min (inclusive) and max (exclusive).
+// Random number in [min, max)
 function randomBetween(min, max) {
   return Math.random() * (max - min) + min;
 }
-
 
 /*==============================*
  *  STAR INITIALIZATION
  *==============================*/
 
-// Initialize stars from localStorage if possible, otherwise create a fresh set.
+// Load stars from storage if possible, otherwise create new ones
 function initStars() {
   const saved = localStorage.getItem('constellationStars');
 
@@ -190,7 +183,7 @@ function initStars() {
     if (Array.isArray(parsed) && parsed.length) {
       stars = parsed;
 
-      // Try to scale from old canvas size to this one
+      // Try to rescale from previous canvas size
       const metaRaw = localStorage.getItem('constellationMeta');
       if (metaRaw) {
         try {
@@ -198,7 +191,8 @@ function initStars() {
           if (meta.width > 0 && meta.height > 0) {
             const scaleX = width / meta.width;
             const scaleY = height / meta.height;
-            const sizeScale = (width + height) / (meta.width + meta.height);
+            const sizeScale =
+              (width + height) / (meta.width + meta.height);
 
             for (const star of stars) {
               star.x *= scaleX;
@@ -206,10 +200,11 @@ function initStars() {
               star.size *= sizeScale;
             }
           }
-          attractionValue   = meta.attractionValue   ?? 1;
-cleanedUserSpeed  = meta.cleanedUserSpeed  ?? 0;
-smoothSpeed       = meta.smoothSpeed       ?? 0;
-pointerSpeed      = meta.pointerSpeed      ?? 0;
+
+          attractionValue  = meta.attractionValue  ?? 1;
+          cleanedUserSpeed = meta.cleanedUserSpeed ?? 0;
+          smoothSpeed      = meta.smoothSpeed      ?? 0;
+          pointerSpeed     = meta.pointerSpeed     ?? 0;
         } catch (err) {
           console.warn('Could not parse constellationMeta, skipping scale.', err);
         }
@@ -223,7 +218,7 @@ pointerSpeed      = meta.pointerSpeed      ?? 0;
   }
 }
 
-// Create a fresh star field sized to the current canvas.
+// Create a new starfield sized to the current canvas
 function createStars() {
   stars = [];
 
@@ -246,14 +241,14 @@ function createStars() {
  *  STAR ANIMATION LOGIC
  *==============================*/
 
-// Move stars based on their velocity, pointer attraction, opacity, and wrapping.
+// Move stars (velocity, pointer pull, fading, wrapping)
 function moveStars() {
   for (const star of stars) {
-    // Passive star movement, amplified by user speed
+    // Base movement, scaled by user speed
     star.x += star.vx * (cleanedUserSpeed + 1);
     star.y += star.vy * (cleanedUserSpeed + 1);
 
-    // Attraction toward pointer when moving fast enough
+    // Pointer attraction / repulsion when moving fast
     if (lastTime !== 0 && cleanedUserSpeed > 0.19) {
       const dx = lastX - star.x;
       const dy = lastY - star.y;
@@ -262,26 +257,29 @@ function moveStars() {
 
       const maxInfluence = 12000 * screenSizeModifier;
       if (distSq > 4 && distSq < maxInfluence) {
-        //faster when closer
         const proximity = (maxInfluence - distSq) / maxInfluence;
-        const pull = 0.005 * cleanedUserSpeed * proximity * (attractionValue < 0 ? attractionValue * 2.5 : attractionValue);
+        const pull =
+          0.005 *
+          cleanedUserSpeed *
+          proximity *
+          (attractionValue < 0 ? attractionValue * 2.5 : attractionValue);
 
         star.x += dx * pull;
         star.y += dy * pull;
       }
     }
 
-    // Fade white highlight back down
+    // Fade white flashes back down
     if (star.whiteValue > 0) {
       star.whiteValue -= Math.max(0, star.whiteValue * 0.02);
     }
 
-    // Opacity / twinkle logic
+    // Opacity / twinkle behavior
     if (star.opacity <= 0.005) {
       // Respawn invisible stars
       star.opacity = 1;
 
-      // Chance to flash white
+      // Small chance to flash white
       if (Math.random() < 0.07) {
         star.whiteValue = 1;
       }
@@ -289,35 +287,35 @@ function moveStars() {
       // Normal fade
       star.opacity -= 0.005 * star.fadeSpeed;
     } else {
-      // Keep star hidden a bit longer
+      // Keep them hidden for a bit
       star.opacity -= 0.0001;
     }
 
-    // Wrap stars around edges
+    // Wrap around edges
     if (star.x < 0) star.x = width;
     if (star.x > width) star.x = 0;
     if (star.y < 0) star.y = height;
     if (star.y > height) star.y = 0;
   }
 
-  // Slow decay of constellation speed after interactions
+  // Slowly bleed off speed after user stops moving
   cleanedUserSpeed *= 0.95;
 
-  // Clamp tiny values to zero
+  // Snap tiny values to zero
   if (cleanedUserSpeed < 0.05) {
     cleanedUserSpeed = 0;
   }
 
-  // slowly ease attractionValue back toward 1 every frame
+  // Ease attractionValue back toward 1
   attractionValue += (1 - attractionValue) * 0.06;
   if (attractionValue > 1) attractionValue = 1;
 }
 
-// Draw stars and connecting lines based on distances and opacity.
+// Draw star connections + star bodies
 function drawStarsWithLines() {
   brush.clearRect(0, 0, width, height);
 
-  // Draw lines between close stars
+  // Lines between near neighbors
   brush.lineWidth = 1;
   for (let i = 0; i < stars.length; i++) {
     for (let j = i + 1; j < stars.length; j++) {
@@ -330,7 +328,8 @@ function drawStarsWithLines() {
 
       if (distance < maxLinkDistance) {
         const opacityModifier = (aStar.opacity + bStar.opacity) / 2;
-        const alpha = (1 - distance / maxLinkDistance) * opacityModifier;
+        const alpha =
+          (1 - distance / maxLinkDistance) * opacityModifier;
 
         brush.strokeStyle = `rgba(0, 0, 0, ${alpha})`;
         brush.beginPath();
@@ -341,12 +340,11 @@ function drawStarsWithLines() {
     }
   }
 
-  // Draw star circles
+  // Star circles
   for (const star of stars) {
     let tempRed = 255 * star.whiteValue + star.redValue;
-    if (tempRed > 255) {
-      tempRed = 255;
-    }
+    if (tempRed > 255) tempRed = 255;
+
     const tempGreen = 255 * star.whiteValue;
     const tempBlue = 255 * star.whiteValue;
     const tempSize = star.whiteValue * 2 + star.size;
@@ -358,12 +356,11 @@ function drawStarsWithLines() {
   }
 }
 
-
 /*==============================*
  *  CANVAS RESIZE HANDLING
  *==============================*/
 
-// Resize the canvas to match the viewport and scale stars accordingly.
+// Resize canvas to viewport, rescale existing stars
 function resizeCanvas() {
   const oldWidth = width;
   const oldHeight = height;
@@ -382,7 +379,7 @@ function resizeCanvas() {
   maxStarCount = scaleFactor / 10;
   maxLinkDistance = scaleFactor / 10;
 
-  // Scale existing stars when this is not the initial setup
+  // Rescale positions/sizes when this isn't the first call
   if (oldWidth !== 0) {
     const scaleX = width / oldWidth;
     const scaleY = height / oldHeight;
@@ -395,7 +392,6 @@ function resizeCanvas() {
     }
   }
 }
-
 
 /*==============================*
  *  MAIN ANIMATION LOOP
@@ -410,12 +406,11 @@ function animate() {
   requestAnimationFrame(animate);
 }
 
-
 /*==============================*
  *  POINTER SPEED TRACKING
  *==============================*/
 
-// Update pointer speed and smoothed speed from coordinates and timestamp.
+// Compute pointer speed and smoothed speed from a new event
 function updateSpeed(x, y, time) {
   const dx = x - lastX;
   const dy = y - lastY;
@@ -426,17 +421,19 @@ function updateSpeed(x, y, time) {
     pointerSpeed = Math.sqrt(dx * dx + dy * dy) / dt;
   }
 
-  // Smoothing for jittery input
+  // Smooth out jittery input
   smoothSpeed = smoothSpeed * 0.8 + pointerSpeed * 10;
 
-  // Normalize to avoid extreme speeds
-  cleanedUserSpeed = Math.min(smoothSpeed * (scaleFactor / 1100) ** 2, 10);
+  // Normalize and scale based on screen size
+  cleanedUserSpeed = Math.min(
+    smoothSpeed * (scaleFactor / 1100) ** 2,
+    10
+  );
 
   lastX = x;
   lastY = y;
   lastTime = time;
 }
-
 
 /*==============================*
  *  INTERACTION / SPEED HANDLERS
@@ -448,44 +445,42 @@ window.addEventListener('mousemove', (e) => {
 });
 
 window.addEventListener('mousedown', (e) => {
-  attractionValue = -2; // start extra repulsive on press
+  attractionValue = -2; // start strongly repulsive on click
 
-  // avoid giant first movement spike
+  // Prevent an initial huge speed spike
   lastX = e.clientX;
   lastY = e.clientY;
   lastTime = e.timeStamp;
 
   updateSpeed(e.clientX, e.clientY, e.timeStamp);
 
-  // apply the "kick" AFTER updateSpeed so it isn't overwritten
+  // Give stars a little "kick" on click
   cleanedUserSpeed = Math.min(cleanedUserSpeed + 0.8, 3);
 });
 
+// Touch start (mobile)
 window.addEventListener('touchstart', (e) => {
   const t = e.touches[0];
   if (!t) return;
-  attractionValue = -2; // start extra repulsive on finger down
 
-  // avoid giant first movement spike
+  attractionValue = -2; // strongly repulsive on finger down
+
+  // Prevent an initial huge speed spike
   lastX = t.clientX;
   lastY = t.clientY;
   lastTime = e.timeStamp;
 
   updateSpeed(t.clientX, t.clientY, e.timeStamp);
 
-  // same kick on touch
+  // Same "kick" behavior as mouse
   cleanedUserSpeed = Math.min(cleanedUserSpeed + 0.8, 3);
 });
 
-// Touch tracking (mobile)
+// Touch move (mobile)
 window.addEventListener('touchmove', (e) => {
   const t = e.touches[0];
   if (!t) return;
   updateSpeed(t.clientX, t.clientY, e.timeStamp);
-});
-
-window.addEventListener('touchcancel', () => {
-  isPointerDown = false;
 });
 
 /*==============================*
@@ -494,20 +489,21 @@ window.addEventListener('touchcancel', () => {
 
 let isTransitioning = false;
 
-// Transition to another URL (with constellation save and slide-out).
+// Navigate with slide-out and stored constellation state
 function transitionTo(url, isMenu = false) {
   if (isTransitioning) return;
   isTransitioning = true;
 
-  // If this navigation came from menu, tell the next page
+  // Record whether navigation came from the menu
   if (isMenu) {
     sessionStorage.setItem('suppressHomeBack', '1');
   } else {
     sessionStorage.removeItem('suppressHomeBack');
   }
+
   const page = document.getElementById('transitionContainer');
 
-  // Special case: 'back'
+  // Special case: "back" uses stored homepage URL
   if (url === 'back') {
     const stored = localStorage.getItem('homepageBackUrl');
     if (!stored) {
@@ -517,17 +513,17 @@ function transitionTo(url, isMenu = false) {
     url = stored;
   }
 
-  // If there's no transition container, just navigate
+  // If we can't animate, just navigate
   if (!page) {
     window.location.href = url;
     return;
   }
 
-  // Freeze and save stars so they match on the next page
+  // Freeze & save constellation for the next page
   freezeConstellation = true;
   saveStarsToStorage();
 
-  // Trigger the slide-out animation
+  // Trigger CSS slide-out
   page.classList.add('slide-out');
 
   const handler = (event) => {
@@ -540,7 +536,7 @@ function transitionTo(url, isMenu = false) {
   page.addEventListener('transitionend', handler);
 }
 
-// Save stars + meta info to localStorage.
+// Save stars and related meta to localStorage
 function saveStarsToStorage() {
   try {
     localStorage.setItem('constellationStars', JSON.stringify(stars));
@@ -566,17 +562,14 @@ window.addEventListener('beforeunload', () => {
   saveStarsToStorage();
 });
 
-
 /*==============================*
  *  INITIALIZATION
  *==============================*/
 
-// Initial canvas sizing + star setup + animation loop
+// Initial canvas setup + stars + animation loop
 resizeCanvas();
 initStars();
 animate();
 
-// Keep canvas in sync with viewport
-window.addEventListener('resize', () => {
-  resizeCanvas();
-});
+// Keep canvas synced with viewport size
+window.addEventListener('resize', resizeCanvas);
