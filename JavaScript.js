@@ -207,9 +207,9 @@ function initStars() {
             }
           }
           attractionValue   = meta.attractionValue   ?? 1;
-          cleanedUserSpeed  = meta.cleanedUserSpeed  ?? 0;
-          smoothSpeed       = meta.smoothSpeed       ?? 0;
-          pointerSpeed      = meta.pointerSpeed 
+cleanedUserSpeed  = meta.cleanedUserSpeed  ?? 0;
+smoothSpeed       = meta.smoothSpeed       ?? 0;
+pointerSpeed      = meta.pointerSpeed      ?? 0;
         } catch (err) {
           console.warn('Could not parse constellationMeta, skipping scale.', err);
         }
@@ -449,6 +449,7 @@ window.addEventListener('mousemove', (e) => {
 
 window.addEventListener('mousedown', (e) => {
   attractionValue = -2; // start extra repulsive on press
+  cleanedUserSpeed = Math.max(cleanedUserSpeed, 0.8);//kick it up a bit
 
   //avoid giant first movement spike
   lastX = e.clientX;
@@ -469,8 +470,8 @@ window.addEventListener('touchstart', (e) => {
   const t = e.touches[0];
   if (!t) return;
   attractionValue = -2; // start extra repulsive on finger down
-
-  // NEW: avoid giant first movement spike
+  cleanedUserSpeed = Math.max(cleanedUserSpeed, 0.8); //kick it up a bit
+  // avoid giant first movement spike
   lastX = t.clientX;
   lastY = t.clientY;
   lastTime = e.timeStamp;
