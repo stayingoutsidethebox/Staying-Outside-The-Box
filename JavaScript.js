@@ -449,33 +449,38 @@ window.addEventListener('mousemove', (e) => {
 
 window.addEventListener('mousedown', (e) => {
   attractionValue = -2; // start extra repulsive on press
-  cleanedUserSpeed = Math.max(cleanedUserSpeed, 0.8);//kick it up a bit
 
-  //avoid giant first movement spike
+  // avoid giant first movement spike
   lastX = e.clientX;
   lastY = e.clientY;
   lastTime = e.timeStamp;
 
   updateSpeed(e.clientX, e.clientY, e.timeStamp);
-});
 
-// Touch tracking (mobile)
-window.addEventListener('touchmove', (e) => {
-  const t = e.touches[0];
-  if (!t) return;
-  updateSpeed(t.clientX, t.clientY, e.timeStamp);
+  // apply the "kick" AFTER updateSpeed so it isn't overwritten
+  cleanedUserSpeed = Math.max(cleanedUserSpeed, 1.2);
 });
 
 window.addEventListener('touchstart', (e) => {
   const t = e.touches[0];
   if (!t) return;
   attractionValue = -2; // start extra repulsive on finger down
-  cleanedUserSpeed = Math.max(cleanedUserSpeed, 0.8); //kick it up a bit
+
   // avoid giant first movement spike
   lastX = t.clientX;
   lastY = t.clientY;
   lastTime = e.timeStamp;
 
+  updateSpeed(t.clientX, t.clientY, e.timeStamp);
+
+  // same kick on touch
+  cleanedUserSpeed = Math.max(cleanedUserSpeed, 1.2);
+});
+
+// Touch tracking (mobile)
+window.addEventListener('touchmove', (e) => {
+  const t = e.touches[0];
+  if (!t) return;
   updateSpeed(t.clientX, t.clientY, e.timeStamp);
 });
 
