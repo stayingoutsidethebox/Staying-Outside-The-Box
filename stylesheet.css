@@ -62,8 +62,8 @@ main {
   padding-bottom: 2dvmin;                    /* Breathing room at bottom of page */
 }
 
-footer {
-  font-size: 1dvmin;
+footer p {
+  font-size: 2dvmin;
   padding: 2dvmin;
 }
 
