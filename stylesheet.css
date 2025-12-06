@@ -131,12 +131,12 @@ img {
   max-width: 100%;
   width: auto;
   height: 20dvmin;
-  padding:7%;
+  padding:15%;
   margin-top: 3dvmin;
   background-color:black;
   font: 1dvmin Arial;                        /* Backup text if image fails */
   object-fit: cover;
-  border-radius: 6dvmin;
+  border-radius: 15dvmin;
   border: 3px solid var(--no-link);
   transition:
     box-shadow 0.2s ease-out,
