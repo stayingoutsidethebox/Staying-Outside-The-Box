@@ -99,6 +99,7 @@ img {
   height: 40dvmin;
   border-radius: 3dvmin;
   object-fit: cover;
+  overflow:hidden;
 }
 
 /* Wrapper that auto-sizes to the img and adds a decorative border */
