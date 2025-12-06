@@ -97,7 +97,7 @@ hr {
 img {
   width: 40dvmin;
   height: 40dvmin;
-  border-radius: 50%;
+  border-radius: 3dvmin;
   object-fit: cover;
 }
 
