@@ -153,14 +153,14 @@ a {
 }
 
 /* When the article is hovered or focused, style BOTH the image and links */
-.imgButtonHover:hover .imgButton,
-.imgButtonHover:focus-within .imgButton {
+.hoverTogether:hover .imgButton,
+.hoverTogether:focus-within .imgButton {
   box-shadow: var(--shadow);
   border-color: var(--link-dark);
 }
 
-.imgButtonHover:hover a,
-.imgButtonHover:focus-within a {
+.hoverTogether:hover a,
+.hoverTogether:focus-within a {
   text-shadow: var(--shadow);
   color: var(--link-dark);
 }
