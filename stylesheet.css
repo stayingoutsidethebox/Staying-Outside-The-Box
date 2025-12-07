@@ -253,10 +253,14 @@ button:active span {
  *  LINK VARIANTS
  *========================================*/
 
-/* Light-colored, neutral links */
+/* Light-colored homepage links */
 .clean {
   color: var(--no-link);
-  transform: scale(1.05); /* A bit extra for homepage links */
+}
+
+/* A bit extra size for homepage links */
+.clean:hover {
+  transform: scale(1.05);
 }
 
 /* Placeholder / “dead” links that always look slightly dimmed */
