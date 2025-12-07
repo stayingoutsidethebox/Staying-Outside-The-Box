@@ -9,10 +9,10 @@
   --no-link: #bdbdbd;                        /* Neutral / inactive text color */
 
   /* Transitions */
-  --slow-transform: transform 0.5s ease-out;
-  --slow-border: border-color 0.3s ease-out;
-  --slow-shadow: box-shadow 0.9s ease-out;
-  --slow-color: color 0.9s ease-out;
+  --slow-transform: 0.5s ease-out;
+  --slow-border: 0.3s ease-out;
+  --slow-shadow: 0.9s ease-out;
+  --slow-color: 0.9s ease-out;
 }
 
 /*========================================*
