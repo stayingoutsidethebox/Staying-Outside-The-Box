@@ -134,7 +134,7 @@ img {
   object-fit: contain;      /* show full badge without cropping */
   border-radius: 10dvmin;
   border: 3px solid var(--no-link);
-  transition:
+transition:
     transform 0.2s ease-out,
     box-shadow 0.2s ease-out,
     border-color 0.2s ease-out;
@@ -152,16 +152,19 @@ a {
     text-shadow 0.2s ease-out;
 }
 
-a:hover, a:active, button:hover, button:active {
-  transform: scale(1.05);
-  text-shadow: var(--shadow);
-  color: var(--link-dark);
-}
-
-.imgButton:hover, .imgButton:active {
+/* When the article is hovered or focused, style BOTH the image and links */
+article:hover .imgButton,
+article:focus-within .imgButton {
   transform: scale(1.05);
   box-shadow: var(--shadow);
   border-color: var(--link-dark);
+}
+
+article:hover a,
+article:focus-within a {
+  transform: scale(1.05);
+  text-shadow: var(--shadow);
+  color: var(--link-dark);
 }
 
 /* Light-colored, neutral links */
