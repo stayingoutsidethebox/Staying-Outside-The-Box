@@ -191,11 +191,17 @@ a {
 }
 
 /*========================================*
- *  HOVER / FOCUS EFFECTS (DESKTOP ONLY)
+ *  INTERACTION STATES (HOVER + TOUCH)
  *========================================*/
-/* Only apply hover effects on devices that actually support hover */
+
+/* DESKTOP / DEVICES WITH REAL HOVER */
 @media (hover: hover) and (pointer: fine) {
-  /* When article is hovered/focused, style BOTH the image and links */
+  /* Shared scale / glow for links, buttons, and image-buttons */
+  :is(a, button, .imgButton):hover {
+    transform: scale(1.05);
+  }
+
+  /* When the article is hovered or focused, style BOTH the image and links */
   .hoverTogether:hover .imgButton,
   .hoverTogether:focus-within .imgButton {
     box-shadow: var(--shadow);
@@ -209,12 +215,6 @@ a {
     color: var(--link-dark);
   }
 
-  a:hover,
-  button:hover,
-  .imgButton:hover {
-    transform: scale(1.05);
-  }
-
   .navButtons a:hover img {
     transform: scale(1.05);
     border-color: var(--link-dark);
@@ -222,9 +222,9 @@ a {
   }
 
   button:hover {
-    transform: scale(1.05);
     text-shadow: var(--shadow);
     color: var(--link-dark);
+    box-shadow: var(--shadow);
   }
 
   button:hover span {
@@ -236,6 +236,48 @@ a {
     -webkit-text-fill-color: var(--link-light);
     text-shadow: var(--shadow);
   }
+}
+
+/* MOBILE / TOUCH “HOVER” WHILE FINGER IS DOWN */
+html.touching :is(a, button, .imgButton):active {
+  transform: scale(1.05);
+}
+
+/* Image button glow + border in hoverTogether on touch */
+html.touching .hoverTogether :is(a, .imgButton):active .imgButton,
+html.touching .hoverTogether .imgButton:active {
+  box-shadow: var(--shadow);
+  border-color: var(--link-dark);
+}
+
+/* Link text glow in hoverTogether on touch */
+html.touching .hoverTogether a:active {
+  text-shadow: var(--shadow);
+  color: var(--link-dark);
+}
+
+/* Nav icon glow on touch */
+html.touching .navButtons a:active img {
+  transform: scale(1.05);
+  border-color: var(--link-dark);
+  box-shadow: var(--shadow);
+}
+
+/* Button + fancy text effect on touch */
+html.touching button:active {
+  text-shadow: var(--shadow);
+  color: var(--link-dark);
+  box-shadow: var(--shadow);
+}
+
+html.touching button:active span {
+  background-image: none;
+  -webkit-background-clip: border-box;
+  background-clip: border-box;
+  transform: scale(1.05);
+  color: var(--link-light);
+  -webkit-text-fill-color: var(--link-light);
+  text-shadow: var(--shadow);
 }
 
 /*========================================*
