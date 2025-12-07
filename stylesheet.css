@@ -1,9 +1,12 @@
 :root {
-  --slide-duration: 0.6s;                    /* Shared duration for all slide animations */
-  --shadow: 0 0 20px rgba(150, 0, 255, 1);   /* Purple glow used for hover effects */
-  --link-light: #ee0000;                     /* Default link color */
+  /* Shared animation + visual tokens */
+  --slide-duration: 0.6s;                    /* Default slide animation duration */
+  --shadow: 0 0 20px rgba(150, 0, 255, 1);   /* Purple glow for hover/focus effects */
+
+  /* Brand colors */
+  --link-light: #ee0000;                     /* Primary link color */
   --link-dark: #880000;                      /* Hover/active link color */
-  --no-link: #bdbdbd;                        /* Neutral text / inactive icon color */
+  --no-link: #bdbdbd;                        /* Neutral / inactive text color */
 }
 
 /*========================================*
@@ -13,7 +16,7 @@
 html {
   margin: 0;
   padding: 0;
-  overflow: hidden;
+  overflow: hidden;                          /* Disable window-level scroll; use #transitionContainer instead */
   background-color: #300060;                 /* Fallback solid background */
 }
 
@@ -36,7 +39,7 @@ body {
   flex-direction: column;
   align-items: stretch;
 
-  min-height: 100dvh;                        /* Ensure body fills viewport */
+  min-height: 100dvh;
   height: 100dvh;
   overflow: hidden;                          /* Prevent body-level scrolling */
   margin: 0;
@@ -49,6 +52,10 @@ body {
   color: var(--no-link);
 }
 
+/*========================================*
+ *  CANVAS LAYER
+ *========================================*/
+
 #constellations {
   position: fixed;                           /* Full-screen animated canvas overlay */
   inset: 0;
@@ -58,8 +65,12 @@ body {
   pointer-events: none;                      /* Don't block clicks */
 }
 
+/*========================================*
+ *  MAIN CONTENT & FOOTER
+ *========================================*/
+
 main {
-  padding: 2dvmin;                    
+  padding: 2dvmin;
 }
 
 footer p {
@@ -90,36 +101,59 @@ hr {
   width: 45dvw;                              /* Smaller custom divider variant */
 }
 
+p {
+  margin: 0;
+  font-size: 6dvmin;
+}
+
+/* Articles used for grouped link / image blocks */
+article {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: fit-content;
+  margin: 0 auto 3dvmin;
+}
+
+/* Hide chapter parts via [hidden] attribute */
+article[hidden] {
+  display: none !important;
+}
+
+/*========================================*
+ *  BASE IMAGE STYLING
+ *========================================*/
+
 img {
   width: 40dvmin;
   height: 40dvmin;
   border-radius: 50%;
   object-fit: cover;
-  overflow:hidden;
+  overflow: hidden;
 }
 
-/* Wrapper that auto-sizes to the img and adds a decorative border */
+/* Wrapper that auto-sizes to the img and adds a decorative circular border */
 .imgBorder {
-  display: inline-block;                     /* shrink-wrap to image size */
-  position: relative;                        /* for ::before positioning */
-  border-radius: 50%;                        /* keeps wrapper circular */
+  display: inline-block;                     /* Shrink-wrap to image size */
+  position: relative;                        /* For ::before positioning */
+  border-radius: 50%;                        /* Keeps wrapper circular */
   line-height: 0;
 }
 
 .imgBorder::before {
   content: "";
   position: absolute;
-  inset: -2dvmin;                            /* thickness of the border image */
+  inset: -2dvmin;                            /* Thickness of the border image */
   background-image: url("/Resources/Image Border.webp");
   background-size: 100% 100%;
   background-repeat: no-repeat;
   background-position: center;
-  border-radius: 50%;                        /* circular border */
-  z-index: -1;                               /* sit behind the image */
+  border-radius: 50%;                        /* Circular border */
+  z-index: -1;                               /* Behind the image */
 }
 
 .imgBorder img {
-  display: block;
+  display: block;                            /* Remove inline-gap under images */
 }
 
 /* Homepage circular image buttons */
@@ -128,18 +162,22 @@ img {
   height: 20dvmin;
   width: auto;
   margin-top: 3dvmin;
-  padding:5dvmin;
+  padding: 5dvmin;
+
   background-color: black;
-  font: 1dvmin Arial;       /* fallback text if image fails */
-  object-fit: contain;      /* show full badge without cropping */
+  font: 1dvmin Arial;                        /* Fallback text if image fails */
+
+  object-fit: contain;                       /* Show full badge without cropping */
   border-radius: 10dvmin;
   border: 3px solid var(--no-link);
-transition:
+
+  transition:
     transform 0.2s ease-out,
     box-shadow 0.2s ease-out,
     border-color 0.2s ease-out;
 }
 
+/* Base link styling */
 a {
   display: inline-block;
   margin: 0 auto;
@@ -152,82 +190,73 @@ a {
     text-shadow 0.2s ease-out;
 }
 
+/*========================================*
+ *  HOVER / FOCUS EFFECTS (DESKTOP ONLY)
+ *========================================*/
+/* Only apply hover effects on devices that actually support hover */
 @media (hover: hover) and (pointer: fine) {
-/* When the article is hovered or focused, style BOTH the image and links */
-.hoverTogether:hover .imgButton,
-.hoverTogether:focus-within .imgButton {
-  box-shadow: var(--shadow);
-  border-color: var(--link-dark);
+  /* When article is hovered/focused, style BOTH the image and links */
+  .hoverTogether:hover .imgButton,
+  .hoverTogether:focus-within .imgButton {
+    box-shadow: var(--shadow);
+    border-color: var(--link-dark);
+  }
+
+  .hoverTogether:hover a,
+  .hoverTogether:focus-within a,
+  a:hover {
+    text-shadow: var(--shadow);
+    color: var(--link-dark);
+  }
+
+  a:hover,
+  button:hover,
+  .imgButton:hover {
+    transform: scale(1.05);
+  }
+
+  .navButtons a:hover img {
+    transform: scale(1.05);
+    border-color: var(--link-dark);
+    box-shadow: var(--shadow);
+  }
+
+  button:hover {
+    transform: scale(1.05);
+    text-shadow: var(--shadow);
+    color: var(--link-dark);
+  }
+
+  button:hover span {
+    background-image: none;
+    -webkit-background-clip: border-box;
+    background-clip: border-box;
+    transform: scale(1.05);
+    color: var(--link-light);
+    -webkit-text-fill-color: var(--link-light);
+    text-shadow: var(--shadow);
+  }
 }
 
-.hoverTogether:hover a,
-.hoverTogether:focus-within a,
-a:hover {
-  text-shadow: var(--shadow);
-  color: var(--link-dark);
-}
-
-a:hover,
-button:hover,
-.imgButton:hover {
-  transform: scale(1.05);
-}
-
-.navButtons a:hover img {
-  transform: scale(1.05);
-  border-color: var(--link-dark);
-  box-shadow: var(--shadow);
-}
-
-button:hover {
-  transform: scale(1.05);
-  text-shadow: var(--shadow);
-  color: var(--link-dark);
-}
-
-button:hover span {
-  background-image: none;
-  -webkit-background-clip: border-box;
-  background-clip: border-box;
-  transform: scale(1.05);
-  color: var(--link-light);
-  -webkit-text-fill-color: var(--link-light);
-  text-shadow: var(--shadow);
-}
-}
+/*========================================*
+ *  LINK VARIANTS
+ *========================================*/
 
 /* Light-colored, neutral links */
 .clean {
   color: var(--no-link);
 }
 
-/* Placeholder links */
+/* Placeholder / “dead” links that always look slightly dimmed */
 .dead,
 .dead:hover {
   transform: scale(1);
-  color: var(--link-dark);                   /* Always appear slightly dimmed */
+  color: var(--link-dark);
 }
 
+/* Highlighted premium text */
 .premium {
-  text-shadow: var(--shadow);                /* Highlighted premium text */
-}
-
-article {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width:fit-content;
-  margin: 0 auto 3dvmin;
-}
-
-/* hide chapter parts */
-article[hidden] {
-  display: none !important;
-}
-
-p {
-  margin: 0;
-  font-size: 6dvmin;
+  text-shadow: var(--shadow);
 }
 
 /*========================================*
@@ -248,16 +277,16 @@ p {
   height: 12dvmin;
   padding: 1dvmin;
   margin: 0 10dvw;
+
   font: 1dvmin Arial;
   border-radius: 50%;
   border: 3px solid var(--no-link);
   object-fit: cover;
+
   transition:
     box-shadow 0.2s ease-out,
     border-color 0.2s ease-out;
 }
-
-
 
 /*========================================*
  *  GENERIC BUTTON STYLING
@@ -278,6 +307,7 @@ button {
   font-family: 'New Rocker';
   font-size: 5dvmin;
 
+  /* Background frame image, content stays “hollow” */
   background-image: url("/Resources/Button Border.webp");
   background-size: 110% 110%;
   background-position: center;
@@ -289,8 +319,7 @@ button {
     color 1s ease-out;
 }
 
-
-
+/* Text inside button uses image as a fill */
 button span {
   display: inline-block;
 
@@ -304,9 +333,6 @@ button span {
   -webkit-background-clip: text;
   background-clip: text;
 }
-
-
-
 
 /*========================================*
  *  CHARACTER NAME COLORS (SCRIPT PAGES)
@@ -368,10 +394,10 @@ button span {
 
 /* Scrollable content wrapper */
 #transitionContainer {
-  flex: 1;                 /* Take remaining vertical space */
+  flex: 1;                                  /* Take remaining vertical space */
   min-height: 100dvh;
   width: 100%;
-  overflow-y: auto;        /* Local vertical scroll */
+  overflow-y: auto;                         /* Local vertical scroll */
   overflow-x: hidden;
 }
 
