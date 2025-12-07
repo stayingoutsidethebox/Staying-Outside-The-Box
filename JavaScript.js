@@ -1,43 +1,6 @@
 // thank heavens for chatGPT <3
 
 /*==============================*
- *  TOUCH STATE (MOBILE HOVER SUPPORT)
- *==============================*/
-
-// Detect touch-capable devices so we can simulate "hover" while a finger is down
-const isTouchDevice =
-  'ontouchstart' in window || navigator.maxTouchPoints > 0;
-
-if (isTouchDevice) {
-  window.addEventListener(
-    'touchstart',
-    () => {
-      // Used by CSS: html.touching :active { ... }
-      document.documentElement.classList.add('touching');
-    },
-    { passive: true }
-  );
-
-  window.addEventListener(
-    'touchend',
-    () => {
-      document.documentElement.classList.remove('touching');
-      document.activeElement?.blur(); // drop any focus outlines on release
-    },
-    { passive: true }
-  );
-
-  window.addEventListener(
-    'touchcancel',
-    () => {
-      document.documentElement.classList.remove('touching');
-      document.activeElement?.blur();
-    },
-    { passive: true }
-  );
-}
-
-/*==============================*
  *  GLOBAL PAGE STATE
  *==============================*/
 
@@ -173,6 +136,15 @@ function toggleElement(id) {
     element.hidden = !element.hidden;
   }
 }
+
+/* Small helper: drop focus when a touch ends, so outlines/active states clear nicely */
+document.addEventListener(
+  'touchend',
+  () => {
+    document.activeElement?.blur();
+  },
+  { passive: true }
+);
 
 /*==============================*
  *  CONSTELLATION CANVAS SETUP
