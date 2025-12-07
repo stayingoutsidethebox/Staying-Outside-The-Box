@@ -129,6 +129,7 @@ img {
 /* Homepage circular image buttons */
 .imgButton {
   height: 20dvmin;
+  width: 100%;
   padding:15%;
   margin-top: 3dvmin;
   background-color:black;
