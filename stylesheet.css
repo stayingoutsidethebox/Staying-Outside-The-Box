@@ -260,7 +260,7 @@ button:active span {
 
 /* A bit extra size for homepage links */
 .clean:hover {
-  transform: scale(1.05);
+  transform: scale(1.1);
 }
 
 /* Placeholder / “dead” links that always look slightly dimmed */
