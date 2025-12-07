@@ -120,6 +120,19 @@ article[hidden] {
   display: none !important;
 }
 
+/* Base link styling */
+a {
+  display: inline-block;
+  margin: 0 auto;
+  padding-bottom: 1dvmin;
+  color: var(--link-light);
+  text-decoration: none;
+  transition:
+    transform 0.2s ease-out,
+    color 0.2s ease-out,
+    text-shadow 0.2s ease-out;
+}
+
 /*========================================*
  *  BASE IMAGE STYLING
  *========================================*/
@@ -177,19 +190,6 @@ img {
     border-color 0.2s ease-out;
 }
 
-/* Base link styling */
-a {
-  display: inline-block;
-  margin: 0 auto;
-  padding-bottom: 1dvmin;
-  color: var(--link-light);
-  text-decoration: none;
-  transition:
-    transform 0.2s ease-out,
-    color 0.2s ease-out,
-    text-shadow 0.2s ease-out;
-}
-
 /*========================================*
  *  INTERACTION STATES (HOVER + TOUCH)
  *========================================*/
@@ -208,7 +208,8 @@ a {
 }
 
 .hoverTogether:hover a,
-.hoverTogether:focus-within a {
+.hoverTogether:focus-within a,
+a:hover {
   text-shadow: var(--shadow);
   color: var(--link-dark);
 }
