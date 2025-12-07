@@ -266,6 +266,13 @@ button {
     color 1s ease-out;
 }
 
+button:hover,
+button:active {
+  transform: scale(1.05);
+  text-shadow: var(--shadow);
+  color: var(--link-dark);
+}
+
 button span {
   display: inline-block;
 
