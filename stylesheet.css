@@ -150,6 +150,7 @@ a {
   color: var(--link-light);
   text-decoration: none;
   transition:
+    transform 0.2s ease-out,
     color 0.2s ease-out,
     text-shadow 0.2s ease-out;
 }
@@ -184,19 +185,6 @@ article {
   flex-direction: column;
   align-items: center;
   margin: 0 auto 3dvmin;
-}
-
-/* Hover effects for homepage items */
-article:hover .imgButton,
-article:active .imgButton {
-  box-shadow: var(--shadow);
-  border-color: var(--link-dark);
-}
-
-article:hover a,
-article:active a {
-  color: var(--link-dark);
-  text-shadow: var(--shadow);
 }
 
 p {
