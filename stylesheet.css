@@ -160,7 +160,8 @@ a {
 }
 
 .hoverTogether:hover a,
-.hoverTogether:focus-within a {
+.hoverTogether:focus-within a,
+a:hover {
   text-shadow: var(--shadow);
   color: var(--link-dark);
 }
