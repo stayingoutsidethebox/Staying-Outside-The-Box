@@ -254,7 +254,9 @@ button:active span {
 /* Light-colored, neutral links */
 .clean {
   color: var(--no-link);
-  transform: scale(1.5);
+}
+.clean: hover{
+  transform: scale(1.4);
 }
 
 /* Placeholder / “dead” links that always look slightly dimmed */
