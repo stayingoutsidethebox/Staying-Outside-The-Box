@@ -155,16 +155,20 @@ a {
 /* When the article is hovered or focused, style BOTH the image and links */
 article:hover .imgButton,
 article:focus-within .imgButton {
-  transform: scale(1.05);
   box-shadow: var(--shadow);
   border-color: var(--link-dark);
 }
 
 article:hover a,
 article:focus-within a {
-  transform: scale(1.05);
   text-shadow: var(--shadow);
   color: var(--link-dark);
+}
+
+a:hover,
+button:hover,
+.imgButton:hover {
+  transform: scale(1.05);
 }
 
 /* Light-colored, neutral links */
@@ -174,8 +178,7 @@ article:focus-within a {
 
 /* Placeholder links */
 .dead,
-.dead:hover,
-.dead:active {
+.dead:hover {
   transform: scale(1);
   color: var(--link-dark);                   /* Always appear slightly dimmed */
 }
@@ -229,8 +232,7 @@ p {
     border-color 0.2s ease-out;
 }
 
-.navButtons a:hover img,
-.navButtons a:active img {
+.navButtons a:hover img {
   transform: scale(1.05);
   border-color: var(--link-dark);
   box-shadow: var(--shadow);
@@ -266,8 +268,7 @@ button {
     color 1s ease-out;
 }
 
-button:hover,
-button:active {
+button:hover {
   transform: scale(1.05);
   text-shadow: var(--shadow);
   color: var(--link-dark);
@@ -287,13 +288,11 @@ button span {
   background-clip: text;
 }
 
-button:hover,
-button:active {
+button:hover {
   box-shadow: var(--shadow);
 }
 
-button:hover span,
-button:active span {
+button:hover span {
   background-image: none;
   -webkit-background-clip: border-box;
   background-clip: border-box;
@@ -307,54 +306,54 @@ button:active span {
  *  CHARACTER NAME COLORS (SCRIPT PAGES)
  *========================================*/
 
-/* Shared character name styling */
 .roman,
-.sage,
-.elena,
-.iris,
-.darian,
-.walter,
-.trent,
-.dave,
-.fireRider,
-.sidecharacter {
+.sage {
+  color: red;
   margin-top: 1em;
   font-weight: bold;
 }
 
-/* Individual colors */
-.roman,
-.sage {
-  color: red;
-}
-
 .elena {
   color: yellow;
+  margin-top: 1em;
+  font-weight: bold;
 }
 
 .iris,
 .darian {
   color: blue;
+  margin-top: 1em;
+  font-weight: bold;
 }
 
 .walter {
   color: brown;
+  margin-top: 1em;
+  font-weight: bold;
 }
 
 .trent {
   color: orange;
+  margin-top: 1em;
+  font-weight: bold;
 }
 
 .dave {
   color: pink;
+  margin-top: 1em;
+  font-weight: bold;
 }
 
 .fireRider {
   color: firebrick;
+  margin-top: 1em;
+  font-weight: bold;
 }
 
 .sidecharacter {
   color: inherit;
+  margin-top: 1em;
+  font-weight: bold;
 }
 
 /*========================================*
