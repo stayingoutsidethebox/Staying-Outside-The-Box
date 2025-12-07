@@ -198,10 +198,6 @@ a:hover {
   transform: scale(1.05);
 }
 
-button:hover {
-  transform: scale(1.05);
-}
-
 /* When the article is hovered or focused, style BOTH the image and links (desktop hover) */
 .hoverTogether:hover .imgButton,
 .hoverTogether:focus-within .imgButton {
@@ -236,6 +232,8 @@ button:active {
   text-shadow: var(--shadow);
   color: var(--link-dark);
   box-shadow: var(--shadow);
+  
+  transform: scale(1.05);
 }
 
 button:hover span,
@@ -243,7 +241,7 @@ button:active span {
   background-image: none;
   -webkit-background-clip: border-box;
   background-clip: border-box;
-  transform: scale(1.05);
+  
   color: var(--link-light);
   -webkit-text-fill-color: var(--link-light);
   text-shadow: var(--shadow);
@@ -330,6 +328,7 @@ button {
   background-repeat: no-repeat;
 
   transition:
+    tranform 0.3s ease-out,
     box-shadow 0.3s ease-out,
     text-shadow 0.3s ease-out,
     color 0.3s ease-out;
