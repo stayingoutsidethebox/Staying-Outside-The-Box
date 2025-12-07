@@ -330,7 +330,7 @@ button {
 
   transition:
     transform 0.3s ease-out,
-    box-shadow 0.3s ease-out,
+    box-shadow 0.3s ease-out;
 }
 
 /* Text inside button uses image as a fill */
@@ -348,9 +348,9 @@ button span {
   background-clip: text;
   
   transition:
-    color 0.3s ease-out,
+    color 1s ease-out,
     text-shadow 0.3s ease-out,
-    -webkit-text-fill-color 0.3s ease-out;
+    -webkit-text-fill-color 1s ease-out;
 }
 
 /*========================================*
