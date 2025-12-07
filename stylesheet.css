@@ -11,7 +11,7 @@
   /* Transitions */
   --slow-transform: 0.3s ease-out;
   --slow-border: 0.3s ease-out;
-  --slow-shadow: 0.9s ease-out;
+  --slow-shadow: 0.7s ease-out;
   --slow-color: 0.5s ease-out;
 }
 
@@ -356,7 +356,7 @@ button span {
   transition:
     /* No transition for color */
     text-shadow var(--slow-shadow),
-    -webkit-text-fill-color var(--slow-color);
+    -webkit-text-fill-color 0.9s ease-out;
 }
 
 /*========================================*
