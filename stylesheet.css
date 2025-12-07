@@ -153,14 +153,14 @@ a {
 }
 
 /* When the article is hovered or focused, style BOTH the image and links */
-article:hover .imgButton,
-article:focus-within .imgButton {
+.imgButtonHover:hover .imgButton,
+.imgButtonHover:focus-within .imgButton {
   box-shadow: var(--shadow);
   border-color: var(--link-dark);
 }
 
-article:hover a,
-article:focus-within a {
+.imgButtonHover:hover a,
+.imgButtonHover:focus-within a {
   text-shadow: var(--shadow);
   color: var(--link-dark);
 }
