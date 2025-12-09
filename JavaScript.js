@@ -97,8 +97,6 @@ window.addEventListener('load', () => {
  *==============================*/
 
 window.addEventListener('pageshow', (event) => {
-  document.documentElement.style.overflow = 'auto';
-  document.body.style.overflow = 'auto';
   
   const page = document.getElementById('transitionContainer');
   if (!page) return;
@@ -122,9 +120,6 @@ window.addEventListener('pageshow', (event) => {
 
     // Reset scroll inside the transition container
     page.scrollTop = 0;
-    
-    document.documentElement.style.overflow = 'hidden';
-document.body.style.overflow = 'hidden';
 
 // Allow transitions again
     isTransitioning = false;
