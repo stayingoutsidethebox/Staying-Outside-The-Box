@@ -52,7 +52,8 @@ window.addEventListener('load', () => {
     // Mark page as ready so CSS can run entrance animations
     requestAnimationFrame(() => {
       page.classList.add('ready');
-      element.click();
+      //force redraw to fix page-bottom extension
+      page.getBoundingClientRect(); 
     });
   }
 
