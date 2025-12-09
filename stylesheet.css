@@ -47,9 +47,8 @@ body {
   align-items: stretch;
 
   min-height: 100dvh;
-  height: 100dvmin;                              /* don't lock to viewport height */
-  overflow-x: hidden;
-  overflow-y: auto;                            /* Prevent body-level scrolling */
+  height: 100dvmin;                              
+  overflow: auto;                            
   margin: 0;
   padding: 0;
   background: transparent;
