@@ -22,7 +22,7 @@
 html {
   margin: 0;
   padding: 0;
-  overflow:hidden;
+  
   background-color: #300060;                 /* Fallback solid background */
 }
 
@@ -47,7 +47,7 @@ body {
 
   min-height: 100dvh;
   height: 100dvh;
-  overflow: hidden;                        /* no body scroll either */
+                  /* no body scroll either */
   margin: 0;
   padding: 0;
   background: transparent;
