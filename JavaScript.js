@@ -52,10 +52,6 @@ window.addEventListener('load', () => {
     // Mark page as ready so CSS can run entrance animations
     requestAnimationFrame(() => {
       page.classList.add('ready');
-      // Force Safari to recalc height & drop the extra bottom space
-  document.body.style.overflowY = 'hidden';
-  void document.body.offsetHeight;          // force reflow
-  document.body.style.overflowY = 'auto';
     });
   }
 
@@ -126,6 +122,10 @@ window.addEventListener('pageshow', (event) => {
 
     // Reset scroll inside the transition container
     page.scrollTop = 0;
+
+    // Force reflow after the animation
+document.body.style.height = "auto"; // Reset height if necessary
+document.body.offsetHeight; // Trigger a reflow by accessing the offsetHeight
   }
 });
 
