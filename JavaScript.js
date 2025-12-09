@@ -127,7 +127,7 @@ window.addEventListener('pageshow', (event) => {
     page.scrollTop = 0;
 
   //to allow scroll again
-  document.body.style.overflow = "visible";
+  document.body.style.overflow = "auto";
 });
   }
 });
