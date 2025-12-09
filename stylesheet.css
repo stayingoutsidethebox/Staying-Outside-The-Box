@@ -428,7 +428,7 @@ button span {
 
 /*--- Homepage animation (slides downward into view) ---*/
 .homeJs #transitionContainer {
-  transform: translateY(-100vh);  /* was -100% */
+  transform: translateY(-100%);
   transition: transform var(--slide-duration) ease-in-out;
 }
 
@@ -437,12 +437,12 @@ button span {
 }
 
 .homeJs #transitionContainer.slide-out {
-  transform: translateY(-100vh);  /* was -100% */
+  transform: translateY(-100%);
 }
 
 /*--- Other pages animation (slides upward into view) ---*/
 .otherJs #transitionContainer {
-  transform: translateY(100vh);   /* was 100% */
+  transform: translateY(100%);
   transition: transform var(--slide-duration) ease-in-out;
 }
 
@@ -451,7 +451,7 @@ button span {
 }
 
 .otherJs #transitionContainer.slide-out {
-  transform: translateY(100vh);   /* was 100% */
+  transform: translateY(100%);
 }
 
 /* No-JavaScript fallback: disable animation entirely */
