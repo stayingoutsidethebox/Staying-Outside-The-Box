@@ -22,8 +22,7 @@
 html {
   margin: 0;
   padding: 0;
-  overflow-x: hidden;                        /* keep horizontal hidden */
-  overflow-y: auto;
+  overflow:hidden;
   background-color: #300060;                 /* Fallback solid background */
 }
 
@@ -42,13 +41,13 @@ body::before {
 }
 
 body {
-  display: flex;                             /* Vertical layout wrapper */
+  display: flex;
   flex-direction: column;
   align-items: stretch;
 
   min-height: 100dvh;
-  height: 100dvmin;                              
-  overflow: auto;                            
+  height: 100dvh;
+  overflow: hidden;                        /* no body scroll either */
   margin: 0;
   padding: 0;
   background: transparent;
@@ -420,9 +419,10 @@ button span {
 
 /* Scrollable content wrapper */
 #transitionContainer {
-  flex: 1 0 auto;      /* don’t force extra growth */
-  height:100%;       /* or just remove the min-height line entirely */
+  flex: 1;
+  min-height: 100dvh;                      /* always at least full viewport */
   width: 100%;
+  overflow-y: auto;                        /* local vertical scroll */
   overflow-x: hidden;
 }
 
