@@ -52,17 +52,6 @@ window.addEventListener('load', () => {
     // Mark page as ready so CSS can run entrance animations
     requestAnimationFrame(() => {
       page.classList.add('ready');
-      
-      // 🔓 Restore normal scrolling / height after slide-in
-    page.style.height = '';
-    page.style.overflowY = '';
-    
-    freezeConstellation = false;
-    cleanedUserSpeed = 0;
-    smoothSpeed = 0;
-    pointerSpeed = 0;
-    isTransitioning = false;
-    page.scrollTop = 0;
     });
   }
 
