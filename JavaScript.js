@@ -52,6 +52,17 @@ window.addEventListener('load', () => {
     // Mark page as ready so CSS can run entrance animations
     requestAnimationFrame(() => {
       page.classList.add('ready');
+      
+      // 🔓 Restore normal scrolling / height after slide-in
+    page.style.height = '';
+    page.style.overflowY = '';
+    
+    freezeConstellation = false;
+    cleanedUserSpeed = 0;
+    smoothSpeed = 0;
+    pointerSpeed = 0;
+    isTransitioning = false;
+    page.scrollTop = 0;
     });
   }
 
@@ -539,6 +550,10 @@ function transitionTo(url, isMenu = false) {
   // Freeze & save constellation for the next page
   freezeConstellation = true;
   saveStarsToStorage();
+
+// 🔒 Lock the card to exactly the viewport & stop its own scrolling
+  page.style.height = `${window.innerHeight}px`;
+  page.style.overflowY = 'hidden';
 
   // Trigger CSS slide-out
   page.classList.add('slide-out');
