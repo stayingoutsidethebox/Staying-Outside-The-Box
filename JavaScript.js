@@ -501,10 +501,10 @@ function transitionTo(url, isMenu = false) {
   freezeConstellation = true;
   saveStarsToStorage();
 
+freeScrollLayout(page);
   page.classList.add('slide-out');
 
   setTimeout(() => {
-    freeScrollLayout(page);
     window.location.href = url;
   }, 600);
 }
