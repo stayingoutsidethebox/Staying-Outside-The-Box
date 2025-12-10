@@ -222,119 +222,94 @@ function moveStars() {
   if (!HAS_CANVAS || !STARS.length) return;
 
   for (const STAR of STARS) {
-            // --- 1. Passive drift for this frame (does NOT change) ---
-    const passiveDX = STAR.vx * (CLEANED_USER_SPEED + 1);
-    const passiveDY = STAR.vy * (CLEANED_USER_SPEED + 1);
-    const passiveMag = Math.hypot(passiveDX, passiveDY);
+  // --- 1. Passive drift for this frame (unchanged baseline motion) ---
+  const passiveDX = STAR.vx * (CLEANED_USER_SPEED + 1);
+  const passiveDY = STAR.vy * (CLEANED_USER_SPEED + 1);
 
-    // Start with passive movement as the default
-    let moveDX = passiveDX;
-    let moveDY = passiveDY;
+  // Apply passive drift first
+  STAR.x += passiveDX;
+  STAR.y += passiveDY;
 
-        // --- 2. Pointer pull / push zone around the cursor in a radial form ---
-    // Use the speed threshold again so the effect fades out like before
-    if (LAST_TIME !== 0 && CLEANED_USER_SPEED > 0.19) {
-      const DX = LAST_X - STAR.x;
-      const DY = LAST_Y - STAR.y;
-      const DIST_SQ = DX * DX + DY * DY;
+  // --- 2. Pointer pull / push as a *bias* (not total direction override) ---
+  if (LAST_TIME !== 0 && CLEANED_USER_SPEED > 0.19) {
+    const DX = LAST_X - STAR.x;
+    const DY = LAST_Y - STAR.y;
+    const DIST_SQ = DX * DX + DY * DY;
 
-      const MAX_INFLUENCE = 10000 * (SCALE_FACTOR / 500);
+    const MAX_INFLUENCE = 10000 * (SCALE_FACTOR / 500);
 
-      if (DIST_SQ < MAX_INFLUENCE) {
-        const DIST = Math.sqrt(DIST_SQ) || 1;
-        const MAX_RADIUS = Math.sqrt(MAX_INFLUENCE);
+    if (DIST_SQ < MAX_INFLUENCE) {
+      const DIST = Math.sqrt(DIST_SQ) || 1;
+      const MAX_RADIUS = Math.sqrt(MAX_INFLUENCE);
 
-        // Normalized distance 0..1
-        const NORM = Math.min(DIST / MAX_RADIUS, 1);
+      // Normalized distance 0..1 from the pointer
+      const NORM = Math.min(DIST / MAX_RADIUS, 1);
 
-        // Exponent controls how sharply movement grows with distance
-        const EXPONENT = 1.7; // try 1.4–2.2 for different feels
+      // Exponent controls how fast pull grows with distance
+      const EXPONENT = 1.7; // try 1.4–2.2
+      // This makes a bell-shaped strength: 0 at center & edges, max in the middle
+      const radialEnvelope = Math.pow(NORM, EXPONENT) * (1 - NORM);
 
-        // Falloff so strength still dies toward the outer edge
-        const FALLOFF = 1 - NORM * NORM; // like before but in radius domain
+      // Base pull from your motion, modulated by distance envelope
+      const BASE_PULL = 0.04 * CLEANED_USER_SPEED * radialEnvelope;
 
-        // Base pull from your motion, modulated by distance falloff
-        const BASE_PULL = 0.015 * CLEANED_USER_SPEED * FALLOFF;
+      // Unit radial vector (toward the pointer)
+      const RAD_X = DX / DIST;
+      const RAD_Y = DY / DIST;
 
-        const ATTR_PULL = BASE_PULL;
-        const REP_PULL = BASE_PULL * REPULSION_VALUE;
+      // Optional tangential orbital component
+      const TAN_X = -RAD_Y;
+      const TAN_Y = RAD_X;
 
-        // Unit radial vector (toward the pointer)
-        const RAD_X = DX / DIST;
-        const RAD_Y = DY / DIST;
+      const CURVE = 0.45;           // 0 = pure radial, 1 = pure orbit
+      const MIX_R = 1 - CURVE;
+      const MIX_T = CURVE;
 
-        // Unit tangential vector (perpendicular) for orbit
-        const TAN_X = -RAD_Y;
-        const TAN_Y = RAD_X;
+      // Attraction direction (toward pointer + orbit)
+      const ATTR_DIR_X = RAD_X * MIX_R + TAN_X * MIX_T;
+      const ATTR_DIR_Y = RAD_Y * MIX_R + TAN_Y * MIX_T;
 
-        // 0 = pure radial, 1 = pure orbit
-        const CURVE = 0.45;
-        const MIX_R = 1 - CURVE;
-        const MIX_T = CURVE;
+      // Repulsion direction (away from pointer + same orbit direction)
+      const REP_DIR_X = -RAD_X * MIX_R + TAN_X * MIX_T;
+      const REP_DIR_Y = -RAD_Y * MIX_R + TAN_Y * MIX_T;
 
-        // Attraction direction (toward pointer + orbit)
-        const ATTR_DIR_X = RAD_X * MIX_R + TAN_X * MIX_T;
-        const ATTR_DIR_Y = RAD_Y * MIX_R + TAN_Y * MIX_T;
+      const ATTR_PULL = BASE_PULL;
+      const REP_PULL  = BASE_PULL * REPULSION_VALUE;
 
-        // Repulsion direction (away from pointer + same orbit direction)
-        const REP_DIR_X = -RAD_X * MIX_R + TAN_X * MIX_T;
-        const REP_DIR_Y = -RAD_Y * MIX_R + TAN_Y * MIX_T;
+      // Combined pointer influence vector (small compared to passive)
+      let biasX = ATTR_DIR_X * ATTR_PULL + REP_DIR_X * REP_PULL;
+      let biasY = ATTR_DIR_Y * ATTR_PULL + REP_DIR_Y * REP_PULL;
 
-        // Combined influence vector
-        let dirX =
-          ATTR_DIR_X * ATTR_PULL + REP_DIR_X * REP_PULL;
-        let dirY =
-          ATTR_DIR_Y * ATTR_PULL + REP_DIR_Y * REP_PULL;
+      // Scale by distance so further stars get a bigger nudge along that direction
+      biasX *= DIST;
+      biasY *= DIST;
 
-        const dirLen = Math.hypot(dirX, dirY);
-        if (dirLen > 1e-5) {
-          // Normalize to pure direction
-          dirX /= dirLen;
-          dirY /= dirLen;
-
-          // --- Exponential distance scaling ---
-          // Near the finger: NORM ~ 0 → factor ~ 0 (barely move)
-          // Farther out: NORM → 1 → factor ramps up nonlinearly
-          const distanceFactor = Math.pow(NORM, EXPONENT);
-
-          // Pointer wants this many pixels of movement
-          const pointerMag = BASE_PULL * distanceFactor * DIST;
-
-          // Final step: at least passive magnitude, plus radial bias
-          const step = Math.max(pointerMag, passiveMag);
-
-          moveDX = dirX * step;
-          moveDY = dirY * step;
-        }
-      }
+      // Apply *additive* pointer influence
+      STAR.x += biasX;
+      STAR.y += biasY;
     }
-
-    // --- 3. Apply final motion for this frame ---
-    STAR.x += moveDX;
-    STAR.y += moveDY;
-
-    // White flash decay for "spark" effect
-    if (STAR.whiteValue > 0) {
-      STAR.whiteValue *= 0.98;
-      if (STAR.whiteValue < 0.001) STAR.whiteValue = 0;
-    }
-
-    // Opacity twinkle behavior
-    if (STAR.opacity <= 0.005) {
-      STAR.opacity = 1;
-      if (Math.random() < 0.07) STAR.whiteValue = 1;
-    } else if (STAR.opacity > 0.02) {
-      STAR.opacity -= 0.005 * STAR.fadeSpeed;
-    } else {
-      STAR.opacity -= 0.0001;
-    }
-
-    // Wrap stars at edges so they re-enter from the opposite side
-    if (STAR.x < 0) STAR.x = WIDTH;
-    if (STAR.x > WIDTH) STAR.x = 0;
-    if (STAR.y < 0) STAR.y = HEIGHT;
-    if (STAR.y > HEIGHT) STAR.y = 0;
   }
+
+  // --- 3. Spark / fade / wrap behavior (unchanged) ---
+  if (STAR.whiteValue > 0) {
+    STAR.whiteValue *= 0.98;
+    if (STAR.whiteValue < 0.001) STAR.whiteValue = 0;
+  }
+
+  if (STAR.opacity <= 0.005) {
+    STAR.opacity = 1;
+    if (Math.random() < 0.07) STAR.whiteValue = 1;
+  } else if (STAR.opacity > 0.02) {
+    STAR.opacity -= 0.005 * STAR.fadeSpeed;
+  } else {
+    STAR.opacity -= 0.0001;
+  }
+
+  if (STAR.x < 0) STAR.x = WIDTH;
+  if (STAR.x > WIDTH) STAR.x = 0;
+  if (STAR.y < 0) STAR.y = HEIGHT;
+  if (STAR.y > HEIGHT) STAR.y = 0;
+}
 
   // Slowly decay pointer speed influence
   CLEANED_USER_SPEED *= 0.95;
