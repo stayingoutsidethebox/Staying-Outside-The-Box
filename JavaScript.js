@@ -58,8 +58,7 @@ slideDurationMs = pageSize * 1000;
     });
   }
 
-//reset heights to prevent background expansion and contraction
-resetPageHeights();
+
 
   // Detect if we came from the same origin (internal navigation)
   const ref = document.referrer;
@@ -130,7 +129,8 @@ window.addEventListener('pageshow', (event) => {
     page.scrollTop = 0;
     
     applyLockedLayout();
-    
+    //reset heights to prevent background expansion and contraction
+resetPageHeights();
 
 // Allow transitions again
     isTransitioning = false;
