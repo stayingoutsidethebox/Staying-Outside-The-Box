@@ -498,11 +498,8 @@ function applyLockedLayout() {
   const body = document.body;
   const tc = document.getElementById('transitionContainer');
 
-  
   html.style.overflowY = 'hidden';
-
   body.style.height = '100dvmin';
-
   tc.style.overflowY = 'auto';
 }
 
@@ -511,11 +508,8 @@ function applyFreeLayout() {
   const body = document.body;
   const tc = document.getElementById('transitionContainer');
 
-  
   html.style.overflowY = 'auto';
-
   body.style.height = 'auto';
-
   tc.style.overflowY = 'visible';
 }
 
