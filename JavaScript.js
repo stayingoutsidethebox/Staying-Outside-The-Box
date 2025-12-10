@@ -541,7 +541,7 @@ function moveStars() {
       const DX = LAST_X - STAR.x;
       const DY = LAST_Y - STAR.y;
       const DIST_SQ = DX * DX + DY * DY;
-      const MAX_INFLUENCE = 15000 * (SCALE_FACTOR / 500);
+      const MAX_INFLUENCE = 10000 * (SCALE_FACTOR / 500);
 
       if (DIST_SQ > 4 && DIST_SQ < MAX_INFLUENCE) {
         const PULL =
