@@ -236,7 +236,7 @@ function moveStars() {
       if (DIST_SQ > 4 && DIST_SQ < MAX_INFLUENCE) {
         // Base strength shared by attraction (always on) and repulsion (burst)
         const BASE_PULL =
-          0.008 *
+          0.01 *
           CLEANED_USER_SPEED *
           ((MAX_INFLUENCE - DIST_SQ) / MAX_INFLUENCE);
 
