@@ -14,6 +14,12 @@ let isTransitioning = false;       // prevents double navigation during transiti
 
 window.addEventListener('load', () => {
   const page = document.getElementById('transitionContainer');
+  const html = document.documentElement;
+  const body = document.body;
+
+  // Stop rubber-band overscroll on the root scroll container
+  html.style.overscrollBehavior = 'none';
+  body.style.overscrollBehavior = 'none';
 
   // Read and clear the "came from menu" flag
   const suppressHomeBack = sessionStorage.getItem('suppressHomeBack') === '1';
