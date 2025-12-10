@@ -52,6 +52,7 @@
      - window resize listener
 
  *==============================================================*/
+
 /*========================================*
  *  1 GLOBAL VARIABLES & CONSTANTS
  *========================================*/
@@ -60,6 +61,7 @@
 
 let IS_INTERNAL_REFERRER = false;  // true if we came from same origin
 let IS_TRANSITIONING = false;      // prevents double navigation clicks
+
 
 /*---------- Main layout handles ----------*/
 
@@ -70,12 +72,18 @@ const getPage = () => document.getElementById('transitionContainer');
 const isHomepage = () => !!document.querySelector('#menuButton');
 
 // Shared helper for slide animation duration (seconds)
-const getSlideDurationSeconds = () => isHomepage() ? 1.2 : 0.6;
+const getSlideDurationSeconds = () => (isHomepage() ? 1.2 : 0.6);
+
 
 /*---------- Constellation canvas & starfield ----------*/
 
 const CANVAS = document.getElementById('constellations');
-const BRUSH = CANVAS.getContext('2d');
+const BRUSH = CANVAS && CANVAS.getContext ? CANVAS.getContext('2d') : null;
+const HAS_CANVAS = !!(CANVAS && BRUSH);
+
+if (!HAS_CANVAS) {
+  console.warn('Constellation canvas not found or unsupported; starfield disabled.');
+}
 
 // Freeze flag to pause star motion during transitions
 let FREEZE_CONSTELLATION = false;
@@ -111,28 +119,40 @@ function lockScrollToContainer(PAGE = getPage()) {
   const HTML = document.documentElement;
   const BODY = document.body;
 
-  HTML.style.overflowY = 'hidden';  // window scroll disabled
-  BODY.style.height = '100dvmin';   // keep body pinned to viewport height
+  if (!HTML || !BODY) return;
 
-  if (PAGE) PAGE.style.overflowY = 'auto'; // page wrapper scrolls
+  HTML.style.overflowY = 'hidden';   // window scroll disabled
+  BODY.style.height = '100dvmin';    // keep body pinned to viewport height
+
+  if (PAGE) {
+    PAGE.style.overflowY = 'auto';   // page wrapper scrolls
+  }
 }
 
-// Restore normal page scroll to window/body for proper animation 
+// Restore normal page scroll to window/body for proper animation
 function freeScrollLayout(PAGE = getPage()) {
   const HTML = document.documentElement;
   const BODY = document.body;
 
+  if (!HTML || !BODY) return;
+
   // Capture scroll before layout changes
-  const CURRENT_SCROLL = PAGE ? PAGE.scrollTop : window.scrollY;
+  const CURRENT_SCROLL = PAGE && typeof PAGE.scrollTop === 'number'
+    ? PAGE.scrollTop
+    : window.scrollY || 0;
 
   // Switch to window/body scrolling
   HTML.style.overflowY = 'auto';
   BODY.style.height = 'auto';
   if (PAGE) PAGE.style.overflowY = 'visible';
 
-  // Re-apply scroll position once layout resets scroll to top
+  // Re-apply scroll position once layout resets
   requestAnimationFrame(() => {
-    window.scrollTo(0, CURRENT_SCROLL);
+    try {
+      window.scrollTo(0, CURRENT_SCROLL);
+    } catch (ERR) {
+      console.warn('Could not restore scroll position:', ERR);
+    }
   });
 }
 
@@ -143,25 +163,37 @@ window.addEventListener('load', () => {
   const PAGE = getPage();
 
   // Read and clear "suppressHomeBack" flag for this view
-  const SUPPRESS_HOME_BACK =
-    sessionStorage.getItem('suppressHomeBack') === '1';
-  sessionStorage.removeItem('suppressHomeBack');
+  let SUPPRESS_HOME_BACK = false;
+  try {
+    SUPPRESS_HOME_BACK = sessionStorage.getItem('suppressHomeBack') === '1';
+    sessionStorage.removeItem('suppressHomeBack');
+  } catch (ERR) {
+    console.warn('SessionStorage unavailable; suppressHomeBack ignored:', ERR);
+  }
 
   // Strip hash so anchor links don't break slide transitions
   if (window.location.hash) {
-    history.replaceState(
-      null,
-      '',
-      window.location.pathname + window.location.search
-    );
+    try {
+      history.replaceState(
+        null,
+        '',
+        window.location.pathname + window.location.search
+      );
+    } catch (ERR) {
+      console.warn('Could not replace state to strip hash:', ERR);
+    }
   }
 
-  // Configure slide-in speed/distance and lock scroll once finished
+  // Configure slide-in speed and lock scroll once finished
   if (PAGE) {
-    document.documentElement.style.setProperty(
-      '--slide-duration',
-      `${getSlideDurationSeconds()}s`
-    );
+    try {
+      document.documentElement.style.setProperty(
+        '--slide-duration',
+        `${getSlideDurationSeconds()}s`
+      );
+    } catch (ERR) {
+      console.warn('Could not set --slide-duration:', ERR);
+    }
 
     // Wait one frame to avoid flashing before animation
     requestAnimationFrame(() => {
@@ -190,26 +222,30 @@ window.addEventListener('load', () => {
   // Configure homepage back link visibility and stored URL
   const BACK_LINK = document.getElementById('homepageBack');
   if (BACK_LINK) {
-    if (!SUPPRESS_HOME_BACK && IS_INTERNAL_REFERRER && REF) {
-      try {
+    try {
+      if (!SUPPRESS_HOME_BACK && IS_INTERNAL_REFERRER && REF) {
         localStorage.setItem('homepageBackUrl', REF);
-      } catch (ERR) {
-        console.warn('Could not save homepageBackUrl:', ERR);
+      } else {
+        localStorage.removeItem('homepageBackUrl');
       }
-    } else {
-      localStorage.removeItem('homepageBackUrl');
-    }
 
-    BACK_LINK.style.display =
-      !SUPPRESS_HOME_BACK && localStorage.getItem('homepageBackUrl')
-        ? 'block'
-        : 'none';
+      const BACK_URL = localStorage.getItem('homepageBackUrl');
+      BACK_LINK.style.display =
+        !SUPPRESS_HOME_BACK && BACK_URL ? 'block' : 'none';
+    } catch (ERR) {
+      console.warn('homepageBackUrl storage unavailable:', ERR);
+      BACK_LINK.style.display = 'none';
+    }
   }
 
   // Fresh external entry: clear saved constellation so it feels new
   if (!IS_INTERNAL_REFERRER) {
-    localStorage.removeItem('constellationStars');
-    localStorage.removeItem('constellationMeta');
+    try {
+      localStorage.removeItem('constellationStars');
+      localStorage.removeItem('constellationMeta');
+    } catch (ERR) {
+      console.warn('Could not clear saved constellation state:', ERR);
+    }
   }
 });
 
@@ -220,9 +256,15 @@ window.addEventListener('pageshow', (event) => {
   const PAGE = getPage();
   if (!PAGE) return;
 
-  const NAV_TYPE = (performance.getEntriesByType
-    ? performance.getEntriesByType('navigation')
-    : [])[0]?.type;
+  let NAV_TYPE;
+  try {
+    const NAV_ENTRIES = performance.getEntriesByType
+      ? performance.getEntriesByType('navigation')
+      : [];
+    NAV_TYPE = NAV_ENTRIES[0] && NAV_ENTRIES[0].type;
+  } catch {
+    NAV_TYPE = undefined;
+  }
 
   // If restored from bfcache, reset transition and motion state
   if (event.persisted || NAV_TYPE === 'back_forward') {
@@ -247,50 +289,76 @@ window.addEventListener('pageshow', (event) => {
 // Trigger slide-out animation and then navigate to new URL
 function transitionTo(url, isMenu = false) {
   if (IS_TRANSITIONING) return;
+  if (!url) {
+    console.warn('transitionTo called without a URL.');
+    return;
+  }
   IS_TRANSITIONING = true;
 
   const PAGE = getPage();
 
-  if (isMenu) {
-    sessionStorage.setItem('suppressHomeBack', '1');
-  } else {
-    sessionStorage.removeItem('suppressHomeBack');
+  // Menu links hide the back-link on arrival
+  try {
+    if (isMenu) {
+      sessionStorage.setItem('suppressHomeBack', '1');
+    } else {
+      sessionStorage.removeItem('suppressHomeBack');
+    }
+  } catch (ERR) {
+    console.warn('SessionStorage unavailable in transitionTo:', ERR);
   }
 
+  // Special "back" keyword uses stored homepageBackUrl
   if (url === 'back') {
-    const STORED = localStorage.getItem('homepageBackUrl');
-    if (!STORED) {
+    try {
+      const STORED = localStorage.getItem('homepageBackUrl');
+      if (!STORED) {
+        IS_TRANSITIONING = false;
+        return;
+      }
+      url = STORED;
+    } catch (ERR) {
+      console.warn('Could not read homepageBackUrl:', ERR);
       IS_TRANSITIONING = false;
       return;
     }
-    url = STORED;
   }
 
+  // If page wrapper is missing, just bail straight to the URL
   if (!PAGE) {
     window.location.href = url;
     return;
   }
 
+  // Pause star motion and persist their current state
   FREEZE_CONSTELLATION = true;
   saveStarsToStorage();
 
-  // Use the scroll inside #transitionContainer, not window.scrollY
-  const SCROLL_IN_PAGE = PAGE.scrollTop || 0;
+  // Distance = one viewport + however far we've scrolled inside the page
+  const SCROLL_IN_PAGE =
+    typeof PAGE.scrollTop === 'number' ? PAGE.scrollTop : 0;
   const DIST = window.innerHeight + SCROLL_IN_PAGE;
-  document.documentElement.style.setProperty(
-    '--slide-distance',
-    `${DIST}px`
-  );
 
-  // Now let body/window handle scroll during the slide-out
+  try {
+    document.documentElement.style.setProperty(
+      '--slide-distance',
+      `${DIST}px`
+    );
+  } catch (ERR) {
+    console.warn('Could not set --slide-distance:', ERR);
+  }
+
+  // Let body/window handle scroll during the slide-out
   freeScrollLayout(PAGE);
 
   // Kick off slide-out animation
   PAGE.classList.add('slide-out');
 
+  // Navigate after slide-out completes (fallback: time-based)
+  const DURATION_MS = getSlideDurationSeconds() * 1000;
   setTimeout(() => {
     window.location.href = url;
-  }, getSlideDurationSeconds() * 1000);
+  }, Number.isFinite(DURATION_MS) ? DURATION_MS : 600);
 }
 
 
@@ -300,6 +368,7 @@ function transitionTo(url, isMenu = false) {
 
 // Save star positions and motion meta into localStorage
 function saveStarsToStorage() {
+  if (!HAS_CANVAS) return;
   try {
     localStorage.setItem('constellationStars', JSON.stringify(STARS));
     localStorage.setItem(
@@ -338,7 +407,16 @@ const randomBetween = (min, max) =>
 
 // Load saved stars if present, otherwise create a fresh field
 function initStars() {
-  const SAVED = localStorage.getItem('constellationStars');
+  if (!HAS_CANVAS) return;
+
+  let SAVED;
+  try {
+    SAVED = localStorage.getItem('constellationStars');
+  } catch (ERR) {
+    console.warn('Could not read constellationStars from storage:', ERR);
+    createStars();
+    return;
+  }
 
   if (!SAVED) {
     createStars();
@@ -351,7 +429,13 @@ function initStars() {
     if (Array.isArray(PARSED) && PARSED.length) {
       STARS = PARSED;
 
-      const META_RAW = localStorage.getItem('constellationMeta');
+      let META_RAW;
+      try {
+        META_RAW = localStorage.getItem('constellationMeta');
+      } catch (ERR) {
+        console.warn('Could not read constellationMeta from storage:', ERR);
+      }
+
       if (META_RAW) {
         try {
           const META = JSON.parse(META_RAW);
@@ -393,11 +477,13 @@ function initStars() {
 
 // Build a brand-new starfield for the current canvas size
 function createStars() {
+  if (!HAS_CANVAS) return;
+
   STARS = [];
 
   // Keep size range valid even on very small screens
   const minSize = 3;
-  const maxSize = SCALE_FACTOR / 400;
+  const maxSize = SCALE_FACTOR / 400 || 3;
 
   for (let I = 0; I < MAX_STAR_COUNT; I++) {
     STARS.push({
@@ -422,6 +508,8 @@ function createStars() {
 
 // Move, fade, and wrap stars around the screen
 function moveStars() {
+  if (!HAS_CANVAS || !STARS.length) return;
+
   for (const STAR of STARS) {
     // Basic drift scaled by pointer speed
     STAR.x += STAR.vx * (CLEANED_USER_SPEED + 1);
@@ -483,6 +571,8 @@ function moveStars() {
 
 // Draw all lines and star bodies for the current frame
 function drawStarsWithLines() {
+  if (!HAS_CANVAS || !BRUSH) return;
+
   // Clear entire canvas
   BRUSH.clearRect(0, 0, WIDTH, HEIGHT);
 
@@ -537,12 +627,15 @@ function drawStarsWithLines() {
 
 // Match canvas to viewport and rescale stars to fit
 function resizeCanvas() {
+  if (!HAS_CANVAS) return;
+
   const OLD_WIDTH = WIDTH;
   const OLD_HEIGHT = HEIGHT;
-  const OLD_SCALE_FACTOR = SCALE_FACTOR;
+  const OLD_SCALE_FACTOR = SCALE_FACTOR || 1;
 
-  WIDTH = window.innerWidth;
-  HEIGHT = window.innerHeight;
+  WIDTH = window.innerWidth || 0;
+  HEIGHT = window.innerHeight || 0;
+
   CANVAS.width = WIDTH;
   CANVAS.height = HEIGHT;
 
@@ -551,7 +644,7 @@ function resizeCanvas() {
   MAX_LINK_DISTANCE = SCALE_FACTOR / 10;
 
   // Rescale stars if we already had a previous size
-  if (OLD_WIDTH !== 0) {
+  if (OLD_WIDTH !== 0 && OLD_HEIGHT !== 0) {
     const SCALE_X = WIDTH / OLD_WIDTH;
     const SCALE_Y = HEIGHT / OLD_HEIGHT;
     const SCALE_SIZE = SCALE_FACTOR / OLD_SCALE_FACTOR;
@@ -566,6 +659,7 @@ function resizeCanvas() {
 
 // Main requestAnimationFrame loop
 function animate() {
+  if (!HAS_CANVAS) return;
   if (!FREEZE_CONSTELLATION) moveStars();
   drawStarsWithLines();
   requestAnimationFrame(animate);
@@ -580,6 +674,13 @@ function animate() {
 
 // Update pointer speed and derived CLEANED_USER_SPEED
 function updateSpeed(x, y, time) {
+  // Fallback if a weird environment passes an invalid timestamp
+  if (!Number.isFinite(time)) {
+    time = (window.performance && performance.now)
+      ? performance.now()
+      : Date.now();
+  }
+
   const DT = time - LAST_TIME;
 
   if (DT > 0) {
@@ -600,9 +701,6 @@ function updateSpeed(x, y, time) {
 // Shared start handler for mouse/touch pointer interactions
 function startPointerInteraction(x, y, time) {
   ATTRACTION_VALUE = -2; // flip to "repel" on click/touch
-  LAST_X = x;
-  LAST_Y = y;
-  LAST_TIME = time;
   updateSpeed(x, y, time);
   CLEANED_USER_SPEED = Math.min(CLEANED_USER_SPEED + 0.8, 3);
 }
@@ -641,6 +739,7 @@ window.addEventListener('touchmove', (e) => {
 
 // Toggle an element's visibility via the [hidden] attribute
 function toggleElement(id) {
+  if (!id) return;
   const EL = document.getElementById(id);
   if (EL) EL.hidden = !EL.hidden;
 }
@@ -649,7 +748,11 @@ function toggleElement(id) {
 document.addEventListener(
   'touchend',
   () => {
-    document.activeElement?.blur();
+    try {
+      document.activeElement?.blur();
+    } catch {
+      // If blur fails, just ignore
+    }
   },
   { passive: true }
 );
@@ -659,14 +762,18 @@ document.addEventListener(
  *  7 INITIALIZATION
  *========================================*/
 
-// Initialize canvas size
-resizeCanvas();
+try {
+  // Initialize canvas size
+  resizeCanvas();
 
-// Restore or create starfield
-initStars();
+  // Restore or create starfield
+  initStars();
 
-// Start animation loop
-animate();
+  // Start animation loop
+  animate();
 
-// Keep canvas scaled to window size
-window.addEventListener('resize', resizeCanvas);
+  // Keep canvas scaled to window size
+  window.addEventListener('resize', resizeCanvas);
+} catch (ERR) {
+  console.error('Initialization error in starfield/transition script:', ERR);
+}
