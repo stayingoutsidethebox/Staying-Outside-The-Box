@@ -35,16 +35,17 @@ window.addEventListener('load', () => {
   if (page) {
     const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
 
-  // ONE VARIABLE: slide duration based on page height
-  const slideDuration =
-    0.6 + Math.min(Math.max(page.offsetHeight / viewportHeight - 1, 0), 2) * 0.3;
+   // Slow down animation based on how tall the page is (1x–3x)
+  const ratio = page.offsetHeight / viewportHeight || 1;
+  const clamped = Math.min(Math.max(ratio, 1), 3); // clamp 1–3
+  const slideDuration = 0.6 * clamped;            // 0.6s → 1.8s
 
   document.documentElement.style.setProperty(
     '--slide-duration',
     `${slideDuration}s`
   );
 
-    requestAnimationFrame(() => {
+  requestAnimationFrame(() => {
       page.classList.add('ready');
 
       page.addEventListener('transitionend', () => {
