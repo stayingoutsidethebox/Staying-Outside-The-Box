@@ -538,13 +538,6 @@ function transitionTo(url, isMenu = false) {
   freezeConstellation = true;
   saveStarsToStorage();
 
-  // ✅ DO *NOT* lock the height/overflow anymore
-  // page.style.height = `${window.innerHeight}px`;
-  // page.style.overflowY = 'hidden';
-
-  // (Optional but nice): always start slide-out from the top of the card
-  page.scrollTop = 0;
-
   // Trigger CSS slide-out
   page.classList.add('slide-out');
 
