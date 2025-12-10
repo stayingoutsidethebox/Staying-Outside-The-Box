@@ -1,5 +1,57 @@
 // thank heavens for chatGPT <3
+/*==============================================================*
+ *                       JAVASCRIPT MAP
+ *==============================================================*
 
+  1. GLOBAL VARIABLES & CONSTANTS
+     - Page state flags
+     - Starfield canvas variables
+     - Pointer tracking / motion values
+
+  2. TRANSITION & LAYOUT LOGIC
+     2.1 Scroll control
+         - lockScrollToContainer()
+         - freeScrollLayout()
+     2.2 Page load handler
+         - slide-in setup
+         - back-link persistence
+     2.3 Back/forward cache recovery
+     2.4 Page navigation + slide-out transition
+         - transitionTo()
+
+  3. STORAGE & PERSISTENCE
+     - saveStarsToStorage()
+     - beforeunload sync
+
+  4. STARFIELD LOGIC
+     4.1 Helpers
+         - randomBetween()
+     4.2 Initialization
+         - initStars()
+         - createStars()
+     4.3 Animation steps
+         - moveStars()
+         - drawStarsWithLines()
+     4.4 Canvas resizing + animation loop
+         - resizeCanvas()
+         - animate()
+
+  5. POINTER INPUT & SPEED LOGIC
+     - updateSpeed()
+     - startPointerInteraction()
+     - mouse + touch listeners
+
+  6. SIMPLE HTML UTILITIES
+     - toggleElement()
+     - touchend blur behavior
+
+  7. INITIALIZATION BLOCK
+     - resizeCanvas()
+     - initStars()
+     - animate()
+     - window resize listener
+
+ *==============================================================*/
 /*========================================*
  *  GLOBAL VARIABLES & CONSTANTS
  *========================================*/
