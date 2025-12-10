@@ -57,8 +57,13 @@ window.addEventListener('load', () => {
     requestAnimationFrame(() => {
       page.classList.add('ready');
       
-      // Lock html height to viewport to prevent background flashes
-  
+      // After the first slide-in finishes, flip who scrolls
+      page.addEventListener('transitionend', () => {
+        html.style.overflowY = 'hidden';
+        body.style.overflowY = 'hidden';
+        page.style.overflowY = 'auto';
+        page.style.webkitOverflowScrolling = 'touch';
+      }, { once: true }); // run only once
     });
   }
 
@@ -100,11 +105,7 @@ window.addEventListener('load', () => {
   
 });
 
-page.addEventListener("transitionend", () => {
-    // 🔧 Move scroll from <html> to <body> to stop purple background flashes
-  document.documentElement.style.overflowY = 'hidden';
-  document.body.style.overflowY = 'auto';
-});
+
 
 /*==============================*
  *  BACK/FORWARD CACHE HANDLER
@@ -592,8 +593,6 @@ window.addEventListener('beforeunload', () => {
  *==============================*/
 
 // Initial canvas setup + stars + animation loop
-document.documentElement.style.overflowY = 'hidden';
-document.body.style.overflowY = 'auto';
 resizeCanvas();
 initStars();
 animate();
