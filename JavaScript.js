@@ -504,11 +504,9 @@ function transitionTo(url, isMenu = false) {
 
   page.classList.add('slide-out');
 
-  const slideDuration = computeSlideDuration(page);
-
   setTimeout(() => {
     window.location.href = url;
-  }, slideDuration * 1000 + 50);
+  }, 600 * 1000 + 50);
 }
 
 // Save current starfield to localStorage
