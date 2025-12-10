@@ -9,26 +9,46 @@ let slideDurationMs = 600;         // fallback slide-out duration (ms) if calc f
 let isTransitioning = false;       // prevents double navigation during transitions
 
 /*==============================*
- *  PAGE LOAD HANDLER
+ *  LAYOUT HELPERS
  *==============================*/
 
-function resetPageHeights() {
-  
+// Lock html/body/#transitionContainer to viewport height and
+// make #transitionContainer the only scroll container.
+function applyLockedLayout() {
   const html = document.documentElement;
   const body = document.body;
   const tc = document.getElementById('transitionContainer');
+  if (!tc) return;
 
-  const vh = window.innerHeight + 'px'; // real 100dvh without iOS bugs
+  const vh = window.innerHeight + 'px'; // "real" 100dvh
 
+  // Hard-lock heights
   html.style.height = vh;
   body.style.height = vh;
+  tc.style.height = vh;
 
-  if (tc) {
-    tc.style.height = vh;
-    tc.style.minHeight = vh;   // prevents shrinking
-    tc.style.maxHeight = vh;   // prevents expanding
-  }
+  // Only the container scrolls
+  html.style.overflow = 'hidden';
+  body.style.overflow = 'hidden';
+
+  tc.style.overflowY = 'auto';
+  tc.style.overflowX = 'hidden';
+  tc.style.webkitOverflowScrolling = 'touch';
 }
+
+// Loosen #transitionContainer overflow during slide-out so the
+// page doesn't visually clip during the transition.
+function applyFreeLayout() {
+  const tc = document.getElementById('transitionContainer');
+  if (!tc) return;
+
+  tc.style.overflowY = 'visible';
+  tc.style.overflowX = 'visible';
+}
+
+/*==============================*
+ *  PAGE LOAD HANDLER
+ *==============================*/
 
 window.addEventListener('load', () => {
   const page = document.getElementById('transitionContainer');
@@ -48,17 +68,29 @@ window.addEventListener('load', () => {
 
   // Set slide duration relative to content height (clamped 1–3×)
   if (page) {
-    const pageSize = .5 * Math.max(1, Math.min(page.offsetHeight / (window.innerHeight || document.documentElement.clientHeight), 3));
-document.documentElement.style.setProperty('--slide-duration', `${pageSize}s`);
-slideDurationMs = pageSize * 1000;
+    const viewportHeight =
+      window.innerHeight || document.documentElement.clientHeight;
 
-    // Mark page as ready so CSS can run entrance animations
+    const pageSize =
+      0.5 *
+      Math.max(
+        1,
+        Math.min(page.offsetHeight / viewportHeight, 3)
+      );
+
+    document.documentElement.style.setProperty(
+      '--slide-duration',
+      `${pageSize}s`
+    );
+    slideDurationMs = pageSize * 1000;
+
+    // Mark page as ready so CSS can run entrance animations,
+    // then lock layout to viewport height.
     requestAnimationFrame(() => {
       page.classList.add('ready');
+      applyLockedLayout();
     });
   }
-
-
 
   // Detect if we came from the same origin (internal navigation)
   const ref = document.referrer;
@@ -95,7 +127,6 @@ slideDurationMs = pageSize * 1000;
     localStorage.removeItem('constellationStars');
     localStorage.removeItem('constellationMeta');
   }
-  
 });
 
 /*==============================*
@@ -103,10 +134,9 @@ slideDurationMs = pageSize * 1000;
  *==============================*/
 
 window.addEventListener('pageshow', (event) => {
-  
   const page = document.getElementById('transitionContainer');
   if (!page) return;
-  applyFreeLayout();
+
   // Safely read navigation type (if supported)
   const navEntries = performance.getEntriesByType
     ? performance.getEntriesByType('navigation')
@@ -117,8 +147,7 @@ window.addEventListener('pageshow', (event) => {
     // Ensure content is visible (not stuck off-screen after bfcache)
     page.classList.remove('slide-out');
     page.classList.add('ready');
-    
-  
+
     // Unfreeze constellation motion
     freezeConstellation = false;
     cleanedUserSpeed = 0;
@@ -127,15 +156,12 @@ window.addEventListener('pageshow', (event) => {
 
     // Reset scroll inside the transition container
     page.scrollTop = 0;
-    
-       //reset heights to prevent background expansion and contraction
-resetPageHeights();
-    applyLockedLayout();
- 
 
-// Allow transitions again
+    // Re-lock layout after restore
+    applyLockedLayout();
+
+    // Allow transitions again
     isTransitioning = false;
-  
   }
 });
 
@@ -520,32 +546,14 @@ window.addEventListener('touchmove', (e) => {
  *  PAGE TRANSITIONS & STORAGE
  *==============================*/
 
-function applyLockedLayout() {
-  const html = document.documentElement;
-  const body = document.body;
-  const tc = document.getElementById('transitionContainer');
-
-  html.style.overflowY = 'hidden';
-  body.style.height = '100dvmin';
-  tc.style.overflowY = 'auto';
-}
-
-function applyFreeLayout() {
-  const html = document.documentElement;
-  const body = document.body;
-  const tc = document.getElementById('transitionContainer');
-
-  html.style.overflowY = 'auto';
-  body.style.height = 'auto';
-  tc.style.overflowY = 'visible';
-}
-
 // Navigate with slide-out and stored constellation state
 function transitionTo(url, isMenu = false) {
   if (isTransitioning) return;
   isTransitioning = true;
 
-applyFreeLayout();
+  // Let the page visually overflow for the slide-out animation
+  applyFreeLayout();
+
   if (isMenu) {
     sessionStorage.setItem('suppressHomeBack', '1');
   } else {
@@ -617,5 +625,8 @@ resizeCanvas();
 initStars();
 animate();
 
-// Keep canvas synced with viewport size
-window.addEventListener('resize', resizeCanvas);
+// Keep canvas & layout synced with viewport size
+window.addEventListener('resize', () => {
+  resizeCanvas();
+  applyLockedLayout();
+});
