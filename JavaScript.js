@@ -97,6 +97,11 @@ window.addEventListener('load', () => {
     localStorage.removeItem('constellationStars');
     localStorage.removeItem('constellationMeta');
   }
+  
+});
+
+page.addEventListener("transitionend", () => {
+    // 🔧 Move scroll from <html> to <body> to stop purple background flashes
   document.documentElement.style.overflowY = 'hidden';
   document.body.style.overflowY = 'auto';
 });
@@ -587,6 +592,8 @@ window.addEventListener('beforeunload', () => {
  *==============================*/
 
 // Initial canvas setup + stars + animation loop
+document.documentElement.style.overflowY = 'hidden';
+document.body.style.overflowY = 'auto';
 resizeCanvas();
 initStars();
 animate();
