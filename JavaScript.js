@@ -53,7 +53,7 @@
 
  *==============================================================*/
 /*========================================*
- *  GLOBAL VARIABLES & CONSTANTS
+ *  1 GLOBAL VARIABLES & CONSTANTS
  *========================================*/
 
 /*---------- Page state flags ----------*/
@@ -70,7 +70,7 @@ const getPage = () => document.getElementById('transitionContainer');
 const isHomepage = () => !!document.querySelector('#menuButton');
 
 // Shared helper for slide animation duration (seconds)
-const getSlideDurationSeconds = () => (isHomepage() ? 1.2 : 1.2); // homepage & others currently match
+const getSlideDurationSeconds = () => (isHomepage() ? 1.2 : 0.6);
 
 
 /*---------- Constellation canvas & starfield ----------*/
@@ -102,7 +102,7 @@ let STARS = [];
 
 
 /*========================================*
- *  TRANSITION & LAYOUT LOGIC
+ *  2 TRANSITION & LAYOUT LOGIC
  *========================================*/
 
 /*---------- Layout scroll helpers ----------*/
@@ -293,7 +293,7 @@ function transitionTo(url, isMenu = false) {
 
 
 /*========================================*
- *  STORAGE & PERSISTENCE
+ *  3 STORAGE & PERSISTENCE
  *========================================*/
 
 // Save star positions and motion meta into localStorage
@@ -322,7 +322,7 @@ window.addEventListener('beforeunload', saveStarsToStorage);
 
 
 /*========================================*
- *  STARFIELD LOGIC
+ *  4 STARFIELD LOGIC
  *========================================*/
 
 /*---------- Random helper ----------*/
@@ -571,7 +571,7 @@ function animate() {
 
 
 /*========================================*
- *  POINTER INPUT & SPEED LOGIC
+ *  5 POINTER INPUT & SPEED LOGIC
  *========================================*/
 
 /*---------- Pointer speed calculation ----------*/
@@ -634,7 +634,7 @@ window.addEventListener('touchmove', (e) => {
 
 
 /*========================================*
- *  SIMPLE HTML UTILITIES
+ *  6 SIMPLE HTML UTILITIES
  *========================================*/
 
 // Toggle an element's visibility via the [hidden] attribute
@@ -654,7 +654,7 @@ document.addEventListener(
 
 
 /*========================================*
- *  INITIALIZATION
+ *  7 INITIALIZATION
  *========================================*/
 
 // Initialize canvas size
