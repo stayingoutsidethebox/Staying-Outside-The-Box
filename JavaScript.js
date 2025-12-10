@@ -9,44 +9,6 @@ let slideDurationMs = 600;         // fallback slide-out duration (ms) if calc f
 let isTransitioning = false;       // prevents double navigation during transitions
 
 /*==============================*
- *  LAYOUT HELPERS
- *==============================*/
-
-// Lock html/body/#transitionContainer to viewport height and
-// make #transitionContainer the only scroll container.
-function applyLockedLayout() {
-  const html = document.documentElement;
-  const body = document.body;
-  const tc = document.getElementById('transitionContainer');
-  if (!tc) return;
-
-  const vh = window.innerHeight + 'px'; // "real" 100dvh
-
-  // Hard-lock heights
-  html.style.height = vh;
-  body.style.height = vh;
-  tc.style.height = vh;
-
-  // Only the container scrolls
-  html.style.overflow = 'hidden';
-  body.style.overflow = 'hidden';
-
-  tc.style.overflowY = 'auto';
-  tc.style.overflowX = 'hidden';
-  tc.style.webkitOverflowScrolling = 'touch';
-}
-
-// Loosen #transitionContainer overflow during slide-out so the
-// page doesn't visually clip during the transition.
-function applyFreeLayout() {
-  const tc = document.getElementById('transitionContainer');
-  if (!tc) return;
-
-  tc.style.overflowY = 'visible';
-  tc.style.overflowX = 'visible';
-}
-
-/*==============================*
  *  PAGE LOAD HANDLER
  *==============================*/
 
@@ -88,7 +50,6 @@ window.addEventListener('load', () => {
     // then lock layout to viewport height.
     requestAnimationFrame(() => {
       page.classList.add('ready');
-      applyLockedLayout();
     });
   }
 
@@ -156,9 +117,6 @@ window.addEventListener('pageshow', (event) => {
 
     // Reset scroll inside the transition container
     page.scrollTop = 0;
-
-    // Re-lock layout after restore
-    applyLockedLayout();
 
     // Allow transitions again
     isTransitioning = false;
@@ -551,9 +509,6 @@ function transitionTo(url, isMenu = false) {
   if (isTransitioning) return;
   isTransitioning = true;
 
-  // Let the page visually overflow for the slide-out animation
-  applyFreeLayout();
-
   if (isMenu) {
     sessionStorage.setItem('suppressHomeBack', '1');
   } else {
@@ -628,5 +583,4 @@ animate();
 // Keep canvas & layout synced with viewport size
 window.addEventListener('resize', () => {
   resizeCanvas();
-  applyLockedLayout();
 });
