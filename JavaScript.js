@@ -563,9 +563,20 @@ function transitionTo(url, isMenu = false) {
     // Trigger CSS slide-out
   page.classList.add('slide-out');
 
-  setTimeout(() => {
-    window.location.href = url;
-  }, 650);
+  // Match the same duration logic used on load
+const viewportHeight =
+  window.innerHeight || document.documentElement.clientHeight;
+let slideDuration = 0.6;
+
+if (page) {
+  const ratio = page.offsetHeight / viewportHeight || 1;
+  const fullness = Math.min(Math.max(ratio, 1), 3);
+  slideDuration = 0.6 * fullness;
+}
+
+setTimeout(() => {
+  window.location.href = url;
+}, slideDuration * 1000 + 50); 
 }
 
 // Save stars and related meta to localStorage
