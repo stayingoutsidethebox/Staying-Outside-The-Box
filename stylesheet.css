@@ -61,7 +61,7 @@
 
 :root {
   /* Animation timing */
-  --slide-duration: 0.6s;                 /* Default; JS overrides per-page */
+  --slide-distance: 100%;
 
   /* Shared glow */
   --shadow: 0 0 20px rgba(150, 0, 255, 1);
@@ -513,8 +513,8 @@ button span {
 /*---------- Homepage slide (DOWN into view) ----------*/
 
 .homeJs #transitionContainer {
-  transform: translateY(-100%);
-  transition: transform var(--slide-duration) ease-in-out;
+  transform: translateY(calc(var(--slide-distance) * -1));
+  transition: transform 0.6a ease-in-out;
 }
 
 .homeJs #transitionContainer.ready {
@@ -522,14 +522,14 @@ button span {
 }
 
 .homeJs #transitionContainer.slide-out {
-  transform: translateY(-100%);
+  transform: translateY(calc(var(--slide-distance) * -1));
 }
 
 /*---------- Other pages slide (UP into view) ----------*/
 
 .otherJs #transitionContainer {
-  transform: translateY(100vh);
-  transition: transform var(--slide-duration) ease-in-out;
+  transform: translateY(var(--slide-distance));
+  transition: transform 0.6s ease-in-out;
 }
 
 .otherJs #transitionContainer.ready {
@@ -537,7 +537,7 @@ button span {
 }
 
 .otherJs #transitionContainer.slide-out {
-  transform: translateY(100vh);
+  transform: translateY(var(--slide-distance));
 }
 
 /* No-JS fallback: no transform / no animation */
