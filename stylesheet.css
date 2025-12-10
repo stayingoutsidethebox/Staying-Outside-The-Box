@@ -55,13 +55,16 @@
      - disables starfield + animations
 
  *==============================================================*/
+
+
+/* #region 1. DESIGN TOKENS & ROOT VARIABLES */
 /*========================================*
  *  1 DESIGN TOKENS & ROOT VARIABLES
  *========================================*/
 
 :root {
-  /* Slide offset */
-  --slide-distance: 100vh;          /* JS can overwrite this */
+  /* Slide offset (JS can overwrite this) */
+  --slide-distance: 100vh;
 
   /* Slide timing (JS overwrites this too) */
   --slide-duration: 0.6s;
@@ -81,13 +84,16 @@
   --slow-color: 0.5s ease-out;
 }
 
+/* #endregion 1. DESIGN TOKENS & ROOT VARIABLES */
 
+
+
+/* #region 2. LAYOUT, BACKGROUND & CANVAS LAYERS */
 /*========================================*
  *  2 LAYOUT, BACKGROUND & CANVAS LAYERS
  *========================================*/
 
-/*---------- Root page structure ----------*/
-
+/* Root page structure */
 html {
   margin: 0;
   padding: 0;
@@ -144,13 +150,16 @@ body::before {
   pointer-events: none;
 }
 
+/* #endregion 2. LAYOUT, BACKGROUND & CANVAS LAYERS */
 
+
+
+/* #region 3. MAIN CONTENT & TYPOGRAPHY */
 /*========================================*
  *  3 MAIN CONTENT + TYPOGRAPHY
  *========================================*/
 
-/*---------- Main layout + footer ----------*/
-
+/* Main layout + footer */
 main {
   padding: 2dvmin;
 }
@@ -160,8 +169,7 @@ footer p {
   padding: 2dvmin;
 }
 
-/*---------- Headings & text ----------*/
-
+/* Headings & text */
 h2 {
   margin-top: -7dvmin;                    /* Stylized “pulled up” heading */
   font-size: 4dvmin;
@@ -172,8 +180,7 @@ p {
   font-size: 6dvmin;
 }
 
-/*---------- Horizontal rules & dividers ----------*/
-
+/* Horizontal rules & dividers */
 hr {
   width: 75dvw;
   height: 4px;
@@ -188,7 +195,11 @@ hr {
   width: 45dvw;                           /* Smaller version of hr */
 }
 
+/* #endregion 3. MAIN CONTENT & TYPOGRAPHY */
 
+
+
+/* #region 4. ARTICLES & LINK BASICS */
 /*========================================*
  *  4 ARTICLES & LINK BASICS
  *========================================*/
@@ -220,13 +231,16 @@ a {
     text-shadow var(--slow-shadow);
 }
 
+/* #endregion 4. ARTICLES & LINK BASICS */
 
+
+
+/* #region 5. IMAGE STYLES & IMAGE BUTTONS */
 /*========================================*
  *  5 IMAGE STYLES & IMAGE BUTTONS
  *========================================*/
 
-/*---------- Base circular images ----------*/
-
+/* Base circular images */
 img {
   width: 40dvmin;
   height: 40dvmin;
@@ -260,8 +274,7 @@ img {
   display: block;                         /* Kill baseline gap under img */
 }
 
-/*---------- Homepage circular image buttons ----------*/
-
+/* Homepage circular image buttons */
 .imgButton {
   display: block;
   width: auto;
@@ -281,7 +294,11 @@ img {
     border-color var(--slow-border);
 }
 
+/* #endregion 5. IMAGE STYLES & IMAGE BUTTONS */
 
+
+
+/* #region 6. INTERACTION STATES */
 /*========================================*
  *  6 INTERACTION STATES (HOVER, FOCUS, TOUCH)
  *========================================*/
@@ -341,6 +358,11 @@ button:active span {
   text-shadow: var(--shadow);
 }
 
+/* #endregion 6. INTERACTION STATES */
+
+
+
+/* #region 7. LINK VARIANTS & UTILITIES */
 /*========================================*
  *  7 LINK VARIANTS & UTILITY CLASSES
  *========================================*/
@@ -367,7 +389,11 @@ button:active span {
   text-shadow: var(--shadow);
 }
 
+/* #endregion 7. LINK VARIANTS & UTILITIES */
 
+
+
+/* #region 8. NAVIGATION ICON BUTTON STRIP */
 /*========================================*
  *  8 NAVIGATION ICON BUTTON STRIP
  *========================================*/
@@ -398,7 +424,11 @@ button:active span {
     border-color var(--slow-border);
 }
 
+/* #endregion 8. NAVIGATION ICON BUTTON STRIP */
 
+
+
+/* #region 9. GENERIC BUTTONS */
 /*========================================*
  *  9 GENERIC BUTTON STYLING
  *========================================*/
@@ -449,7 +479,11 @@ button span {
     -webkit-text-fill-color 0.9s ease-out;
 }
 
+/* #endregion 9. GENERIC BUTTONS */
 
+
+
+/* #region 10. CHARACTER NAME COLORS */
 /*========================================*
  *  10 CHARACTER NAME COLORS (SCRIPT PAGES)
  *========================================*/
@@ -504,7 +538,11 @@ button span {
   color: inherit;
 }
 
+/* #endregion 10. CHARACTER NAME COLORS */
 
+
+
+/* #region 11. SLIDE-IN PAGE TRANSITION SYSTEM */
 /*========================================*
  *  11 SLIDE-IN PAGE TRANSITION SYSTEM
  *========================================*/
@@ -519,8 +557,7 @@ button span {
   overflow: visible; /* JS swaps scroll responsibility */
 }
 
-/*---------- Homepage slide (DOWN into view, OUT up) ----------*/
-
+/* Homepage slide (DOWN into view, OUT up) */
 .homeJs #transitionContainer {
   transform: translateY(-100%); /* start above */
   transition: transform 1s ease-in-out;
@@ -534,8 +571,7 @@ button span {
   transform: translateY(-100%); /* back up */
 }
 
-/*---------- Other pages slide (UP into view, OUT down) ----------*/
-
+/* Other pages slide (UP into view, OUT down) */
 .otherJs #transitionContainer {
   transform: translateY(100vh); /* start below */
   transition: transform 0.6s ease-in-out;
@@ -561,7 +597,11 @@ button span {
   overflow: auto;
 }
 
+/* #endregion 11. SLIDE-IN PAGE TRANSITION SYSTEM */
 
+
+
+/* #region 12. REDUCED-MOTION ACCESSIBILITY */
 /*========================================*
  *  12 REDUCED-MOTION ACCESSIBILITY
  *========================================*/
@@ -576,3 +616,5 @@ button span {
     transition: none;
   }
 }
+
+/* #endregion 12. REDUCED-MOTION ACCESSIBILITY */
