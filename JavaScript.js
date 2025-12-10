@@ -34,9 +34,9 @@ window.addEventListener('load', () => {
   // Set a fixed slide duration (one viewport-height worth of travel)
   if (page) {
     document.documentElement.style.setProperty(
-      '--slide-duration',
-      '0.6s'
-    );
+  '--slide-duration',
+  `${0.6 + Math.min(page.offsetHeight / viewportHeight - 1, 2) * 0.3}s`
+);
 
     requestAnimationFrame(() => {
       page.classList.add('ready');
