@@ -1,66 +1,61 @@
 // thank heavens for chatGPT <3
+
 /*==============================================================*
- *                       JAVASCRIPT MAP
+ *                        SCRIPT MAP
  *==============================================================*
-
-  1. GLOBAL VARIABLES & CONSTANTS
-     - Page state flags
-     - Starfield canvas variables
-     - Pointer tracking / motion values
-
-  2. TRANSITION & LAYOUT LOGIC
-     2.1 Scroll control
-         - lockScrollToContainer()
-         - freeScrollLayout()
-     2.2 Page load handler
-         - slide-in setup
-         - back-link persistence
-     2.3 Back/forward cache recovery
-     2.4 Page navigation + slide-out transition
-         - transitionTo()
-
-  3. STORAGE & PERSISTENCE
-     - saveStarsToStorage()
-     - beforeunload sync
-
-  4. STARFIELD LOGIC
-     4.1 Helpers
-         - randomBetween()
-     4.2 Initialization
-         - initStars()
-         - createStars()
-     4.3 Animation steps
-         - moveStars()
-         - drawStarsWithLines()
-     4.4 Canvas resizing + animation loop
-         - resizeCanvas()
-         - animate()
-
-  5. POINTER INPUT & SPEED LOGIC
-     - updateSpeed()
-     - startPointerInteraction()
-     - mouse + touch listeners
-
-  6. SIMPLE HTML UTILITIES
-     - toggleElement()
-     - touchend blur behavior
-
-  7. INITIALIZATION BLOCK
-     - resizeCanvas()
-     - initStars()
-     - animate()
-     - window resize listener
-
+ *
+ *  1. GLOBAL STATE & CONSTANTS
+ *     - Page state flags
+ *     - Canvas / starfield data
+ *     - Pointer speed values
+ *
+ *  2. TRANSITION & LAYOUT
+ *     2.1 Scroll helpers
+ *     2.2 Page load / slide-in
+ *     2.3 Back/forward cache restore
+ *     2.4 Slide-out navigation (transitionTo)
+ *
+ *  3. STORAGE
+ *     - Save starfield to localStorage
+ *     - beforeunload sync
+ *
+ *  4. STARFIELD
+ *     4.1 randomBetween()
+ *     4.2 initStars() / createStars()
+ *     4.3 moveStars()
+ *     4.4 drawStarsWithLines()
+ *     4.5 resizeCanvas() / animate()
+ *
+ *  5. POINTER INPUT
+ *     - updateSpeed()
+ *     - startPointerInteraction()
+ *     - mouse / touch listeners
+ *
+ *  6. SIMPLE HTML HELPERS
+ *     - toggleElement()
+ *     - mobile touchend blur
+ *
+ *  7. INITIALIZATION
+ *     - resizeCanvas()
+ *     - initStars()
+ *     - animate()
+ *     - window resize listener
+ *     - touch scroll/click fix (wireTouchEvent)
+ *
+ *  NOTE: Each major block is marked with //#region ... //#endregion
+ *        so editors can fold and jump between sections.
  *==============================================================*/
 
+
+//#region 1. GLOBAL STATE & CONSTANTS
 /*========================================*
- *  1 GLOBAL VARIABLES & CONSTANTS
+ *  1 GLOBAL STATE & CONSTANTS
  *========================================*/
 
 /*---------- Page state flags ----------*/
 
-let IS_INTERNAL_REFERRER = false;  // true if we came from same origin
-let IS_TRANSITIONING = false;      // prevents double navigation clicks
+let IS_INTERNAL_REFERRER = false;  // true if we came from the same origin
+let IS_TRANSITIONING = false;      // blocks double navigation clicks
 
 
 /*---------- Main layout handles ----------*/
@@ -71,7 +66,7 @@ const getPage = () => document.getElementById('transitionContainer');
 // Detect if this is the homepage (has the main menu button)
 const isHomepage = () => !!document.querySelector('#menuButton');
 
-// Shared helper for slide animation duration (seconds)
+// Slide animation duration (seconds)
 const getSlideDurationSeconds = () => (isHomepage() ? 1.2 : 0.6);
 
 
@@ -88,7 +83,7 @@ if (!HAS_CANVAS) {
 // Freeze flag to pause star motion during transitions
 let FREEZE_CONSTELLATION = false;
 
-// Pointer tracking for speed / attraction
+// Pointer tracking
 let LAST_X = 0;
 let LAST_Y = 0;
 let LAST_TIME = 0;
@@ -106,15 +101,18 @@ let MAX_LINK_DISTANCE = 0;
 
 // Starfield data
 let STARS = [];
+//#endregion 1. GLOBAL STATE & CONSTANTS
 
 
+
+//#region 2. TRANSITION & LAYOUT
 /*========================================*
- *  2 TRANSITION & LAYOUT LOGIC
+ *  2 TRANSITION & LAYOUT
  *========================================*/
 
-/*---------- Layout scroll helpers ----------*/
+/*---------- 2.1 Layout scroll helpers ----------*/
 
-// Lock scroll to #transitionContainer only
+// Lock vertical scroll to #transitionContainer
 function lockScrollToContainer(PAGE = getPage()) {
   const HTML = document.documentElement;
   const BODY = document.body;
@@ -122,14 +120,14 @@ function lockScrollToContainer(PAGE = getPage()) {
   if (!HTML || !BODY) return;
 
   HTML.style.overflowY = 'hidden';   // window scroll disabled
-  BODY.style.height = '100dvmin';    // keep body pinned to viewport height
+  BODY.style.height = '100dvmin';    // body pinned to viewport height
 
   if (PAGE) {
     PAGE.style.overflowY = 'auto';   // page wrapper scrolls
   }
 }
 
-// Restore normal page scroll to window/body for proper animation
+// Restore normal window/body scrolling (used during slide-out)
 function freeScrollLayout(PAGE = getPage()) {
   const HTML = document.documentElement;
   const BODY = document.body;
@@ -157,7 +155,7 @@ function freeScrollLayout(PAGE = getPage()) {
 }
 
 
-/*---------- Page load handler ----------*/
+/*---------- 2.2 Page load / slide-in ----------*/
 
 window.addEventListener('load', () => {
   const PAGE = getPage();
@@ -171,7 +169,7 @@ window.addEventListener('load', () => {
     console.warn('SessionStorage unavailable; suppressHomeBack ignored:', ERR);
   }
 
-  // Strip hash so anchor links don't break slide transitions
+  // Strip hash so anchor links don't block the slide animation
   if (window.location.hash) {
     try {
       history.replaceState(
@@ -219,7 +217,7 @@ window.addEventListener('load', () => {
     }
   }
 
-  // Configure homepage back link visibility and stored URL
+  // Homepage back-link visibility and stored URL
   const BACK_LINK = document.getElementById('homepageBack');
   if (BACK_LINK) {
     try {
@@ -250,9 +248,9 @@ window.addEventListener('load', () => {
 });
 
 
-/*---------- Back/forward cache handler ----------*/
+/*---------- 2.3 Back/forward cache handler ----------*/
 
-window.addEventListener('pageshow', (event) => {
+window.addEventListener('pageshow', (EVENT) => {
   const PAGE = getPage();
   if (!PAGE) return;
 
@@ -267,7 +265,7 @@ window.addEventListener('pageshow', (event) => {
   }
 
   // If restored from bfcache, reset transition and motion state
-  if (event.persisted || NAV_TYPE === 'back_forward') {
+  if (EVENT.persisted || NAV_TYPE === 'back_forward') {
     PAGE.classList.remove('slide-out');
     PAGE.classList.add('ready');
 
@@ -284,12 +282,12 @@ window.addEventListener('pageshow', (event) => {
 });
 
 
-/*---------- Navigation & transition trigger ----------*/
+/*---------- 2.4 Navigation & slide-out ----------*/
 
 // Trigger slide-out animation and then navigate to new URL
-function transitionTo(url, isMenu = false) {
+function transitionTo(URL, IS_MENU = false) {
   if (IS_TRANSITIONING) return;
-  if (!url) {
+  if (!URL) {
     console.warn('transitionTo called without a URL.');
     return;
   }
@@ -299,7 +297,7 @@ function transitionTo(url, isMenu = false) {
 
   // Menu links hide the back-link on arrival
   try {
-    if (isMenu) {
+    if (IS_MENU) {
       sessionStorage.setItem('suppressHomeBack', '1');
     } else {
       sessionStorage.removeItem('suppressHomeBack');
@@ -309,14 +307,14 @@ function transitionTo(url, isMenu = false) {
   }
 
   // Special "back" keyword uses stored homepageBackUrl
-  if (url === 'back') {
+  if (URL === 'back') {
     try {
       const STORED = localStorage.getItem('homepageBackUrl');
       if (!STORED) {
         IS_TRANSITIONING = false;
         return;
       }
-      url = STORED;
+      URL = STORED;
     } catch (ERR) {
       console.warn('Could not read homepageBackUrl:', ERR);
       IS_TRANSITIONING = false;
@@ -324,17 +322,17 @@ function transitionTo(url, isMenu = false) {
     }
   }
 
-  // If page wrapper is missing, just bail straight to the URL
+  // If page wrapper is missing, just go straight to the URL
   if (!PAGE) {
-    window.location.href = url;
+    window.location.href = URL;
     return;
   }
 
-  // Pause star motion and persist their current state
+  // Pause star motion and persist current state
   FREEZE_CONSTELLATION = true;
   saveStarsToStorage();
 
-  // Distance = one viewport + however far we've scrolled inside the page
+  // Distance = one viewport + scroll inside the page
   const SCROLL_IN_PAGE =
     typeof PAGE.scrollTop === 'number' ? PAGE.scrollTop : 0;
   const DIST = window.innerHeight + SCROLL_IN_PAGE;
@@ -354,16 +352,19 @@ function transitionTo(url, isMenu = false) {
   // Kick off slide-out animation
   PAGE.classList.add('slide-out');
 
-  // Navigate after slide-out completes (fallback: time-based)
+  // Navigate after slide-out completes (time-based fallback)
   const DURATION_MS = getSlideDurationSeconds() * 1000;
   setTimeout(() => {
-    window.location.href = url;
+    window.location.href = URL;
   }, Number.isFinite(DURATION_MS) ? DURATION_MS : 600);
 }
+//#endregion 2. TRANSITION & LAYOUT
 
 
+
+//#region 3. STORAGE
 /*========================================*
- *  3 STORAGE & PERSISTENCE
+ *  3 STORAGE
  *========================================*/
 
 // Save star positions and motion meta into localStorage
@@ -390,22 +391,25 @@ function saveStarsToStorage() {
 
 // Save constellation right before the page unloads or reloads
 window.addEventListener('beforeunload', saveStarsToStorage);
+//#endregion 3. STORAGE
 
 
+
+//#region 4. STARFIELD
 /*========================================*
- *  4 STARFIELD LOGIC
+ *  4 STARFIELD
  *========================================*/
 
-/*---------- Random helper ----------*/
+/*---------- 4.1 Random helper ----------*/
 
-// Random float in [min, max)
-const randomBetween = (min, max) =>
-  Math.random() * (max - min) + min;
+// Random float in [MIN, MAX)
+const randomBetween = (MIN, MAX) =>
+  Math.random() * (MAX - MIN) + MIN;
 
 
-/*---------- Star initialization ----------*/
+/*---------- 4.2 Star initialization ----------*/
 
-// Load saved stars if present, otherwise create a fresh field
+// Load saved stars if present, otherwise create a new field
 function initStars() {
   if (!HAS_CANVAS) return;
 
@@ -482,8 +486,8 @@ function createStars() {
   STARS = [];
 
   // Keep size range valid even on very small screens
-  const minSize = 3;
-  const maxSize = SCALE_FACTOR / 400 || 3;
+  const MIN_SIZE = 3;
+  const MAX_SIZE = SCALE_FACTOR / 400 || 3;
 
   for (let I = 0; I < MAX_STAR_COUNT; I++) {
     STARS.push({
@@ -492,8 +496,8 @@ function createStars() {
       vx: randomBetween(-0.25, 0.25),
       vy: randomBetween(-0.25, 0.25),
       size: randomBetween(
-        Math.min(minSize, maxSize),
-        Math.max(minSize, maxSize)
+        Math.min(MIN_SIZE, MAX_SIZE),
+        Math.max(MIN_SIZE, MAX_SIZE)
       ),
       opacity: randomBetween(0.005, 1.8),
       fadeSpeed: randomBetween(1, 2.1),
@@ -504,7 +508,7 @@ function createStars() {
 }
 
 
-/*---------- Star animation step ----------*/
+/*---------- 4.3 Star animation step ----------*/
 
 // Move, fade, and wrap stars around the screen
 function moveStars() {
@@ -567,7 +571,7 @@ function moveStars() {
 }
 
 
-/*---------- Star rendering ----------*/
+/*---------- 4.4 Star rendering ----------*/
 
 // Draw all lines and star bodies for the current frame
 function drawStarsWithLines() {
@@ -623,7 +627,7 @@ function drawStarsWithLines() {
 }
 
 
-/*---------- Canvas resize & animation loop ----------*/
+/*---------- 4.5 Canvas resize & animation loop ----------*/
 
 // Match canvas to viewport and rescale stars to fit
 function resizeCanvas() {
@@ -664,27 +668,30 @@ function animate() {
   drawStarsWithLines();
   requestAnimationFrame(animate);
 }
+//#endregion 4. STARFIELD
 
 
+
+//#region 5. POINTER INPUT
 /*========================================*
- *  5 POINTER INPUT & SPEED LOGIC
+ *  5 POINTER INPUT
  *========================================*/
 
-/*---------- Pointer speed calculation ----------*/
+/*---------- 5.1 Pointer speed calculation ----------*/
 
 // Update pointer speed and derived CLEANED_USER_SPEED
-function updateSpeed(x, y, time) {
+function updateSpeed(X, Y, TIME) {
   // Fallback if a weird environment passes an invalid timestamp
-  if (!Number.isFinite(time)) {
-    time = (window.performance && performance.now)
+  if (!Number.isFinite(TIME)) {
+    TIME = (window.performance && performance.now)
       ? performance.now()
       : Date.now();
   }
 
-  const DT = time - LAST_TIME;
+  const DT = TIME - LAST_TIME;
 
   if (DT > 0) {
-    POINTER_SPEED = Math.hypot(x - LAST_X, y - LAST_Y) / DT;
+    POINTER_SPEED = Math.hypot(X - LAST_X, Y - LAST_Y) / DT;
   }
 
   SMOOTH_SPEED = SMOOTH_SPEED * 0.8 + POINTER_SPEED * 10;
@@ -693,120 +700,123 @@ function updateSpeed(x, y, time) {
     10
   );
 
-  LAST_X = x;
-  LAST_Y = y;
-  LAST_TIME = time;
+  LAST_X = X;
+  LAST_Y = Y;
+  LAST_TIME = TIME;
 }
 
 // Shared start handler for mouse/touch pointer interactions
-function startPointerInteraction(x, y, time) {
+function startPointerInteraction(X, Y, TIME) {
   ATTRACTION_VALUE = -2; // flip to "repel" on click/touch
-  updateSpeed(x, y, time);
+  updateSpeed(X, Y, TIME);
   CLEANED_USER_SPEED = Math.min(CLEANED_USER_SPEED + 0.8, 3);
 }
 
 
-/*---------- Pointer event listeners ----------*/
+/*---------- 5.2 Pointer event listeners ----------*/
 
 // Mouse move updates live pointer speed
-window.addEventListener('mousemove', (e) =>
-  updateSpeed(e.clientX, e.clientY, e.timeStamp)
+window.addEventListener('mousemove', (E) =>
+  updateSpeed(E.clientX, E.clientY, E.timeStamp)
 );
 
 // Mouse down triggers strong repulsion + speed bump
-window.addEventListener('mousedown', (e) => {
-  startPointerInteraction(e.clientX, e.clientY, e.timeStamp);
+window.addEventListener('mousedown', (E) => {
+  startPointerInteraction(E.clientX, E.clientY, E.timeStamp);
 });
 
 // Touch start triggers the same repulsion behavior
-window.addEventListener('touchstart', (e) => {
-  const T = e.touches[0];
-  if (!T) return;
-  startPointerInteraction(T.clientX, T.clientY, e.timeStamp);
+window.addEventListener('touchstart', (E) => {
+  const TOUCH_POINT = E.touches[0];
+  if (!TOUCH_POINT) return;
+  startPointerInteraction(TOUCH_POINT.clientX, TOUCH_POINT.clientY, E.timeStamp);
 });
 
 // Touch move updates speed from active touch
-window.addEventListener('touchmove', (e) => {
-  const T = e.touches[0];
-  if (!T) return;
-  updateSpeed(T.clientX, T.clientY, e.timeStamp);
+window.addEventListener('touchmove', (E) => {
+  const TOUCH_POINT = E.touches[0];
+  if (!TOUCH_POINT) return;
+  updateSpeed(TOUCH_POINT.clientX, TOUCH_POINT.clientY, E.timeStamp);
 });
 
-//  Fix "hover but no click during scroll" on mobile
-function wireTouchEvent(selector = 'a') {
-  const elements = document.querySelectorAll(selector);
-  if (!elements.length) return;
+// Fix "hover but no click during scroll" on mobile
+function wireTouchEvent(SELECTOR = 'a') {
+  const ELEMENTS = document.querySelectorAll(SELECTOR);
+  if (!ELEMENTS.length) return;
 
-  elements.forEach((el) => {
-    let startX = 0;
-    let startY = 0;
-    let moved = false;
+  ELEMENTS.forEach((ELEMENT) => {
+    let START_X = 0;
+    let START_Y = 0;
+    let MOVED = false;
 
     // start: remember where the finger went down
-    el.addEventListener(
+    ELEMENT.addEventListener(
       'touchstart',
-      (e) => {
-        const touch = e.touches[0];
-        if (!touch) return;
-        startX = touch.clientX;
-        startY = touch.clientY;
-        moved = false;
+      (E) => {
+        const TOUCH = E.touches[0];
+        if (!TOUCH) return;
+        START_X = TOUCH.clientX;
+        START_Y = TOUCH.clientY;
+        MOVED = false;
       },
       { passive: true }
     );
 
     // move: if we move more than a few px, treat it as scroll, not tap
-    el.addEventListener(
+    ELEMENT.addEventListener(
       'touchmove',
-      (e) => {
-        const touch = e.touches[0];
-        if (!touch) return;
-        const dx = touch.clientX - startX;
-        const dy = touch.clientY - startY;
-        const distance = Math.hypot(dx, dy);
-        if (distance > 10) {
-          moved = true;
+      (E) => {
+        const TOUCH = E.touches[0];
+        if (!TOUCH) return;
+        const DX = TOUCH.clientX - START_X;
+        const DY = TOUCH.clientY - START_Y;
+        const DISTANCE = Math.hypot(DX, DY);
+        if (DISTANCE > 10) {
+          MOVED = true;
         }
       },
       { passive: true }
     );
 
     // end: if we didn't move much, treat this as a click
-    el.addEventListener(
+    ELEMENT.addEventListener(
       'touchend',
-      (e) => {
-        if (moved) {
+      (E) => {
+        if (MOVED) {
           // big move = scroll; let browser handle it
           return;
         }
 
         // This is a "light tap" → we take over
-        e.preventDefault();
+        E.preventDefault();
 
         // Use href as the URL fallback
-        const url = el.getAttribute('href');
-        if (!url) return;
+        const URL = ELEMENT.getAttribute('href');
+        if (!URL) return;
 
-        // Optional: infer isMenu from data attribute instead of hardcoding
-        const isMenu = el.dataset.menu === '1';
+        // Optional: infer IS_MENU from data attribute instead of hardcoding
+        const IS_MENU = ELEMENT.dataset.menu === '1';
 
-        // Call your existing navigation logic
-        transitionTo(url, isMenu);
+        // Call existing navigation logic
+        transitionTo(URL, IS_MENU);
       },
       { passive: false } // MUST be false so preventDefault() is allowed
     );
   });
 }
+//#endregion 5. POINTER INPUT
 
 
+
+//#region 6. SIMPLE HTML HELPERS
 /*========================================*
- *  6 SIMPLE HTML UTILITIES
+ *  6 SIMPLE HTML HELPERS
  *========================================*/
 
 // Toggle an element's visibility via the [hidden] attribute
-function toggleElement(id) {
-  if (!id) return;
-  const EL = document.getElementById(id);
+function toggleElement(ID) {
+  if (!ID) return;
+  const EL = document.getElementById(ID);
   if (EL) EL.hidden = !EL.hidden;
 }
 
@@ -822,8 +832,11 @@ document.addEventListener(
   },
   { passive: true }
 );
+//#endregion 6. SIMPLE HTML HELPERS
 
 
+
+//#region 7. INITIALIZATION
 /*========================================*
  *  7 INITIALIZATION
  *========================================*/
@@ -844,7 +857,8 @@ try {
   console.error('Initialization error in starfield/transition script:', ERR);
 }
 
-// Begin the fix for "hover but no click during scroll" on mobile
+// Wire up tap-to-navigate behavior once DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
   wireTouchEvent('a');
 });
+//#endregion 7. INITIALIZATION
