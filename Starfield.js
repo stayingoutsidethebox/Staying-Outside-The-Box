@@ -38,6 +38,7 @@ let POINTER_SPEED = 0;
 let SMOOTH_SPEED = 0;
 let CLEANED_USER_SPEED = 0;
 let ATTRACTION_VALUE = 1;
+let REPULSION_VALUE = 0;
 
 // Canvas size and star scaling
 let WIDTH = 0;
@@ -69,9 +70,10 @@ function saveStarsToStorage() {
         height:          HEIGHT,
         scaleFactor:     SCALE_FACTOR,
         attractionValue: ATTRACTION_VALUE,
-        cleanedUserSpeed: CLEANED_USER_SPEED,
-        smoothSpeed:      SMOOTH_SPEED,
-        pointerSpeed:     POINTER_SPEED,
+        repulsionValue:   REPULSION_VALUE,
+        cleanedUserSpeed:CLEANED_USER_SPEED,
+        smoothSpeed:     SMOOTH_SPEED,
+        pointerSpeed:    POINTER_SPEED,
         lastX:           LAST_X,
         lastY:           LAST_Y,
         lastTime:        LAST_TIME
@@ -153,6 +155,7 @@ function initStars() {
 
           // Restore motion state, attraction, and pointer info
           ATTRACTION_VALUE   = META.attractionValue   ?? 1;
+          REPULSION_VALUE     = META.repulsionValue     ?? 0;
           CLEANED_USER_SPEED = META.cleanedUserSpeed  ?? 0;
           SMOOTH_SPEED       = META.smoothSpeed       ?? 0;
           POINTER_SPEED      = META.pointerSpeed      ?? 0;
@@ -264,6 +267,10 @@ function moveStars() {
         // Re-project back into an XY pull using the existing PULL strength
         const PULL_X = DIR_X * PULL * DIST;
         const PULL_Y = DIR_Y * PULL * DIST;
+        
+        //INSERT REPULSION HERE
+        //PULL_X = (Math) * -REPULSION-VALUE
+        //PULL_Y = (Math) * -REPULSION-VALUE
 
         STAR.x += PULL_X;
         STAR.y += PULL_Y;
@@ -439,7 +446,7 @@ function updateSpeed(X, Y, TIME) {
 
 // Shared start handler for mouse/touch pointer interactions
 function startPointerInteraction(X, Y, TIME) {
-  ATTRACTION_VALUE = -1; // flip to "repel" on click/touch
+  REPULSION_VALUE = 1; // Repel on click/touch
   updateSpeed(X, Y, TIME);
   CLEANED_USER_SPEED = Math.min(CLEANED_USER_SPEED + 0.8, 3);
 }
