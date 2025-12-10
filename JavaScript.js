@@ -274,15 +274,16 @@ function transitionTo(url, isMenu = false) {
   FREEZE_CONSTELLATION = true;
   saveStarsToStorage();
 
-  // Let body/window handle scroll during the slide-out
-  freeScrollLayout(PAGE);
+  // Use the scroll inside #transitionContainer, not window.scrollY
+  const SCROLL_IN_PAGE = PAGE.scrollTop || 0;
+  const DIST = window.innerHeight + SCROLL_IN_PAGE;
+  document.documentElement.style.setProperty(
+    '--slide-distance',
+    `${DIST}px`
+  );
 
-  // Slide distance: one viewport + however far we've scrolled (unbounded)
-const DIST = window.innerHeight + window.scrollY;
-document.documentElement.style.setProperty(
-  '--slide-distance',
-  `${DIST}px`
-);
+  // Now let body/window handle scroll during the slide-out
+  freeScrollLayout(PAGE);
 
   // Kick off slide-out animation
   PAGE.classList.add('slide-out');
