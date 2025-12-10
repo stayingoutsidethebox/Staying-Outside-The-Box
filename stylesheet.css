@@ -549,6 +549,11 @@ button span {
   transition: none !important;
 }
 
+/* No-JS fallback: normal scroll, no animations */
+.noJs body {
+  overflow: auto;
+}
+
 
 /*========================================*
  *  REDUCED-MOTION ACCESSIBILITY
