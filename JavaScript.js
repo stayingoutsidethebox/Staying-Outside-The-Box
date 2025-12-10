@@ -128,9 +128,10 @@ window.addEventListener('pageshow', (event) => {
     // Reset scroll inside the transition container
     page.scrollTop = 0;
     
-    applyLockedLayout();
-    //reset heights to prevent background expansion and contraction
+       //reset heights to prevent background expansion and contraction
 resetPageHeights();
+    applyLockedLayout();
+ 
 
 // Allow transitions again
     isTransitioning = false;
