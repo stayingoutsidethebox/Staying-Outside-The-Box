@@ -516,7 +516,7 @@ button span {
 
 .homeJs #transitionContainer {
   transform: translateY(-100%); /* start above */
-  transition: transform 0.6s ease-in-out;
+  transition: transform 1s ease-in-out;
 }
 
 .homeJs #transitionContainer.ready {
