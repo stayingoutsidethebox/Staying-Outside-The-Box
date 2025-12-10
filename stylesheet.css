@@ -22,7 +22,6 @@
 html {
   margin: 0;
   padding: 0;
-  height:auto;
   overflow-x: hidden;
   overflow-y: auto;                          /* Disable window-level scroll; use #transitionContainer instead */
   background-color: #300060;                 /* Fallback solid background */
@@ -48,7 +47,7 @@ body {
   align-items: stretch;
 
   min-height: 100dvh;
-  height: 100dvmin;
+  height: auto;
   overflow:hidden;                     /* Prevent body-level scrolling */
   margin: 0;
   padding: 0;
