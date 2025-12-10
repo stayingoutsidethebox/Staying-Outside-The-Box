@@ -556,13 +556,12 @@ function transitionTo(url, isMenu = false) {
   saveStarsToStorage();
 
   // Trigger CSS slide-out
+    // Trigger CSS slide-out
   page.classList.add('slide-out');
-
-  const bufferMs = 50;
 
   setTimeout(() => {
     window.location.href = url;
-  }, slideDurationMs + bufferMs);
+  }, 650);
 }
 
 // Save stars and related meta to localStorage
