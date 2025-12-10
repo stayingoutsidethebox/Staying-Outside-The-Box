@@ -26,10 +26,6 @@ function lockScrollToContainer(page = getPage()) {
 
 // Let the whole page scroll normally
 function freeScrollLayout(page = getPage()) {
-  // Reset scroll positions before animation starts (to avoid teleport)
-  page.scrollTop = 0;
-  window.scrollTo(0, 0);
-  
   const html = document.documentElement;
   const body = document.body;
 
