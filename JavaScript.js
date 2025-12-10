@@ -524,17 +524,31 @@ window.addEventListener('touchmove', (e) => {
  *==============================*/
 
 // Navigate with slide-out and stored constellation state
+// Navigate with slide-out and stored constellation state
 function transitionTo(url, isMenu = false) {
   if (isTransitioning) return;
   isTransitioning = true;
+
+  const html = document.documentElement;
+  const body = document.body;
+  const page = document.getElementById('transitionContainer');
+
+  // 🔄 Restore the "initial" scroll layout for the slide animation:
+  // Matches:
+  // html { overflow-y: auto; }
+  // body { height: auto; }
+  // #transitionContainer { overflow-y: visible; }
+  html.style.overflowY = 'auto';
+  body.style.height = 'auto';
+  if (page) {
+    page.style.overflowY = 'visible';
+  }
 
   if (isMenu) {
     sessionStorage.setItem('suppressHomeBack', '1');
   } else {
     sessionStorage.removeItem('suppressHomeBack');
   }
-
-  const page = document.getElementById('transitionContainer');
 
   if (url === 'back') {
     const stored = localStorage.getItem('homepageBackUrl');
