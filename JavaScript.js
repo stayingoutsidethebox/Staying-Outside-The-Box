@@ -583,7 +583,7 @@ function moveStars() {
   if (CLEANED_USER_SPEED < 0.05) CLEANED_USER_SPEED = 0;
 
   // Ease attraction back towards neutral (1)
-  ATTRACTION_VALUE += (1 - ATTRACTION_VALUE) * 0.06;
+  ATTRACTION_VALUE += (1 - ATTRACTION_VALUE) * 0.03;
   if (ATTRACTION_VALUE > 1) ATTRACTION_VALUE = 1;
 }
 
