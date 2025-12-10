@@ -91,7 +91,10 @@
 html {
   margin: 0;
   padding: 0;
+  
+  /* DONT TOUCH - important for proper scroll transition */
   overflow: auto;                         /* JS swaps body/html scroll control */
+  
   background-color: #300060;              /* Fallback behind everything */
 }
 
@@ -101,8 +104,11 @@ body {
   align-items: stretch;
 
   min-height: 100dvh;
+  
+  /* DONT TOUCH - important for proper scroll transition */
   height: auto;
   overflow: hidden;                       /* Default: no body scroll */
+  
   margin: 0;
   padding: 0;
   background: transparent;
@@ -509,6 +515,8 @@ button span {
   flex: 1;
   min-height: 100dvh;
   width: 100%;
+  
+  /* DONT TOUCH - important for proper scroll transition */
   overflow: visible; /* JS swaps scroll responsibility */
 }
 
