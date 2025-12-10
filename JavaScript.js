@@ -508,8 +508,8 @@ function createStars() {
 
   for (let I = 0; I < MAX_STAR_COUNT; I++) {
     STARS.push({
-      x: WIDTH/2 + Math.cos(Math.random() * Math.PI * 2) * Math.sqrt(Math.random()) * (Math.min(WIDTH, HEIGHT)/2),
-      y: HEIGHT/2 + Math.sin(Math.random() * Math.PI * 2) * Math.sqrt(Math.random()) * (Math.min(WIDTH, HEIGHT)/2),
+      x: Math.random() * WIDTH,
+      y: Math.random() * HEIGHT,
       vx: randomBetween(-0.25, 0.25),
       vy: randomBetween(-0.25, 0.25),
       size: randomBetween(
@@ -533,9 +533,8 @@ function moveStars() {
 
   for (const STAR of STARS) {
     // Basic drift scaled by pointer speed
-    STAR.x += STAR.vx * (CLEANED_USER_SPEED + 1);
-    STAR.y += STAR.vy * (CLEANED_USER_SPEED + 1);
-
+    STAR.x += (WIDTH / 2 - STAR.x) * 0.002;
+    STAR.y += (HEIGHT / 2 - STAR.y) * 0.002;
     // Pointer pull / push zone around the cursor
     if (LAST_TIME !== 0 && CLEANED_USER_SPEED > 0.19) {
       const DX = LAST_X - STAR.x;
