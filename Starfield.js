@@ -236,42 +236,46 @@ function moveStars() {
       const MAX_INFLUENCE = 10000 * (SCALE_FACTOR / 500);
 
       if (DIST_SQ > 4 && DIST_SQ < MAX_INFLUENCE) {
-        const PULL =
+        // Base strength shared by attraction and repulsion
+        const BASE_PULL =
           0.008 *
           CLEANED_USER_SPEED *
-          ((MAX_INFLUENCE - DIST_SQ) / MAX_INFLUENCE) *
-          (ATTRACTION_VALUE < 0 ? ATTRACTION_VALUE * 2.5 : ATTRACTION_VALUE);
-
-        // Rounded, orbit-like pull
-
+          ((MAX_INFLUENCE - DIST_SQ) / MAX_INFLUENCE);
+        
+        // Separate strengths for attraction and repulsion
+        const ATTR_PULL = BASE_PULL * ATTRACTION_VALUE;   // inward + orbit
+        const REP_PULL  = BASE_PULL * REPULSION_VALUE;   // outward + orbit
+        
         const DIST = Math.sqrt(DIST_SQ) || 1;
-
+        
         // Unit radial vector (toward the pointer)
         const RAD_X = DX / DIST;
         const RAD_Y = DY / DIST;
-
+        
         // Unit tangential vector (perpendicular to radial)
         const TAN_X = -RAD_Y;
         const TAN_Y = RAD_X;
-
-        // 0 = straight line toward pointer, 1 = pure circular orbit
+        
+        // 0 = straight line toward/from pointer, 1 = pure circular orbit
         const CURVE = 0.45; // tweak 0.2–0.7 for more/less curve
-
+        
         const MIX_R = 1 - CURVE;
         const MIX_T = CURVE;
-
-        // Blended direction: part radial, part tangential
-        const DIR_X = RAD_X * MIX_R + TAN_X * MIX_T;
-        const DIR_Y = RAD_Y * MIX_R + TAN_Y * MIX_T;
-
-        // Re-project back into an XY pull using the existing PULL strength
-        const PULL_X = DIR_X * PULL * DIST;
-        const PULL_Y = DIR_Y * PULL * DIST;
         
-        //INSERT REPULSION HERE
-        //PULL_X = (Math) * -REPULSION-VALUE
-        //PULL_Y = (Math) * -REPULSION-VALUE
-
+        // Attraction: toward pointer + tangential orbit
+        const ATTR_DIR_X = RAD_X * MIX_R + TAN_X * MIX_T;
+        const ATTR_DIR_Y = RAD_Y * MIX_R + TAN_Y * MIX_T;
+        
+        // Repulsion: away from pointer + SAME tangential direction
+        const REP_DIR_X = -RAD_X * MIX_R + TAN_X * MIX_T;
+        const REP_DIR_Y = -RAD_Y * MIX_R + TAN_Y * MIX_T;
+        
+        // Combine attraction + repulsion into one displacement
+        const PULL_X =
+          (ATTR_DIR_X * ATTR_PULL + REP_DIR_X * REP_PULL) * DIST;
+        const PULL_Y =
+          (ATTR_DIR_Y * ATTR_PULL + REP_DIR_Y * REP_PULL) * DIST;
+        
         STAR.x += PULL_X;
         STAR.y += PULL_Y;
       }
