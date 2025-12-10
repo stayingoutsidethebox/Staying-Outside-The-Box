@@ -70,7 +70,7 @@ const getPage = () => document.getElementById('transitionContainer');
 const isHomepage = () => !!document.querySelector('#menuButton');
 
 // Shared helper for slide animation duration (seconds)
-const getSlideDurationSeconds = () => (isHomepage() ? 1.2 : 0.6) + window.scrollY * 0.001;
+const getSlideDurationSeconds = () => isHomepage() ? 1.2 : 0.6;
 
 /*---------- Constellation canvas & starfield ----------*/
 
@@ -277,12 +277,12 @@ function transitionTo(url, isMenu = false) {
   // Let body/window handle scroll during the slide-out
   freeScrollLayout(PAGE);
 
-  // Use full page height for the slide distance
-  const DIST = PAGE ? PAGE.offsetHeight : window.innerHeight;
-  document.documentElement.style.setProperty(
-    '--slide-distance',
-    `${DIST}px`
-  );
+  // Slide distance: one viewport + however far we've scrolled (unbounded)
+const DIST = window.innerHeight + window.scrollY;
+document.documentElement.style.setProperty(
+  '--slide-distance',
+  `${DIST}px`
+);
 
   // Kick off slide-out animation
   PAGE.classList.add('slide-out');
