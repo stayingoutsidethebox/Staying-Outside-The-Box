@@ -11,8 +11,10 @@ let isTransitioning = false;
  *  SMALL HELPERS
  *==============================*/
 
+// Main content wrapper
 const getPage = () => document.getElementById('transitionContainer');
 
+// Pick a slide duration based on how tall the page is
 function computeSlideDuration(page = getPage()) {
   if (!page) return 0.6;
 
@@ -22,11 +24,12 @@ function computeSlideDuration(page = getPage()) {
     1;
 
   const ratio = (page.offsetHeight || vh) / vh;
-  const fullness = Math.min(Math.max(ratio, 1), 4);   // 1–4× viewport
-  const t = (fullness - 1) / 3;                       // 0–1
-  return 0.5 + 1.5 * t * t;                           // 0.5–2.0s eased
+  const fullness = Math.min(Math.max(ratio, 1), 4); // 1–4× viewport height
+  const t = (fullness - 1) / 3;                     // normalized 0–1
+  return 0.5 + 1.5 * t * t;                         // 0.5–2.0s eased
 }
 
+// Use #transitionContainer as the only scroll area
 function lockScrollToContainer(page = getPage()) {
   const html = document.documentElement;
   const body = document.body;
@@ -35,6 +38,7 @@ function lockScrollToContainer(page = getPage()) {
   if (page) page.style.overflowY = 'auto';
 }
 
+// Let the whole page scroll normally
 function freeScrollLayout(page = getPage()) {
   const html = document.documentElement;
   const body = document.body;
@@ -50,12 +54,12 @@ function freeScrollLayout(page = getPage()) {
 window.addEventListener('load', () => {
   const page = getPage();
 
-  // Clear "came from menu" flag
+  // Clear menu-return flag for this page view
   const suppressHomeBack =
     sessionStorage.getItem('suppressHomeBack') === '1';
   sessionStorage.removeItem('suppressHomeBack');
 
-  // Remove URL hash so in-page anchors don't block slide animations
+  // Remove hash so anchors don't interfere with transitions
   if (window.location.hash) {
     history.replaceState(
       null,
@@ -64,7 +68,7 @@ window.addEventListener('load', () => {
     );
   }
 
-  // Slide-in config
+  // Configure slide-in timing and lock scroll after transition
   if (page) {
     const slideDuration = computeSlideDuration(page);
 
@@ -84,7 +88,7 @@ window.addEventListener('load', () => {
     });
   }
 
-  // Internal referrer check
+  // Detect if we came from another page on this site
   const ref = document.referrer;
   if (ref) {
     try {
@@ -95,7 +99,7 @@ window.addEventListener('load', () => {
     }
   }
 
-  // Homepage "back" link
+  // Show or hide the homepage back link
   const backLink = document.getElementById('homepageBack');
   if (backLink) {
     if (!suppressHomeBack && isInternalReferrer && ref) {
@@ -113,7 +117,7 @@ window.addEventListener('load', () => {
       !suppressHomeBack && backUrl ? 'block' : 'none';
   }
 
-  // New external entry: reset constellation persistence
+  // Clear saved constellations on fresh external entry
   if (!isInternalReferrer) {
     localStorage.removeItem('constellationStars');
     localStorage.removeItem('constellationMeta');
@@ -133,14 +137,13 @@ window.addEventListener('pageshow', (event) => {
     : [];
   const navType = navEntries[0] && navEntries[0].type;
 
+  // Fix state when page is restored from bfcache
   if (event.persisted || navType === 'back_forward') {
     page.classList.remove('slide-out');
     page.classList.add('ready');
 
-    // Ensure we're in the locked scroll layout
     lockScrollToContainer(page);
 
-    // Unfreeze constellation motion
     freezeConstellation = false;
     cleanedUserSpeed = 0;
     smoothSpeed = 0;
@@ -155,11 +158,13 @@ window.addEventListener('pageshow', (event) => {
  *  SIMPLE HTML HELPERS
  *==============================*/
 
+// Toggle an element using the hidden attribute
 function toggleElement(id) {
   const el = document.getElementById(id);
   if (el) el.hidden = !el.hidden;
 }
 
+// Drop focus after touch so active states clear
 document.addEventListener(
   'touchend',
   () => {
@@ -177,7 +182,7 @@ const brush = canvas.getContext('2d');
 
 let freezeConstellation = false;
 
-// Pointer / speed tracking
+// Mouse/touch movement tracking
 let lastX = 0,
   lastY = 0,
   lastTime = 0,
@@ -186,20 +191,21 @@ let lastX = 0,
   cleanedUserSpeed = 0,
   attractionValue = 1;
 
-// Canvas & star scaling
+// Canvas size and star scaling
 let width = 0,
   height = 0,
   scaleFactor = 0,
   maxStarCount = 0,
   maxLinkDistance = 0;
 
-// Star collection
+// Star objects
 let stars = [];
 
 /*==============================*
  *  STAR HELPERS
  *==============================*/
 
+// Random float in [min, max)
 const randomBetween = (min, max) =>
   Math.random() * (max - min) + min;
 
@@ -207,6 +213,7 @@ const randomBetween = (min, max) =>
  *  STAR INITIALIZATION
  *==============================*/
 
+// Load saved stars or create new ones
 function initStars() {
   const saved = localStorage.getItem('constellationStars');
 
@@ -255,6 +262,7 @@ function initStars() {
   }
 }
 
+// Build a new starfield for the current canvas
 function createStars() {
   stars = [];
 
@@ -277,11 +285,13 @@ function createStars() {
  *  STAR ANIMATION
  *==============================*/
 
+// Move, fade, and wrap stars around the screen
 function moveStars() {
   for (const star of stars) {
     star.x += star.vx * (cleanedUserSpeed + 1);
     star.y += star.vy * (cleanedUserSpeed + 1);
 
+    // Pointer pull / push
     if (lastTime !== 0 && cleanedUserSpeed > 0.19) {
       const dx = lastX - star.x;
       const dy = lastY - star.y;
@@ -302,10 +312,12 @@ function moveStars() {
       }
     }
 
+    // Fade white flashes
     if (star.whiteValue > 0) {
       star.whiteValue -= Math.max(0, star.whiteValue * 0.02);
     }
 
+    // Opacity and twinkle
     if (star.opacity <= 0.005) {
       star.opacity = 1;
       if (Math.random() < 0.07) star.whiteValue = 1;
@@ -315,22 +327,27 @@ function moveStars() {
       star.opacity -= 0.0001;
     }
 
+    // Wrap at canvas edges
     if (star.x < 0) star.x = width;
     if (star.x > width) star.x = 0;
     if (star.y < 0) star.y = height;
     if (star.y > height) star.y = 0;
   }
 
+  // Slowly decay pointer speed
   cleanedUserSpeed *= 0.95;
   if (cleanedUserSpeed < 0.05) cleanedUserSpeed = 0;
 
+  // Ease attraction back to normal
   attractionValue += (1 - attractionValue) * 0.06;
   if (attractionValue > 1) attractionValue = 1;
 }
 
+// Draw star links and star circles
 function drawStarsWithLines() {
   brush.clearRect(0, 0, width, height);
 
+  // Lines between nearby stars
   brush.lineWidth = 1;
   for (let i = 0; i < stars.length; i++) {
     for (let j = i + 1; j < stars.length; j++) {
@@ -354,6 +371,7 @@ function drawStarsWithLines() {
     }
   }
 
+  // Star bodies
   for (const star of stars) {
     let tempRed = 255 * star.whiteValue + star.redValue;
     if (tempRed > 255) tempRed = 255;
@@ -373,6 +391,7 @@ function drawStarsWithLines() {
  *  RESIZE + ANIMATION LOOP
  *==============================*/
 
+// Match canvas to viewport and rescale stars
 function resizeCanvas() {
   const oldWidth = width;
   const oldHeight = height;
@@ -400,6 +419,7 @@ function resizeCanvas() {
   }
 }
 
+// Main drawing loop
 function animate() {
   if (!freezeConstellation) moveStars();
   drawStarsWithLines();
@@ -410,6 +430,7 @@ function animate() {
  *  POINTER SPEED
  *==============================*/
 
+// Update pointer speed from mouse or touch
 function updateSpeed(x, y, time) {
   const dx = x - lastX;
   const dy = y - lastY;
@@ -465,6 +486,7 @@ window.addEventListener('touchmove', (e) => {
  *  PAGE TRANSITIONS & STORAGE
  *==============================*/
 
+// Trigger slide-out and navigate to a new URL
 function transitionTo(url, isMenu = false) {
   if (isTransitioning) return;
   isTransitioning = true;
@@ -504,6 +526,7 @@ function transitionTo(url, isMenu = false) {
   }, slideDuration * 1000 + 50);
 }
 
+// Save current starfield to localStorage
 function saveStarsToStorage() {
   try {
     localStorage.setItem('constellationStars', JSON.stringify(stars));
@@ -533,5 +556,4 @@ window.addEventListener('beforeunload', saveStarsToStorage);
 resizeCanvas();
 initStars();
 animate();
-
 window.addEventListener('resize', resizeCanvas);
