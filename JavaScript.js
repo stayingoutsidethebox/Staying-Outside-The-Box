@@ -33,10 +33,16 @@ window.addEventListener('load', () => {
   // Set slide duration relative to content height (clamped 1–3×)
   // Set a fixed slide duration (one viewport-height worth of travel)
   if (page) {
-    document.documentElement.style.setProperty(
-  '--slide-duration',
-  `${0.6 + Math.min(page.offsetHeight / viewportHeight - 1, 2) * 0.3}s`
-);
+    const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
+
+  // ONE VARIABLE: slide duration based on page height
+  const slideDuration =
+    0.6 + Math.min(Math.max(page.offsetHeight / viewportHeight - 1, 0), 2) * 0.3;
+
+  document.documentElement.style.setProperty(
+    '--slide-duration',
+    `${slideDuration}s`
+  );
 
     requestAnimationFrame(() => {
       page.classList.add('ready');
