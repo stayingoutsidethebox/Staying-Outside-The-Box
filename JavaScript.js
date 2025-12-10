@@ -97,6 +97,9 @@ window.addEventListener('pageshow', (event) => {
     // Ensure content is visible (not stuck off-screen after bfcache)
     page.classList.remove('slide-out');
     page.classList.add('ready');
+    
+    document.body.style.height =
+  Math.max(window.innerHeight, page.scrollHeight) + "px";
 
     // Unfreeze constellation motion
     freezeConstellation = false;
@@ -108,7 +111,7 @@ window.addEventListener('pageshow', (event) => {
     page.scrollTop = 0;
     
     applyLockedLayout();
-    document.body.style.height = window.innerHeight + 'px';
+    
 
 // Allow transitions again
     isTransitioning = false;
