@@ -7,7 +7,7 @@
  *  - Constellation canvas & starfield state
  *  - Storage for star positions & meta
  *  - Star creation, motion, and drawing
- *  - Pointer input (mouse/touch) for attraction/repulsion
+ *  - Pointer input (mouse/touch) for repulsion
  *  - Canvas resize & animation loop
  *==============================================================*/
 
@@ -37,7 +37,8 @@ let LAST_TIME = 0;
 let POINTER_SPEED = 0;
 let SMOOTH_SPEED = 0;
 let CLEANED_USER_SPEED = 0;
-let ATTRACTION_VALUE = 1;
+
+// Repulsion strength (0 = none, 1 = full burst)
 let REPULSION_VALUE = 0;
 
 // Canvas size and star scaling
@@ -69,8 +70,7 @@ function saveStarsToStorage() {
         width:           WIDTH,
         height:          HEIGHT,
         scaleFactor:     SCALE_FACTOR,
-        attractionValue: ATTRACTION_VALUE,
-        repulsionValue:   REPULSION_VALUE,
+        repulsionValue:  REPULSION_VALUE,
         cleanedUserSpeed:CLEANED_USER_SPEED,
         smoothSpeed:     SMOOTH_SPEED,
         pointerSpeed:    POINTER_SPEED,
@@ -153,14 +153,12 @@ function initStars() {
             }
           }
 
-          // Restore motion state, attraction, and pointer info
-          ATTRACTION_VALUE   = META.attractionValue   ?? 1;
-          REPULSION_VALUE     = META.repulsionValue     ?? 0;
-          CLEANED_USER_SPEED = META.cleanedUserSpeed  ?? 0;
-          SMOOTH_SPEED       = META.smoothSpeed       ?? 0;
-          POINTER_SPEED      = META.pointerSpeed      ?? 0;
+          // Restore motion state and pointer info
+          REPULSION_VALUE   = META.repulsionValue    ?? 0;
+          CLEANED_USER_SPEED = META.cleanedUserSpeed ?? 0;
+          SMOOTH_SPEED       = META.smoothSpeed      ?? 0;
+          POINTER_SPEED      = META.pointerSpeed     ?? 0;
 
-          // Pointer position / timing for the repulsion bubble
           if (typeof META.lastX === 'number') LAST_X = META.lastX;
           if (typeof META.lastY === 'number') LAST_Y = META.lastY;
 
@@ -236,46 +234,49 @@ function moveStars() {
       const MAX_INFLUENCE = 10000 * (SCALE_FACTOR / 500);
 
       if (DIST_SQ > 4 && DIST_SQ < MAX_INFLUENCE) {
-        // Base strength shared by attraction and repulsion
+        // Base strength shared by attraction (always on) and repulsion (burst)
         const BASE_PULL =
-          0.008 *
+          0.05 *
           CLEANED_USER_SPEED *
           ((MAX_INFLUENCE - DIST_SQ) / MAX_INFLUENCE);
-        
-        // Separate strengths for attraction and repulsion
-        const ATTR_PULL = BASE_PULL * ATTRACTION_VALUE;   // inward + orbit
-        const REP_PULL  = BASE_PULL * REPULSION_VALUE;   // outward + orbit
-        
+
+        // Attraction is now simply BASE_PULL (no separate multiplier)
+        const ATTR_PULL = BASE_PULL;
+
+        // Repulsion uses its own scalar
+        const REP_PULL = BASE_PULL * REPULSION_VALUE;
+
         const DIST = Math.sqrt(DIST_SQ) || 1;
-        
+
         // Unit radial vector (toward the pointer)
         const RAD_X = DX / DIST;
         const RAD_Y = DY / DIST;
-        
+
         // Unit tangential vector (perpendicular to radial)
+        // This defines orbit direction; kept the same for both attraction and repulsion
         const TAN_X = -RAD_Y;
         const TAN_Y = RAD_X;
-        
+
         // 0 = straight line toward/from pointer, 1 = pure circular orbit
         const CURVE = 0.45; // tweak 0.2–0.7 for more/less curve
-        
+
         const MIX_R = 1 - CURVE;
         const MIX_T = CURVE;
-        
+
         // Attraction: toward pointer + tangential orbit
         const ATTR_DIR_X = RAD_X * MIX_R + TAN_X * MIX_T;
         const ATTR_DIR_Y = RAD_Y * MIX_R + TAN_Y * MIX_T;
-        
+
         // Repulsion: away from pointer + SAME tangential direction
         const REP_DIR_X = -RAD_X * MIX_R + TAN_X * MIX_T;
         const REP_DIR_Y = -RAD_Y * MIX_R + TAN_Y * MIX_T;
-        
+
         // Combine attraction + repulsion into one displacement
         const PULL_X =
           (ATTR_DIR_X * ATTR_PULL + REP_DIR_X * REP_PULL) * DIST;
         const PULL_Y =
           (ATTR_DIR_Y * ATTR_PULL + REP_DIR_Y * REP_PULL) * DIST;
-        
+
         STAR.x += PULL_X;
         STAR.y += PULL_Y;
       }
@@ -307,7 +308,12 @@ function moveStars() {
   // Slowly decay pointer speed influence
   CLEANED_USER_SPEED *= 0.95;
   if (CLEANED_USER_SPEED < 0.05) CLEANED_USER_SPEED = 0;
+
+  // Gently decay repulsion bursts so they don't last forever
+  REPULSION_VALUE *= 0.92;
+  if (REPULSION_VALUE < 0.01) REPULSION_VALUE = 0;
 }
+
 
 /*---------- Star rendering ----------*/
 
@@ -415,8 +421,6 @@ function animate() {
  *  POINTER INPUT (MOUSE / TOUCH)
  *========================================*/
 
-/*---------- Pointer speed calculation ----------*/
-
 // Update pointer speed and derived CLEANED_USER_SPEED
 function updateSpeed(X, Y, TIME) {
   // Fallback if a weird environment passes an invalid timestamp
@@ -447,9 +451,8 @@ function updateSpeed(X, Y, TIME) {
 function startPointerInteraction(X, Y, TIME) {
   REPULSION_VALUE = 1; // Repel on click/touch
   updateSpeed(X, Y, TIME);
-  CLEANED_USER_SPEED = Math.min(CLEANED_USER_SPEED + 0.8, 3);
+  CLEANED_USER_SPEED = CLEANED_USER_SPEED + 0.8;
 }
-
 
 // Mouse move updates live pointer speed
 window.addEventListener('mousemove', (E) =>
