@@ -12,6 +12,27 @@ let isTransitioning = false;       // prevents double navigation during transiti
  *  PAGE LOAD HANDLER
  *==============================*/
 
+function resetPageHeights() {
+  const page = document.getElementById('transitionContainer');
+  if (!page) return;
+
+  // Full content height, but never less than the viewport
+  const fullHeight = Math.max(window.innerHeight, page.scrollHeight);
+
+  // Lock html + body to that height
+  const html = document.documentElement;
+  const body = document.body;
+
+  html.style.height = fullHeight + 'px';
+  body.style.height = fullHeight + 'px';
+
+  // Make sure the scroll container itself can't shrink
+  page.style.minHeight = fullHeight + 'px';
+
+  // Keep scroll behavior consistent
+  page.style.overflowY = 'auto';
+}
+
 window.addEventListener('load', () => {
   const page = document.getElementById('transitionContainer');
 
@@ -39,6 +60,9 @@ slideDurationMs = pageSize * 1000;
       page.classList.add('ready');
     });
   }
+
+//reset heights to prevent background expansion and contraction
+resetPageHeights();
 
   // Detect if we came from the same origin (internal navigation)
   const ref = document.referrer;
@@ -98,9 +122,7 @@ window.addEventListener('pageshow', (event) => {
     page.classList.remove('slide-out');
     page.classList.add('ready');
     
-    document.body.style.height =
-  Math.max(window.innerHeight, page.scrollHeight) + "px";
-
+  
     // Unfreeze constellation motion
     freezeConstellation = false;
     cleanedUserSpeed = 0;
