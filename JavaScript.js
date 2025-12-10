@@ -108,7 +108,7 @@ window.addEventListener('pageshow', (event) => {
     page.scrollTop = 0;
     
     applyLockedLayout();
-    document.body.style.height = Math.max(window.innerHeight, page.scrollHeight) + 'px';
+    document.body.style.height = window.innerHeight + 'px';
 
 // Allow transitions again
     isTransitioning = false;
