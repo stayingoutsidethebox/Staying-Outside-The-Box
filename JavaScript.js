@@ -156,11 +156,15 @@ window.addEventListener('load', () => {
     );
   }
 
-  // Configure slide-in speed and lock scroll once finished
+  // Configure slide-in speed/distance and lock scroll once finished
   if (PAGE) {
     document.documentElement.style.setProperty(
       '--slide-duration',
       `${getSlideDurationSeconds()}s`
+    );
+    document.documentElement.style.setProperty(
+      "--slide-distance",
+      `${window.scrollY}px`
     );
 
     // Wait one frame to avoid flashing before animation
