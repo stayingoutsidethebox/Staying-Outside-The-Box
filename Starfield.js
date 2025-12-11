@@ -211,7 +211,9 @@ function createStars() {
       opacity: randomBetween(0.005, 1.8),
       fadeSpeed: randomBetween(1, 2.1),
       redValue: randomBetween(0, 200),
-      whiteValue: 0
+      whiteValue: 0,
+      momentumX: 0,
+      momentumY: 0
     });
   }
 }
@@ -272,14 +274,23 @@ function moveStars() {
         // 2) Orbit term: tangential motion that grows as stars get closer
         const NORMALIZED_DISTANCE = Math.max(0, 1 - USER_DISTANCE / (MAX_INFLUENCE * 1.4));
 
-        let ORBIT_FORCE = OFFSET_USER_SPEED * NORMALIZED_DISTANCE * 1;
-        if (ORBIT_FORCE < 3) ORBIT_FORCE = 3; // minimum orbit speed
+        // ---- MOMENTUM UPDATE ----
 
-        const TAN_X = -DY * INV_DIST;
-        const TAN_Y =  DX * INV_DIST;
+// Normalize direction toward finger
+const DIR_X = DX / USER_DISTANCE;
+const DIR_Y = DY / USER_DISTANCE;
 
-        PULL_X += TAN_X * ORBIT_FORCE * (CLEANED_USER_SPEED / 10);
-        PULL_Y += TAN_Y * ORBIT_FORCE * (CLEANED_USER_SPEED / 10);
+// How strongly the finger accelerates the star
+const MOMENTUM_PUSH = CLEANED_USER_SPEED * 0.5; 
+// ↑ tune: 0.3 = gentle, 1.0 = strong pull acceleration
+
+// Add acceleration toward finger
+STAR.MOMENTUM_X += DIR_X * MOMENTUM_PUSH;
+STAR.MOMENTUM_Y += DIR_Y * MOMENTUM_PUSH;
+
+// Apply momentum to pull for this frame
+PULL_X += STAR.MOMENTUM_X;
+PULL_Y += STAR.MOMENTUM_Y;
 
         // 3) Clamp combined finger influence so it never explodes
         if (Math.abs(PULL_X) > 3) PULL_X = 3 * Math.sign(PULL_X);
@@ -294,6 +305,11 @@ function moveStars() {
         PULL_X *= FADE;
         PULL_Y *= FADE;
       }
+      // Global decay (friction)
+STAR.momentumX *= 0.90;  // decay rate; 0.90–0.98 recommended
+STAR.momentumY *= 0.90;
+  if (STAR.momentumX < 1) STAR.momentumX = 0;
+  if (STAR.momentumY < 1) STAR.momentumY = 0;
     }
 
     // Always add baseline star drift
