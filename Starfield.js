@@ -245,30 +245,32 @@ for (const STAR of STARS) {
 
   
 
-    if (LAST_TIME !== 0) {
-      const DX = LAST_X - STAR.x;
-      const DY = LAST_Y - STAR.y;
-      const DIST_SQ = DX * DX + DY * DY;
+    // --- 2. Simple pull toward your finger (one-dot collapse) ---
+if (LAST_TIME !== 0) {
+  const DX = LAST_X - STAR.x;
+  const DY = LAST_Y - STAR.y;
+  const DIST_SQ = DX * DX + DY * DY;
 
-      const MAX_INFLUENCE = 10000 * (SCALE_FACTOR / 500);
+  const MAX_INFLUENCE = 10000 * (SCALE_FACTOR / 500);
 
-      if (DIST_SQ < MAX_INFLUENCE) {
-        const DIST = Math.sqrt(DIST_SQ) || 1;
-        const MIN_RADIUS = 2; // px: how tight the "dot" is
+  if (DIST_SQ < MAX_INFLUENCE) {
+    const DIST = Math.sqrt(DIST_SQ) || 1;
+    const MIN_RADIUS = 2; // px: how tight the dot collapse is
 
-        if (DIST <= MIN_RADIUS) {
-          // Close enough: snap into the dot
-          STAR.x = LAST_X;
-          STAR.y = LAST_Y;
-        } else {
-          // Move a fraction of the remaining distance toward your finger
-          // (0.04 base + speed boost, clamped so it doesn't overshoot)
-          let pull = 0.04 * (1 + CLEANED_USER_SPEED);
-          if (pull > 0.25) pull = 0.25; // at most 25% of gap per frame
+    if (DIST <= MIN_RADIUS) {
+      // Snap to fingertip
+      STAR.x = LAST_X;
+      STAR.y = LAST_Y;
+    } else {
+      // Move a controlled fraction toward the finger
+      let pull = 0.04 * (1 + CLEANED_USER_SPEED);
+      if (pull > 0.25) pull = 0.25; // prevent overshoot
 
-          STAR.x += DX * pull;
-          STAR.y += DY * pull;
-      }
+      STAR.x += DX * pull;
+      STAR.y += DY * pull;
+    }
+  }
+}
  
  
  
