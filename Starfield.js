@@ -260,7 +260,7 @@ function moveStars() {
 
         // Target ring radius around your finger (0–1 scale)
         const RING_RADIUS = 0.35;       // orbit radius knob
-        const RADIAL_STRENGTH = 10;      // how hard stars seek that ring
+        const RADIAL_STRENGTH = 13;      // how hard stars seek that ring
 
         // Positive if outside ring, negative if inside, fades at edges
         const RADIAL_INFLUENCE = RADIAL_STRENGTH * (R - RING_RADIUS) * (1 - R);
@@ -331,7 +331,7 @@ function moveStars() {
   if (CLEANED_USER_SPEED < 0.05) CLEANED_USER_SPEED = 0;
 
   // Repulsion bursts decay too
-  REPULSION_VALUE *= 0.965;
+  REPULSION_VALUE *= 0.98;
   if (REPULSION_VALUE < 0.01) REPULSION_VALUE = 0;
 }
 
