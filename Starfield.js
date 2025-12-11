@@ -222,115 +222,111 @@ function moveStars() {
   if (!HAS_CANVAS || !STARS.length) return;
 
   for (const STAR of STARS) {
-    // --- 1. Passive drift for this frame ---
-    const passiveDX = STAR.vx * (CLEANED_USER_SPEED + 1);
-    const passiveDY = STAR.vy * (CLEANED_USER_SPEED + 1);
-    const passiveMag = Math.hypot(passiveDX, passiveDY);
+  // --- 1. Passive drift for this frame (unchanged baseline motion) ---
+  const passiveDX = STAR.vx * (CLEANED_USER_SPEED + 1);
+  const passiveDY = STAR.vy * (CLEANED_USER_SPEED + 1);
 
-    // Start with passive movement as the default
-    let moveDX = passiveDX;
-    let moveDY = passiveDY;
+  // Apply passive drift first
+  STAR.x += passiveDX;
+  STAR.y += passiveDY;
 
-    // --- 2. Pointer pull / push with wobble around the cursor ---
-    if (LAST_TIME !== 0 && CLEANED_USER_SPEED > 0.19) {
-      const DX = LAST_X - STAR.x;
-      const DY = LAST_Y - STAR.y;
-      const DIST_SQ = DX * DX + DY * DY;
+  // --- 2. Pointer pull / push as a *bias* (not total direction override) ---
+  if (LAST_TIME !== 0 && CLEANED_USER_SPEED > 0.19) {
+    const DX = LAST_X - STAR.x;
+    const DY = LAST_Y - STAR.y;
+    const DIST_SQ = DX * DX + DY * DY;
 
-      const MAX_INFLUENCE = 10000 * (SCALE_FACTOR / 500);
+    const MAX_INFLUENCE = 10000 * (SCALE_FACTOR / 500);
 
-      // Ignore super-far stars and a tiny core right at the center
-      if (DIST_SQ > 4 && DIST_SQ < MAX_INFLUENCE) {
-        const DIST = Math.sqrt(DIST_SQ) || 1;
+    if (DIST_SQ < MAX_INFLUENCE) {
+      const DIST = Math.sqrt(DIST_SQ) || 1;
+      const MAX_RADIUS = Math.sqrt(MAX_INFLUENCE);
 
-        // Falloff with distance (same as older version)
-        const SPEED_FACTOR = 0.4 + CLEANED_USER_SPEED; // base + your motion
-        const FALLOFF = (MAX_INFLUENCE - DIST_SQ) / MAX_INFLUENCE;
+      // Normalized distance 0..1 from the pointer
+      const NORM = Math.min(DIST / MAX_RADIUS, 1);
 
-        const BASE_PULL = 0.015 * SPEED_FACTOR * FALLOFF;
+      // Exponent controls how fast pull grows with distance
+      const EXPONENT = 1.7; // try 1.4–2.2
+      // This makes a bell-shaped strength: 0 at center & edges, max in the middle
+      const radialEnvelope = Math.pow(NORM, EXPONENT) * (1 - NORM);
 
-        const ATTR_PULL = BASE_PULL;
-        const REP_PULL  = BASE_PULL * REPULSION_VALUE;
+      // Base pull from your motion, modulated by distance envelope
+      const BASE_PULL = 0.04 * CLEANED_USER_SPEED * radialEnvelope;
 
-        // Unit radial vector (toward the pointer)
-        const RAD_X = DX / DIST;
-        const RAD_Y = DY / DIST;
+      // Unit radial vector (toward the pointer)
+      const RAD_X = DX / DIST;
+      const RAD_Y = DY / DIST;
 
-        // Unit tangential vector (perpendicular) for orbit
-        const TAN_X = -RAD_Y;
-        const TAN_Y = RAD_X;
+      // Optional tangential orbital component
+      const TAN_X = -RAD_Y;
+      const TAN_Y = RAD_X;
 
-        // 0 = pure radial, 1 = pure orbit
-        const CURVE = 0.45;
-        const MIX_R = 1 - CURVE;
-        const MIX_T = CURVE;
+      const CURVE = 0.45;           // 0 = pure radial, 1 = pure orbit
+      const MIX_R = 1 - CURVE;
+      const MIX_T = CURVE;
 
-        // Base attraction / repulsion directions
-        let ATTR_DIR_X = RAD_X * MIX_R + TAN_X * MIX_T;
-        let ATTR_DIR_Y = RAD_Y * MIX_R + TAN_Y * MIX_T;
+      // Attraction direction (toward pointer + orbit)
+      const ATTR_DIR_X = RAD_X * MIX_R + TAN_X * MIX_T;
+      const ATTR_DIR_Y = RAD_Y * MIX_R + TAN_Y * MIX_T;
 
-        let REP_DIR_X = -RAD_X * MIX_R + TAN_X * MIX_T;
-        let REP_DIR_Y = -RAD_Y * MIX_R + TAN_Y * MIX_T;
+      // Repulsion direction (away from pointer + same orbit direction)
+      const REP_DIR_X = -RAD_X * MIX_R + TAN_X * MIX_T;
+      const REP_DIR_Y = -RAD_Y * MIX_R + TAN_Y * MIX_T;
 
-        // --- Wobble: mix in star's own velocity direction ---
-        const velLen = Math.hypot(STAR.vx, STAR.vy) || 1;
-        const velDirX = STAR.vx / velLen;
-        const velDirY = STAR.vy / velLen;
+// Add a bit of the star's own velocity direction to wobble the orbit
+const velLen = Math.hypot(STAR.vx, STAR.vy) || 1;
+const velDirX = STAR.vx / velLen;
+const velDirY = STAR.vy / velLen;
 
-        const WOBBLE = 0.3;          // 0 = perfect orbit, 1 = follow velocity
-        const INV_WOBBLE = 1 - WOBBLE;
+const WOBBLE = 0.3; // 0 = perfect orbit, 1 = follow velocity
 
-        const ATTR_DIR_X_WOBBLE = ATTR_DIR_X * INV_WOBBLE + velDirX * WOBBLE;
-        const ATTR_DIR_Y_WOBBLE = ATTR_DIR_Y * INV_WOBBLE + velDirY * WOBBLE;
+// Blend pointer-defined direction with star's inherent drift direction
+const INV_WOBBLE = 1 - WOBBLE;
 
-        const REP_DIR_X_WOBBLE = REP_DIR_X * INV_WOBBLE + velDirX * WOBBLE;
-        const REP_DIR_Y_WOBBLE = REP_DIR_Y * INV_WOBBLE + velDirY * WOBBLE;
+const ATTR_DIR_X_WOBBLE = ATTR_DIR_X * INV_WOBBLE + velDirX * WOBBLE;
+const ATTR_DIR_Y_WOBBLE = ATTR_DIR_Y * INV_WOBBLE + velDirY * WOBBLE;
 
-        // Combined pointer influence vector
-        let biasX =
-          (ATTR_DIR_X_WOBBLE * ATTR_PULL + REP_DIR_X_WOBBLE * REP_PULL) * DIST;
-        let biasY =
-          (ATTR_DIR_Y_WOBBLE * ATTR_PULL + REP_DIR_Y_WOBBLE * REP_PULL) * DIST;
+const REP_DIR_X_WOBBLE = REP_DIR_X * INV_WOBBLE + velDirX * WOBBLE;
+const REP_DIR_Y_WOBBLE = REP_DIR_Y * INV_WOBBLE + velDirY * WOBBLE;
 
-        // Optionally ensure pointer bias at least as "strong" as passive drift
-        const pointerMag = Math.hypot(biasX, biasY);
-        const totalMag = Math.max(pointerMag, passiveMag || 0.0001);
-        if (pointerMag > 0) {
-          const scale = totalMag / pointerMag;
-          biasX *= scale;
-          biasY *= scale;
-        }
+      const ATTR_PULL = BASE_PULL;
+const REP_PULL = BASE_PULL * REPULSION_VALUE;
 
-        // Add pointer bias on top of passive drift
-        moveDX += biasX;
-        moveDY += biasY;
-      }
+// Combined pointer influence vector (small compared to passive)
+let biasX =
+  ATTR_DIR_X_WOBBLE * ATTR_PULL + REP_DIR_X_WOBBLE * REP_PULL;
+let biasY =
+  ATTR_DIR_Y_WOBBLE * ATTR_PULL + REP_DIR_Y_WOBBLE * REP_PULL;
+      // Scale by distance so further stars get a bigger nudge along that direction
+      biasX *= DIST;
+      biasY *= DIST;
+
+      // Apply *additive* pointer influence
+      STAR.x += biasX;
+      STAR.y += biasY;
     }
-
-    // --- 3. Apply final motion for this frame ---
-    STAR.x += moveDX;
-    STAR.y += moveDY;
-
-    // --- 4. Spark / fade / wrap behavior (unchanged) ---
-    if (STAR.whiteValue > 0) {
-      STAR.whiteValue *= 0.98;
-      if (STAR.whiteValue < 0.001) STAR.whiteValue = 0;
-    }
-
-    if (STAR.opacity <= 0.005) {
-      STAR.opacity = 1;
-      if (Math.random() < 0.07) STAR.whiteValue = 1;
-    } else if (STAR.opacity > 0.02) {
-      STAR.opacity -= 0.005 * STAR.fadeSpeed;
-    } else {
-      STAR.opacity -= 0.0001;
-    }
-
-    if (STAR.x < 0) STAR.x = WIDTH;
-    if (STAR.x > WIDTH) STAR.x = 0;
-    if (STAR.y < 0) STAR.y = HEIGHT;
-    if (STAR.y > HEIGHT) STAR.y = 0;
   }
+
+  // --- 3. Spark / fade / wrap behavior (unchanged) ---
+  if (STAR.whiteValue > 0) {
+    STAR.whiteValue *= 0.98;
+    if (STAR.whiteValue < 0.001) STAR.whiteValue = 0;
+  }
+
+  if (STAR.opacity <= 0.005) {
+    STAR.opacity = 1;
+    if (Math.random() < 0.07) STAR.whiteValue = 1;
+  } else if (STAR.opacity > 0.02) {
+    STAR.opacity -= 0.005 * STAR.fadeSpeed;
+  } else {
+    STAR.opacity -= 0.0001;
+  }
+
+  if (STAR.x < 0) STAR.x = WIDTH;
+  if (STAR.x > WIDTH) STAR.x = 0;
+  if (STAR.y < 0) STAR.y = HEIGHT;
+  if (STAR.y > HEIGHT) STAR.y = 0;
+}
 
   // Slowly decay pointer speed influence
   CLEANED_USER_SPEED *= 0.95;
