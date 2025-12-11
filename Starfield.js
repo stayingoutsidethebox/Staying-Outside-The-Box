@@ -281,7 +281,7 @@ const DIR_Y = DY * INV_DIST;
 const NEAR = 1 - R; // R is USER_DISTANCE / MAX_INFLUENCE
 
 // Small acceleration toward finger, scaled by how close you are
-const MOMENTUM_PUSH = USER_SPEED * 2 * NEAR;
+const MOMENTUM_PUSH = CLEANED_USER_SPEED * 2 * NEAR;
 // ^ 0.12 is deliberately small; we can nudge this later
 
 // Use the *existing* momentum fields (lowercase)
