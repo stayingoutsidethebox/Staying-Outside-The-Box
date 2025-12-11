@@ -276,21 +276,35 @@ function moveStars() {
 
         // ---- MOMENTUM UPDATE ----
 
-// Normalize direction toward finger
-const DIR_X = DX / USER_DISTANCE;
-const DIR_Y = DY / USER_DISTANCE;
+// ---- MOMENTUM UPDATE (gentle, capped) ----
 
-// How strongly the finger accelerates the star
-const MOMENTUM_PUSH = CLEANED_USER_SPEED * 0.5; 
-// ↑ tune: 0.3 = gentle, 1.0 = strong pull acceleration
+// Direction toward finger
+const DIR_X = DX * INV_DIST;
+const DIR_Y = DY * INV_DIST;
 
-// Add acceleration toward finger
-STAR.MOMENTUM_X += DIR_X * MOMENTUM_PUSH;
-STAR.MOMENTUM_Y += DIR_Y * MOMENTUM_PUSH;
+// 0 at edge of influence, ~1 near your finger
+const NEAR = 1 - R; // R is USER_DISTANCE / MAX_INFLUENCE
 
-// Apply momentum to pull for this frame
-PULL_X += STAR.MOMENTUM_X;
-PULL_Y += STAR.MOMENTUM_Y;
+// Small acceleration toward finger, scaled by how close you are
+const MOMENTUM_PUSH = CLEANED_USER_SPEED * 0.12 * NEAR;
+// ^ 0.12 is deliberately small; we can nudge this later
+
+// Use the *existing* momentum fields (lowercase)
+STAR.momentumX += DIR_X * MOMENTUM_PUSH;
+STAR.momentumY += DIR_Y * MOMENTUM_PUSH;
+
+// Cap overall momentum magnitude so it can't explode
+const MOMENTUM_MAX = 1.8;  // try between 1.0 and 3.0
+const MOMAG = Math.hypot(STAR.momentumX, STAR.momentumY);
+if (MOMAG > MOMENTUM_MAX) {
+  const SCALE = MOMENTUM_MAX / MOMAG;
+  STAR.momentumX *= SCALE;
+  STAR.momentumY *= SCALE;
+}
+
+// Apply momentum to this frame's pull
+PULL_X += STAR.momentumX;
+PULL_Y += STAR.momentumY;
 
         // 3) Clamp combined finger influence so it never explodes
         if (Math.abs(PULL_X) > 3) PULL_X = 3 * Math.sign(PULL_X);
@@ -300,17 +314,15 @@ PULL_Y += STAR.MOMENTUM_Y;
         PULL_X -= DX * INV_DIST * REPULSION_VALUE;
         PULL_Y -= DY * INV_DIST * REPULSION_VALUE;
 
-        // 5) Fade pointer influence back into passive drift as you slow down
-        const FADE = CLEANED_USER_SPEED / 12;
-        PULL_X *= FADE;
-        PULL_Y *= FADE;
+
       }
-      // Global decay (friction)
+     
+    }
+     // Global decay (friction)
 STAR.momentumX *= 0.90;  // decay rate; 0.90–0.98 recommended
 STAR.momentumY *= 0.90;
   if (STAR.momentumX < 1) STAR.momentumX = 0;
   if (STAR.momentumY < 1) STAR.momentumY = 0;
-    }
 
     // Always add baseline star drift
     PULL_X += STAR.vx * OFFSET_USER_SPEED;
