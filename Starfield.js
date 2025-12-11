@@ -270,10 +270,6 @@ function moveStars() {
         // 1) Orbital push: toward ring if outside, away if inside
         PULL_X += OFFSET_USER_SPEED * RADIAL_INFLUENCE * DX * INV_DIST;
         PULL_Y += OFFSET_USER_SPEED * RADIAL_INFLUENCE * DY * INV_DIST;
-
-        // 2) Orbit term: tangential motion that grows as stars get closer
-        const NORMALIZED_DISTANCE = Math.max(0, 1 - USER_DISTANCE / (MAX_INFLUENCE * 1.4));
-
         // ---- MOMENTUM UPDATE ----
 
 // ---- MOMENTUM UPDATE (gentle, capped) ----
@@ -318,11 +314,13 @@ PULL_Y += STAR.momentumY;
       }
      
     }
-     // Global decay (friction)
-STAR.momentumX *= 0.90;  // decay rate; 0.90–0.98 recommended
-STAR.momentumY *= 0.90;
-  if (STAR.momentumX < 1) STAR.momentumX = 0;
-  if (STAR.momentumY < 1) STAR.momentumY = 0;
+     // Global decay (friction) – always runs, even when finger is still
+STAR.momentumX *= 0.94;
+STAR.momentumY *= 0.94;
+
+if (Math.abs(STAR.momentumX) < 0.01) STAR.momentumX = 0;
+if (Math.abs(STAR.momentumY) < 0.01) STAR.momentumY = 0;
+
 
     // Always add baseline star drift
     PULL_X += STAR.vx * OFFSET_USER_SPEED;
