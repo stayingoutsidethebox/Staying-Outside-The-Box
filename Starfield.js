@@ -287,9 +287,9 @@ if (CLEANED_USER_SPEED > 0.01 && USER_DISTANCE < MAX_INFLUENCE) {
     PULL_Y += STAR.momentumY;
     
     // Repulsion burst from clicks/taps: push straight away from finger
-    PULL_X -= 3 * DX * INV_DIST * REPULSION_TIME;
-    PULL_Y -= 3 * DY * INV_DIST * REPULSION_TIME;
-    
+    PULL_X -= 3 * DX * INV_DIST * REPULSION_TIME * Math.max(0, 1 - USER_DISTANCE / MAX_INFLUENCE);
+    PULL_Y -= 3 * DY * INV_DIST * REPULSION_TIME * Math.max(0, 1 - USER_DISTANCE / MAX_INFLUENCE);
+        
     // Clamp combined user influence so it never explodes
     if (Math.abs(PULL_X) > 3) PULL_X = 3 * Math.sign(PULL_X);
     if (Math.abs(PULL_Y) > 3) PULL_Y = 3 * Math.sign(PULL_Y);
