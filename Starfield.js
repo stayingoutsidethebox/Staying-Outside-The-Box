@@ -245,14 +245,14 @@ function moveStars() {
 if (USER_TIME !== 0) {
   const DX = USER_X - STAR.x;
   const DY = USER_Y - STAR.y;
-  const DISTANCE = Math.hypot(DX, DY);
+  const DISTANCE = 10 + Math.hypot(DX, DY);
 
   const MAX_INFLUENCE = 100 * (SCALE_FACTOR / 500);
 
   if (DISTANCE < MAX_INFLUENCE) {
 
     // Stronger when far, softer when close
-    const BASE_PULL = 0.0008 * (1 + CLEANED_USER_SPEED) * (DISTANCE / MAX_INFLUENCE);
+    const BASE_PULL = 0.004 * (1 + CLEANED_USER_SPEED) * (DISTANCE / MAX_INFLUENCE);
 
     let PULL_X = BASE_PULL * (DX / DISTANCE);
     let PULL_Y = BASE_PULL * (DY / DISTANCE);
