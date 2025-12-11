@@ -270,13 +270,10 @@ function moveStars() {
         PULL_Y += OFFSET_USER_SPEED * RADIAL_INFLUENCE * DY * INV_DIST;
 
         // 2) Orbit term: tangential motion that grows as stars get closer
-        const NORMALIZED_DISTANCE = Math.max(
-          0,
-          1 - USER_DISTANCE / (MAX_INFLUENCE * 1.4)
-        );
+        const NORMALIZED_DISTANCE = Math.max(0, 1 - USER_DISTANCE / (MAX_INFLUENCE * 1.4));
 
-        let ORBIT_FORCE = OFFSET_USER_SPEED * NORMALIZED_DISTANCE * 0.4;
-        if (ORBIT_FORCE < 1) ORBIT_FORCE = 1; // minimum orbit speed
+        let ORBIT_FORCE = OFFSET_USER_SPEED * NORMALIZED_DISTANCE * 1;
+        if (ORBIT_FORCE < 3) ORBIT_FORCE = 3; // minimum orbit speed
 
         const TAN_X = -DY * INV_DIST;
         const TAN_Y =  DX * INV_DIST;
