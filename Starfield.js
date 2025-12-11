@@ -216,36 +216,36 @@ function createStars() {
   }
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /*---------- Star animation step ----------*/
 
 // Move, fade, and wrap stars around the screen
 function moveStars() {
   if (!HAS_CANVAS || !STARS.length) return;
-
-  for (const STAR of STARS) {
+for (const STAR of STARS) {
     // --- 1. Passive drift (baseline motion) ---
-    const baseSpeed = CLEANED_USER_SPEED + 1;   // never below 1
-    STAR.x += STAR.vx * baseSpeed;
-    STAR.y += STAR.vy * baseSpeed;
+    const BASE_SPEED = CLEANED_USER_SPEED + 1;   // never below 1
+    STAR.x += STAR.vx * BASE_SPEED;
+    STAR.y += STAR.vy * BASE_SPEED;
 
-    // --- 2. Pointer orbit bias (simple radial+tangential) ---
-    if (LAST_TIME !== 0 && CLEANED_USER_SPEED > 0.19) {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+    if (LAST_TIME !== 0) {
       const DX = LAST_X - STAR.x;
       const DY = LAST_Y - STAR.y;
       const DIST_SQ = DX * DX + DY * DY;
@@ -254,70 +254,39 @@ function moveStars() {
 
       if (DIST_SQ < MAX_INFLUENCE) {
         const DIST = Math.sqrt(DIST_SQ) || 1;
-        const MAX_RADIUS = Math.sqrt(MAX_INFLUENCE);
+        const MIN_RADIUS = 2; // px: how tight the "dot" is
 
-        // 0..1 from center to edge of influence
-        const NORM = Math.min(DIST / MAX_RADIUS, 1);
+        if (DIST <= MIN_RADIUS) {
+          // Close enough: snap into the dot
+          STAR.x = LAST_X;
+          STAR.y = LAST_Y;
+        } else {
+          // Move a fraction of the remaining distance toward your finger
+          // (0.04 base + speed boost, clamped so it doesn't overshoot)
+          let pull = 0.04 * (1 + CLEANED_USER_SPEED);
+          if (pull > 0.25) pull = 0.25; // at most 25% of gap per frame
 
-        // Simple bell curve: 0 at center & edge, max in the middle
-        const ENVELOPE = NORM * (1 - NORM); // no exponent, nice and cheap
-
-        // Strength from your motion & distance band
-        const BASE_PULL = 0.04 * CLEANED_USER_SPEED * ENVELOPE;
-
-        // Radial unit vector (toward pointer)
-        const RAD_X = DX / DIST;
-        const RAD_Y = DY / DIST;
-
-        // Tangential unit vector (perpendicular) for orbit
-        const TAN_X = -RAD_Y;
-        const TAN_Y = RAD_X;
-        
-        
-        
-        
-        
-        
-        
-        // --- ensure a minimum tangential (orbit) speed ---
-const tSpeed = STAR.vx * TAN_X + STAR.vy * TAN_Y;           // current perpendicular speed
-if (Math.abs(tSpeed) < 0.02) {                              // 0.02 = floor, tweak if needed
-  const boost = (0.02 * Math.sign(tSpeed || 1)) - tSpeed;   // amount of extra tangential velocity
-  STAR.vx += boost * TAN_X;
-  STAR.vy += boost * TAN_Y;
-}
-
-
-
-
-
-
-
-
-
-        // 0 = pure radial, 1 = pure orbit
-        const CURVE = 0.6; // a bit more orbit than before
-        const MIX_R = 1 - CURVE;
-        const MIX_T = CURVE;
-
-        // Final orbit direction (single vector)
-        let dirX = RAD_X * MIX_R + TAN_X * MIX_T;
-        let dirY = RAD_Y * MIX_R + TAN_Y * MIX_T;
-
-        // Normalize direction
-        const LEN = Math.hypot(dirX, dirY) || 1;
-        dirX /= LEN;
-        dirY /= LEN;
-
-        // Repulsion just scales total strength
-        const STRENGTH = BASE_PULL * (1 + REPULSION_VALUE) * DIST;
-
-        // Additive bias: nudge position, don't touch vx/vy
-        STAR.x += dirX * STRENGTH;
-        STAR.y += dirY * STRENGTH;
+          STAR.x += DX * pull;
+          STAR.y += DY * pull;
       }
-    }
+ 
+ 
+ 
+ 
+ 
+ 
 
+
+
+
+
+
+
+
+
+
+
+      }
     // --- 3. Spark / fade / wrap behavior (unchanged) ---
     if (STAR.whiteValue > 0) {
       STAR.whiteValue *= 0.98;
