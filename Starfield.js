@@ -222,12 +222,16 @@ function moveStars() {
   if (!HAS_CANVAS || !STARS.length) return;
 
   for (const STAR of STARS) {
+    // --- 1. Passive drift for this frame ---
+    const passiveDX = STAR.vx * (CLEANED_USER_SPEED + 1);
+    const passiveDY = STAR.vy * (CLEANED_USER_SPEED + 1);
+    const passiveMag = Math.hypot(passiveDX, passiveDY);
 
-    // 1) Basic drift scaled by pointer speed (intrinsic motion)
-    STAR.x += STAR.vx * (CLEANED_USER_SPEED + 1);
-    STAR.y += STAR.vy * (CLEANED_USER_SPEED + 1);
+    // Start with passive movement as the default
+    let moveDX = passiveDX;
+    let moveDY = passiveDY;
 
-    // 2) Pointer pull / push zone around the cursor
+    // --- 2. Pointer pull / push with wobble around the cursor ---
     if (LAST_TIME !== 0 && CLEANED_USER_SPEED > 0.19) {
       const DX = LAST_X - STAR.x;
       const DY = LAST_Y - STAR.y;
@@ -239,12 +243,11 @@ function moveStars() {
       if (DIST_SQ > 4 && DIST_SQ < MAX_INFLUENCE) {
         const DIST = Math.sqrt(DIST_SQ) || 1;
 
-        // Strong, simple falloff with distance squared
+        // Falloff with distance (same as older version)
+        const SPEED_FACTOR = 0.4 + CLEANED_USER_SPEED; // base + your motion
         const FALLOFF = (MAX_INFLUENCE - DIST_SQ) / MAX_INFLUENCE;
 
-        // Biggish base pull so the effect is clearly visible
-        const SPEED_FACTOR = 0.4 + CLEANED_USER_SPEED;
-        const BASE_PULL = 0.03 * SPEED_FACTOR * FALLOFF;
+        const BASE_PULL = 0.015 * SPEED_FACTOR * FALLOFF;
 
         const ATTR_PULL = BASE_PULL;
         const REP_PULL  = BASE_PULL * REPULSION_VALUE;
@@ -262,44 +265,53 @@ function moveStars() {
         const MIX_R = 1 - CURVE;
         const MIX_T = CURVE;
 
-        // Base attraction / repulsion directions (no wobble yet)
+        // Base attraction / repulsion directions
         let ATTR_DIR_X = RAD_X * MIX_R + TAN_X * MIX_T;
         let ATTR_DIR_Y = RAD_Y * MIX_R + TAN_Y * MIX_T;
 
         let REP_DIR_X = -RAD_X * MIX_R + TAN_X * MIX_T;
         let REP_DIR_Y = -RAD_Y * MIX_R + TAN_Y * MIX_T;
 
-        // 2a) Wobble: mix in star's own velocity direction
+        // --- Wobble: mix in star's own velocity direction ---
         const velLen = Math.hypot(STAR.vx, STAR.vy) || 1;
         const velDirX = STAR.vx / velLen;
         const velDirY = STAR.vy / velLen;
 
-        const WOBBLE = 0.25; // 0 = clean orbit, 1 = follow velocity more
+        const WOBBLE = 0.3;          // 0 = perfect orbit, 1 = follow velocity
         const INV_WOBBLE = 1 - WOBBLE;
 
-        ATTR_DIR_X = ATTR_DIR_X * INV_WOBBLE + velDirX * WOBBLE;
-        ATTR_DIR_Y = ATTR_DIR_Y * INV_WOBBLE + velDirY * WOBBLE;
+        const ATTR_DIR_X_WOBBLE = ATTR_DIR_X * INV_WOBBLE + velDirX * WOBBLE;
+        const ATTR_DIR_Y_WOBBLE = ATTR_DIR_Y * INV_WOBBLE + velDirY * WOBBLE;
 
-        REP_DIR_X = REP_DIR_X * INV_WOBBLE + velDirX * WOBBLE;
-        REP_DIR_Y = REP_DIR_Y * INV_WOBBLE + velDirY * WOBBLE;
+        const REP_DIR_X_WOBBLE = REP_DIR_X * INV_WOBBLE + velDirX * WOBBLE;
+        const REP_DIR_Y_WOBBLE = REP_DIR_Y * INV_WOBBLE + velDirY * WOBBLE;
 
-        // 2b) Combine attraction + repulsion into a bias vector
+        // Combined pointer influence vector
         let biasX =
-          ATTR_DIR_X * ATTR_PULL + REP_DIR_X * REP_PULL;
+          (ATTR_DIR_X_WOBBLE * ATTR_PULL + REP_DIR_X_WOBBLE * REP_PULL) * DIST;
         let biasY =
-          ATTR_DIR_Y * ATTR_PULL + REP_DIR_Y * REP_PULL;
+          (ATTR_DIR_Y_WOBBLE * ATTR_PULL + REP_DIR_Y_WOBBLE * REP_PULL) * DIST;
 
-        // Scale bias by distance so outer stars get a bigger nudge
-        biasX *= DIST;
-        biasY *= DIST;
+        // Optionally ensure pointer bias at least as "strong" as passive drift
+        const pointerMag = Math.hypot(biasX, biasY);
+        const totalMag = Math.max(pointerMag, passiveMag || 0.0001);
+        if (pointerMag > 0) {
+          const scale = totalMag / pointerMag;
+          biasX *= scale;
+          biasY *= scale;
+        }
 
-        // Additive bias on top of drift: this gives you the visible radial circle
-        STAR.x += biasX;
-        STAR.y += biasY;
+        // Add pointer bias on top of passive drift
+        moveDX += biasX;
+        moveDY += biasY;
       }
     }
 
-    // 3) White flash decay, twinkle, wrap
+    // --- 3. Apply final motion for this frame ---
+    STAR.x += moveDX;
+    STAR.y += moveDY;
+
+    // --- 4. Spark / fade / wrap behavior (unchanged) ---
     if (STAR.whiteValue > 0) {
       STAR.whiteValue *= 0.98;
       if (STAR.whiteValue < 0.001) STAR.whiteValue = 0;
