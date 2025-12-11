@@ -287,7 +287,7 @@ if (LAST_TIME !== 0) {
 
 
 
-
+}
       }
     // --- 3. Spark / fade / wrap behavior (unchanged) ---
     if (STAR.whiteValue > 0) {
