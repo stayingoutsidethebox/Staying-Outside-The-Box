@@ -311,9 +311,10 @@ const REP_PULL = BASE_PULL * REPULSION_VALUE;
 
 // Combined pointer influence vector (small compared to passive)
 let biasX =
-  ATTR_DIR_X_WOBBLE * ATTR_PULL + REP_DIR_X_WOBBLE * REP_PULL;
+  ATTR_DIR_X * ATTR_PULL + REP_DIR_X * REP_PULL;
 let biasY =
-  ATTR_DIR_Y_WOBBLE * ATTR_PULL + REP_DIR_Y_WOBBLE * REP_PULL;
+  ATTR_DIR_Y * ATTR_PULL + REP_DIR_Y * REP_PULL;
+  
   
       // Scale by distance so further stars get a bigger nudge along that direction
       biasX *= DIST;
