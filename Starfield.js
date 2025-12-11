@@ -282,7 +282,7 @@ const DIR_Y = DY * INV_DIST;
 const NEAR = 1 - R; // R is USER_DISTANCE / MAX_INFLUENCE
 
 // Small acceleration toward finger, scaled by how close you are
-const MOMENTUM_PUSH = CLEANED_USER_SPEED * .5 * NEAR;
+const MOMENTUM_PUSH = CLEANED_USER_SPEED * 2 * NEAR;
 // ^ 0.12 is deliberately small; we can nudge this later
 
 // Use the *existing* momentum fields (lowercase)
@@ -510,7 +510,7 @@ function updateSpeed(X, Y, TIME) {
 
 // Shared start handler for mouse/touch pointer interactions
 function startPointerInteraction(X, Y, TIME) {
-  REPULSION_VALUE = 7; // Repel on click/touch
+  REPULSION_VALUE = 4; // Repel on click/touch
   updateSpeed(X, Y, TIME);
   CLEANED_USER_SPEED = CLEANED_USER_SPEED + 0.8;
 }
