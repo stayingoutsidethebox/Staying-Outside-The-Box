@@ -33,9 +33,9 @@ if (!HAS_CANVAS) {
 let FREEZE_CONSTELLATION = false;
 
 // Pointer tracking
-let LAST_X = 0;
-let LAST_Y = 0;
-let LAST_TIME = 0;
+let USER_X = 0;
+let USER_Y = 0;
+let USER_TIME = 0;
 let POINTER_SPEED = 0;
 let SMOOTH_SPEED = 0;
 let CLEANED_USER_SPEED = 0;
@@ -76,9 +76,9 @@ function saveStarsToStorage() {
         cleanedUserSpeed:CLEANED_USER_SPEED,
         smoothSpeed:     SMOOTH_SPEED,
         pointerSpeed:    POINTER_SPEED,
-        lastX:           LAST_X,
-        lastY:           LAST_Y,
-        lastTime:        LAST_TIME
+        lastX:           USER_X,
+        lastY:           USER_Y,
+        lastTime:        USER_TIME
       })
     );
   } catch (ERR) {
@@ -161,14 +161,14 @@ function initStars() {
           SMOOTH_SPEED       = META.smoothSpeed      ?? 0;
           POINTER_SPEED      = META.pointerSpeed     ?? 0;
 
-          if (typeof META.lastX === 'number') LAST_X = META.lastX;
-          if (typeof META.lastY === 'number') LAST_Y = META.lastY;
+          if (typeof META.lastX === 'number') USER_X = META.lastX;
+          if (typeof META.lastY === 'number') USER_Y = META.lastY;
 
-          // LAST_TIME is just a "pointer ever existed" flag in moveStars
+          // USER_TIME is just a "pointer ever existed" flag in moveStars
           if (typeof META.lastTime === 'number' && META.lastTime > 0) {
-            LAST_TIME = META.lastTime;
+            USER_TIME = META.lastTime;
           } else {
-            LAST_TIME = (window.performance && performance.now)
+            USER_TIME = (window.performance && performance.now)
               ? performance.now()
               : Date.now();
           }
@@ -242,33 +242,33 @@ function moveStars() {
 
 
 
-    // --- 2. Simple pull toward your finger (one-dot collapse) ---
-    if (LAST_TIME !== 0) {
-      const DX = LAST_X - STAR.x;
-      const DY = LAST_Y - STAR.y;
-      const DIST_SQ = DX * DX + DY * DY;
+if (USER_TIME !== 0) {
+  const DX = USER_X - STAR.x;
+  const DY = USER_Y - STAR.y;
+  const DIST_SQD = DX * DX + DY * DY;
 
-      const MAX_INFLUENCE = 10000 * (SCALE_FACTOR / 500);
+  const MAX_INFLUENCE = 10000 * (SCALE_FACTOR / 500);
 
-      if (DIST_SQ < MAX_INFLUENCE) {
-        const DIST = Math.sqrt(DIST_SQ) || 1;
-        const MIN_RADIUS = 2; // px: how tight the dot collapse is
+  if (DIST_SQD < MAX_INFLUENCE) {
+    const DISTANCE = Math.sqrt(DIST_SQD) || 1;
 
-        if (DIST <= MIN_RADIUS) {
-          // Snap to fingertip
-          STAR.x = LAST_X;
-          STAR.y = LAST_Y;
-        } else {
-          // Move a controlled fraction toward the finger
-          let pull = 0.04 * (1 + CLEANED_USER_SPEED);
-          if (pull > 0.25) pull = 0.25; // prevent overshoot
+    // Unit direction toward finger
+    const DIR_X = DX / DISTANCE;
+    const DIR_Y = DY / DISTANCE;
 
-          STAR.x += DX * pull;
-          STAR.y += DY * pull;
-        }
-      }
-    }
+    // Build pulls ALREADY scaled by direction
+    let PULL_X = 0.04 * DIR_X * (1 + CLEANED_USER_SPEED) / DISTANCE;
+    let PULL_Y = 0.04 * DIR_Y * (1 + CLEANED_USER_SPEED) / DISTANCE;
 
+    // Clamp magnitude (but preserve direction)
+    if (Math.abs(PULL_X) > 0.25) PULL_X = 0.25 * Math.sign(PULL_X);
+    if (Math.abs(PULL_Y) > 0.25) PULL_Y = 0.25 * Math.sign(PULL_Y);
+
+    // Final movement (unchanged, as you requested)
+    STAR.x += PULL_X;
+    STAR.y += PULL_Y;
+  }
+}
 
 
 
@@ -445,10 +445,10 @@ function updateSpeed(X, Y, TIME) {
       : Date.now();
   }
 
-  const DT = TIME - LAST_TIME;
+  const DT = TIME - USER_TIME;
 
   if (DT > 0) {
-    POINTER_SPEED = Math.hypot(X - LAST_X, Y - LAST_Y) / DT;
+    POINTER_SPEED = Math.hypot(X - USER_X, Y - USER_Y) / DT;
   }
 
   SMOOTH_SPEED = SMOOTH_SPEED * 0.8 + POINTER_SPEED * 10;
@@ -457,9 +457,9 @@ function updateSpeed(X, Y, TIME) {
     10
   );
 
-  LAST_X = X;
-  LAST_Y = Y;
-  LAST_TIME = TIME;
+  USER_X = X;
+  USER_Y = Y;
+  USER_TIME = TIME;
 }
 
 // Shared start handler for mouse/touch pointer interactions
