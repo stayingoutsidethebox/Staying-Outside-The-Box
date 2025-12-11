@@ -260,11 +260,10 @@ function moveStars() {
 
         // Target ring radius around your finger (0–1 scale)
         const RING_RADIUS = 0.35;       // orbit radius knob
-        const RADIAL_STRENGTH = 5;      // how hard stars seek that ring
+        const RADIAL_STRENGTH = 10;      // how hard stars seek that ring
 
         // Positive if outside ring, negative if inside, fades at edges
-        const RADIAL_INFLUENCE =
-          RADIAL_STRENGTH * (R - RING_RADIUS) * (1 - R);
+        const RADIAL_INFLUENCE = RADIAL_STRENGTH * (R - RING_RADIUS) * (1 - R);
 
         // 1) Orbital push: toward ring if outside, away if inside
         PULL_X += OFFSET_USER_SPEED * RADIAL_INFLUENCE * DX * INV_DIST;
