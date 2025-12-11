@@ -245,26 +245,22 @@ function moveStars() {
 if (USER_TIME !== 0) {
   const DX = USER_X - STAR.x;
   const DY = USER_Y - STAR.y;
-  const DIST_SQD = DX * DX + DY * DY;
+  const DISTANCE = Math.hypot(DX, DY);
 
-  const MAX_INFLUENCE = 10000 * (SCALE_FACTOR / 500);
+const MAX_INFLUENCE = 100 * (SCALE_FACTOR / 500);  
 
-  if (DIST_SQD < MAX_INFLUENCE) {
-    const DISTANCE = Math.sqrt(DIST_SQD) || 1;
+if (DISTANCE < MAX_INFLUENCE) {
 
-    // Unit direction toward finger
-    const DIR_X = DX / DISTANCE;
-    const DIR_Y = DY / DISTANCE;
-
-    // Build pulls ALREADY scaled by direction
-    let PULL_X = 0.6 * DIR_X * (1 + CLEANED_USER_SPEED) / DISTANCE;
-    let PULL_Y = 0.6 * DIR_Y * (1 + CLEANED_USER_SPEED) / DISTANCE;
+    // Strength grows with distance, so far stars move noticeably
+    const BASE_PULL = 0.0008 * (1 + CLEANED_USER_SPEED) / DISTANCE;
+    let PULL_X = BASE_PULL * DX;
+    let PULL_Y = BASE_PULL * DY;
 
     // Clamp magnitude (but preserve direction)
     if (Math.abs(PULL_X) > 0.25) PULL_X = 0.25 * Math.sign(PULL_X);
     if (Math.abs(PULL_Y) > 0.25) PULL_Y = 0.25 * Math.sign(PULL_Y);
 
-    // Final movement (unchanged, as you requested)
+    // Final movement (unchanged)
     STAR.x += PULL_X;
     STAR.y += PULL_Y;
   }
