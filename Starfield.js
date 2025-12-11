@@ -221,9 +221,10 @@ function createStars() {
 // Move, fade, and wrap stars around the screen
 function moveStars() {
   if (!HAS_CANVAS || !STARS.length) return;
-for (const STAR of STARS) {
+
+  for (const STAR of STARS) {
     // --- 1. Passive drift (baseline motion) ---
-    const BASE_SPEED = CLEANED_USER_SPEED + 1;   // never below 1
+    const BASE_SPEED = CLEANED_USER_SPEED + 1; // never below 1
     STAR.x += STAR.vx * BASE_SPEED;
     STAR.y += STAR.vy * BASE_SPEED;
 
@@ -241,54 +242,48 @@ for (const STAR of STARS) {
 
 
 
-
-
-  
-
     // --- 2. Simple pull toward your finger (one-dot collapse) ---
-if (LAST_TIME !== 0) {
-  const DX = LAST_X - STAR.x;
-  const DY = LAST_Y - STAR.y;
-  const DIST_SQ = DX * DX + DY * DY;
+    if (LAST_TIME !== 0) {
+      const DX = LAST_X - STAR.x;
+      const DY = LAST_Y - STAR.y;
+      const DIST_SQ = DX * DX + DY * DY;
 
-  const MAX_INFLUENCE = 10000 * (SCALE_FACTOR / 500);
+      const MAX_INFLUENCE = 10000 * (SCALE_FACTOR / 500);
 
-  if (DIST_SQ < MAX_INFLUENCE) {
-    const DIST = Math.sqrt(DIST_SQ) || 1;
-    const MIN_RADIUS = 2; // px: how tight the dot collapse is
+      if (DIST_SQ < MAX_INFLUENCE) {
+        const DIST = Math.sqrt(DIST_SQ) || 1;
+        const MIN_RADIUS = 2; // px: how tight the dot collapse is
 
-    if (DIST <= MIN_RADIUS) {
-      // Snap to fingertip
-      STAR.x = LAST_X;
-      STAR.y = LAST_Y;
-    } else {
-      // Move a controlled fraction toward the finger
-      let pull = 0.04 * (1 + CLEANED_USER_SPEED);
-      if (pull > 0.25) pull = 0.25; // prevent overshoot
+        if (DIST <= MIN_RADIUS) {
+          // Snap to fingertip
+          STAR.x = LAST_X;
+          STAR.y = LAST_Y;
+        } else {
+          // Move a controlled fraction toward the finger
+          let pull = 0.04 * (1 + CLEANED_USER_SPEED);
+          if (pull > 0.25) pull = 0.25; // prevent overshoot
 
-      STAR.x += DX * pull;
-      STAR.y += DY * pull;
-    }
-  }
-}
- 
- 
- 
- 
- 
- 
-
-
-
-
-
-
-
-
-
-
-}
+          STAR.x += DX * pull;
+          STAR.y += DY * pull;
+        }
       }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     // --- 3. Spark / fade / wrap behavior (unchanged) ---
     if (STAR.whiteValue > 0) {
       STAR.whiteValue *= 0.98;
