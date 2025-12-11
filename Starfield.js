@@ -247,7 +247,7 @@ function moveStars() {
 
 
 
-
+// passive includs random factor
 //all stars stop
 // MAKE THE ALTERED BELL CURVE APPLY TO MOMENTUM INSTEAD OF RADOUS, MOMENTUM BECOMES THE ADD TO PULL INSTEAD OF RADIUS 
 
