@@ -220,6 +220,7 @@ function createStars() {
 
 /*---------- Star animation step ----------*/
 
+// Move, fade, and wrap stars around the screen
 function moveStars() {
   if (!HAS_CANVAS || !STARS.length) return;
 
@@ -231,13 +232,11 @@ function moveStars() {
     // Accumulator for everything that moves this star this frame
     let PULL_X = 0;
     let PULL_Y = 0;
-
-    // Finger influence only matters when you've moved recently
-    if (CLEANED_USER_SPEED > 0.05) {
-      const DX = USER_X - STAR.x;
-      const DY = USER_Y - STAR.y;
-      const USER_DISTANCE = 10 + Math.hypot(DX, DY);
-
+    const DX = USER_X - STAR.x;
+    const DY = USER_Y - STAR.y;
+    const USER_DISTANCE = 10 + Math.hypot(DX, DY);
+    const INV_DIST = 1 / USER_DISTANCE;
+    
 
 
 
@@ -250,59 +249,65 @@ function moveStars() {
 
 
 
+// MAKE THE ALTERED BELL CURVE APPLY TO MOMENTUM INSTEAD OF RADOUS, MOMENTUM BECOMES THE ADD TO PULL INSTEAD OF RADIUS 
 
 
+    // Finger influence only matters when you've moved recently, and if in bounds
+if (CLEANED_USER_SPEED > 0.05 && USER_DISTANCE < MAX_INFLUENCE) {
+
+    // 0 at finger, 1 at edge of influence radius
+    const R = Math.min(USER_DISTANCE / MAX_INFLUENCE, 1);
+
+    // Ring-shaped attractor around your finger
+    const RING_RADIUS     = 0.35; // 0–1: desired orbit radius
+    const RING_STRENGTH = 13;   // how strongly stars seek that ring
+
+    // >0 outside ring (pull inward), <0 inside ring (push outward), fades at edges
+    const RADIAL_INFLUENCE = RING_STRENGTH * (R - RING_RADIUS) * (1 - R);
+
+    // Radial push: toward ring if outside, away if inside
+    PULL_X += OFFSET_USER_SPEED * RADIAL_INFLUENCE * DX * INV_DIST;
+    PULL_Y += OFFSET_USER_SPEED * RADIAL_INFLUENCE * DY * INV_DIST;
 
 
-      if (USER_DISTANCE < MAX_INFLUENCE) {
-        const INV_DIST = 1 / USER_DISTANCE;
+    STAR.momentumX += 0;
+    STAR.momentumY += 0;
+}
 
-        // 0 at finger, 1 at edge of influence radius
-        const R = Math.min(USER_DISTANCE / MAX_INFLUENCE, 1);
-
-        // Target ring radius around your finger (0–1 scale)
-        const RING_RADIUS = 0.35;       // orbit radius knob
-        const RADIAL_STRENGTH = 13;      // how hard stars seek that ring
-
-        // Positive if outside ring, negative if inside, fades at edges
-        const RADIAL_INFLUENCE = RADIAL_STRENGTH * (R - RING_RADIUS) * (1 - R);
-
-        // 1) Orbital push: toward ring if outside, away if inside
-        PULL_X += OFFSET_USER_SPEED * RADIAL_INFLUENCE * DX * INV_DIST;
-        PULL_Y += OFFSET_USER_SPEED * RADIAL_INFLUENCE * DY * INV_DIST;
-
-        // 3) Clamp combined finger influence so it never explodes
-        if (Math.abs(PULL_X) > 3) PULL_X = 3 * Math.sign(PULL_X);
-        if (Math.abs(PULL_Y) > 3) PULL_Y = 3 * Math.sign(PULL_Y);
-
-        // 4) Repulsion burst from clicks/taps: push straight away from finger
-        PULL_X -= DX * INV_DIST * REPULSION_VALUE;
-        PULL_Y -= DY * INV_DIST * REPULSION_VALUE;
-
-      
-      }
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-    }
-
+    // Decay and apply momentum
+    STAR.momentumX *= 0.94;
+    STAR.momentumY *= 0.94;
+    if (Math.abs(STAR.momentumX) < 0.01) STAR.momentumX = 0;
+    if (Math.abs(STAR.momentumY) < 0.01) STAR.momentumY = 0;
+    PULL_X += STAR.momentumX;
+    PULL_Y += STAR.momentumY;
+    
+    // Repulsion burst from clicks/taps: push straight away from finger
+    PULL_X -= DX * INV_DIST * REPULSION_VALUE;
+    PULL_Y -= DY * INV_DIST * REPULSION_VALUE;
+    
     // Always add baseline star drift
     PULL_X += STAR.vx * OFFSET_USER_SPEED;
     PULL_Y += STAR.vy * OFFSET_USER_SPEED;
+    
+    // Clamp combined user influence so it never explodes
+    if (Math.abs(PULL_X) > 3) PULL_X = 3 * Math.sign(PULL_X);
+    if (Math.abs(PULL_Y) > 3) PULL_Y = 3 * Math.sign(PULL_Y);
 
     // Apply final movement
     STAR.x += PULL_X;
     STAR.y += PULL_Y;
+
+
+
+
+
+
+
+
+
+
+
 
     // Twinkle + life cycle
     if (STAR.whiteValue > 0) {
@@ -327,13 +332,13 @@ function moveStars() {
   }
 
   // Let the "finger motion" effect slowly die out
-  CLEANED_USER_SPEED *= 0.98;
+  CLEANED_USER_SPEED *= 0.94;
   if (CLEANED_USER_SPEED < 0.05) CLEANED_USER_SPEED = 0;
 
   // Repulsion bursts decay too
   REPULSION_VALUE *= 0.98;
   if (REPULSION_VALUE < 0.01) REPULSION_VALUE = 0;
-
+}
 
 /*---------- Star rendering ----------*/
 
