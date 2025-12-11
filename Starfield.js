@@ -353,7 +353,7 @@ if (Math.abs(STAR.momentumY) < 0.01) STAR.momentumY = 0;
   }
 
   // Let the "finger motion" effect slowly die out
-  CLEANED_USER_SPEED *= 0.98;
+  CLEANED_USER_SPEED *= 0.94;
   if (CLEANED_USER_SPEED < 0.05) CLEANED_USER_SPEED = 0;
 
   // Repulsion bursts decay too
