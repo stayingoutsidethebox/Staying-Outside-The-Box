@@ -1,3 +1,5 @@
+
+
 // thank heavens for chatGPT <3
 
 /*==============================================================*
@@ -289,7 +291,14 @@ const ATTR_DIR_Y_WOBBLE = ATTR_DIR_Y * INV_WOBBLE + velDirY * WOBBLE;
 const REP_DIR_X_WOBBLE = REP_DIR_X * INV_WOBBLE + velDirX * WOBBLE;
 const REP_DIR_Y_WOBBLE = REP_DIR_Y * INV_WOBBLE + velDirY * WOBBLE;
 
-      const ATTR_PULL = BASE_PULL;
+      /*const ATTR_PULL = BASE_PULL;
+      const REP_PULL  = BASE_PULL * REPULSION_VALUE;
+
+      // Combined pointer influence vector (small compared to passive)
+      let biasX = ATTR_DIR_X * ATTR_PULL + REP_DIR_X * REP_PULL;
+      let biasY = ATTR_DIR_Y * ATTR_PULL + REP_DIR_Y * REP_PULL;
+*/
+const ATTR_PULL = BASE_PULL;
 const REP_PULL = BASE_PULL * REPULSION_VALUE;
 
 // Combined pointer influence vector (small compared to passive)
@@ -327,6 +336,29 @@ let biasY =
   if (STAR.y < 0) STAR.y = HEIGHT;
   if (STAR.y > HEIGHT) STAR.y = 0;
 }
+
+    // White flash decay for "spark" effect
+    if (STAR.whiteValue > 0) {
+      STAR.whiteValue *= 0.98;
+      if (STAR.whiteValue < 0.001) STAR.whiteValue = 0;
+    }
+
+    // Opacity twinkle behavior
+    if (STAR.opacity <= 0.005) {
+      STAR.opacity = 1;
+      if (Math.random() < 0.07) STAR.whiteValue = 1;
+    } else if (STAR.opacity > 0.02) {
+      STAR.opacity -= 0.005 * STAR.fadeSpeed;
+    } else {
+      STAR.opacity -= 0.0001;
+    }
+
+    // Wrap stars at edges so they re-enter from the opposite side
+    if (STAR.x < 0) STAR.x = WIDTH;
+    if (STAR.x > WIDTH) STAR.x = 0;
+    if (STAR.y < 0) STAR.y = HEIGHT;
+    if (STAR.y > HEIGHT) STAR.y = 0;
+  }
 
   // Slowly decay pointer speed influence
   CLEANED_USER_SPEED *= 0.95;
