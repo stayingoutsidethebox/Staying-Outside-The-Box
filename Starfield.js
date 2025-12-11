@@ -259,7 +259,7 @@ if (CLEANED_USER_SPEED > 0.05) {
     let ORBIT_FORCE = USER_SPEED * NORMALIZED_DISTANCE;
     if (ORBIT_FORCE < .3) ORBIT_FORCE = .3;
 //-----------push
-const OUT_PUSH = (1 - NORMALIZED_DISTANCE) * USER_SPEED * 0.5; // tweak 0.5 → 0.3–1.2
+const OUT_PUSH = (1 - NORMALIZED_DISTANCE) * 0.5; // tweak 0.5 → 0.3–1.2
 
     PULL_X += (-DX / USER_DISTANCE) * OUT_PUSH;
     PULL_Y += (-DY / USER_DISTANCE) * OUT_PUSH;
