@@ -220,7 +220,6 @@ function createStars() {
 
 /*---------- Star animation step ----------*/
 
-// Move, fade, and wrap stars around the screen
 function moveStars() {
   if (!HAS_CANVAS || !STARS.length) return;
 
@@ -233,25 +232,27 @@ function moveStars() {
     let PULL_X = 0;
     let PULL_Y = 0;
 
-
-
-
-
-
-
-
-
-
-
-
-// MAKE THE ALTERED BELL CURVE APPLY TO MOMENTUM INSTEAD OF RADOUS, MOMENTUM BECOMES THE ADD TO PULL INSTEAD OF RADIUS 
-
-
     // Finger influence only matters when you've moved recently
     if (CLEANED_USER_SPEED > 0.05) {
       const DX = USER_X - STAR.x;
       const DY = USER_Y - STAR.y;
       const USER_DISTANCE = 10 + Math.hypot(DX, DY);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
       if (USER_DISTANCE < MAX_INFLUENCE) {
         const INV_DIST = 1 / USER_DISTANCE;
@@ -269,37 +270,6 @@ function moveStars() {
         // 1) Orbital push: toward ring if outside, away if inside
         PULL_X += OFFSET_USER_SPEED * RADIAL_INFLUENCE * DX * INV_DIST;
         PULL_Y += OFFSET_USER_SPEED * RADIAL_INFLUENCE * DY * INV_DIST;
-        // ---- MOMENTUM UPDATE ----
-
-// ---- MOMENTUM UPDATE (gentle, capped) ----
-
-// Direction toward finger
-const DIR_X = DX * INV_DIST;
-const DIR_Y = DY * INV_DIST;
-
-// 0 at edge of influence, ~1 near your finger
-const NEAR = 1 - R; // R is USER_DISTANCE / MAX_INFLUENCE
-
-// Small acceleration toward finger, scaled by how close you are
-const MOMENTUM_PUSH = CLEANED_USER_SPEED * 2 * NEAR;
-// ^ 0.12 is deliberately small; we can nudge this later
-
-// Use the *existing* momentum fields (lowercase)
-STAR.momentumX += DIR_X * MOMENTUM_PUSH;
-STAR.momentumY += DIR_Y * MOMENTUM_PUSH;
-
-// Cap overall momentum magnitude so it can't explode
-const MOMENTUM_MAX = 1.8;  // try between 1.0 and 3.0
-const MOMAG = Math.hypot(STAR.momentumX, STAR.momentumY);
-if (MOMAG > MOMENTUM_MAX) {
-  const SCALE = MOMENTUM_MAX / MOMAG;
-  STAR.momentumX *= SCALE;
-  STAR.momentumY *= SCALE;
-}
-
-// Apply momentum to this frame's pull
-PULL_X += STAR.momentumX;
-PULL_Y += STAR.momentumY;
 
         // 3) Clamp combined finger influence so it never explodes
         if (Math.abs(PULL_X) > 3) PULL_X = 3 * Math.sign(PULL_X);
@@ -309,40 +279,22 @@ PULL_Y += STAR.momentumY;
         PULL_X -= DX * INV_DIST * REPULSION_VALUE;
         PULL_Y -= DY * INV_DIST * REPULSION_VALUE;
 
-
+      
       }
-     
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
     }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-     // Global decay (friction) – always runs, even when finger is still
-STAR.momentumX *= 0.94;
-STAR.momentumY *= 0.94;
-
-if (Math.abs(STAR.momentumX) < 0.01) STAR.momentumX = 0;
-if (Math.abs(STAR.momentumY) < 0.01) STAR.momentumY = 0;
-
 
     // Always add baseline star drift
     PULL_X += STAR.vx * OFFSET_USER_SPEED;
@@ -375,13 +327,13 @@ if (Math.abs(STAR.momentumY) < 0.01) STAR.momentumY = 0;
   }
 
   // Let the "finger motion" effect slowly die out
-  CLEANED_USER_SPEED *= 0.94;
+  CLEANED_USER_SPEED *= 0.98;
   if (CLEANED_USER_SPEED < 0.05) CLEANED_USER_SPEED = 0;
 
   // Repulsion bursts decay too
   REPULSION_VALUE *= 0.98;
   if (REPULSION_VALUE < 0.01) REPULSION_VALUE = 0;
-}
+
 
 /*---------- Star rendering ----------*/
 
