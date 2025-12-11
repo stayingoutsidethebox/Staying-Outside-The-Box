@@ -216,101 +216,99 @@ function createStars() {
   }
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /*---------- Star animation step ----------*/
 
 // Move, fade, and wrap stars around the screen
 function moveStars() {
   if (!HAS_CANVAS || !STARS.length) return;
-  
-    const OFFSET_USER_SPEED = 1 + CLEANED_USER_SPEED;
-    const MAX_INFLUENCE = 100 * (SCALE_FACTOR / 500);
-    
+
+  // Speed baseline + how far the finger can influence stars
+  const OFFSET_USER_SPEED = 1 + CLEANED_USER_SPEED;
+  const MAX_INFLUENCE = 100 * (SCALE_FACTOR / 500);
+
   for (const STAR of STARS) {
-    
+    // Accumulator for everything that moves this star this frame
     let PULL_X = 0;
     let PULL_Y = 0;
 
+    // Finger influence only matters when you've moved recently
+    if (CLEANED_USER_SPEED > 0.05) {
+      const DX = USER_X - STAR.x;
+      const DY = USER_Y - STAR.y;
+      const USER_DISTANCE = 10 + Math.hypot(DX, DY);
 
+      if (USER_DISTANCE < MAX_INFLUENCE) {
+        const INV_DIST = 1 / USER_DISTANCE;
 
+        // 0 at finger, 1 at edge of influence radius
+        const R = Math.min(USER_DISTANCE / MAX_INFLUENCE, 1);
 
+        // Target ring radius around your finger (0–1 scale)
+        const RING_RADIUS = 0.35;       // orbit radius knob
+        const RADIAL_STRENGTH = 5;      // how hard stars seek that ring
 
+        // Positive if outside ring, negative if inside, fades at edges
+        const RADIAL_INFLUENCE =
+          RADIAL_STRENGTH * (R - RING_RADIUS) * (1 - R);
 
+        // 1) Orbital push: toward ring if outside, away if inside
+        PULL_X += OFFSET_USER_SPEED * RADIAL_INFLUENCE * DX * INV_DIST;
+        PULL_Y += OFFSET_USER_SPEED * RADIAL_INFLUENCE * DY * INV_DIST;
 
+        // 2) Orbit term: tangential motion that grows as stars get closer
+        const NORMALIZED_DISTANCE = Math.max(
+          0,
+          1 - USER_DISTANCE / (MAX_INFLUENCE * 1.4)
+        );
 
+        let ORBIT_FORCE = OFFSET_USER_SPEED * NORMALIZED_DISTANCE * 0.4;
+        if (ORBIT_FORCE < 1) ORBIT_FORCE = 1; // minimum orbit speed
 
+        const TAN_X = -DY * INV_DIST;
+        const TAN_Y =  DX * INV_DIST;
 
+        PULL_X += TAN_X * ORBIT_FORCE * (CLEANED_USER_SPEED / 10);
+        PULL_Y += TAN_Y * ORBIT_FORCE * (CLEANED_USER_SPEED / 10);
 
+        // 3) Clamp combined finger influence so it never explodes
+        if (Math.abs(PULL_X) > 3) PULL_X = 3 * Math.sign(PULL_X);
+        if (Math.abs(PULL_Y) > 3) PULL_Y = 3 * Math.sign(PULL_Y);
 
+        // 4) Repulsion burst from clicks/taps: push straight away from finger
+        PULL_X -= DX * INV_DIST * REPULSION_VALUE;
+        PULL_Y -= DY * INV_DIST * REPULSION_VALUE;
 
+        // 5) Fade pointer influence back into passive drift as you slow down
+        const FADE = CLEANED_USER_SPEED / 12;
+        PULL_X *= FADE;
+        PULL_Y *= FADE;
+      }
+    }
 
-
-if (CLEANED_USER_SPEED > 0.05) {
-  const DX = USER_X - STAR.x;
-  const DY = USER_Y - STAR.y;
-  const USER_DISTANCE = 10 + Math.hypot(DX, DY);
-
-  if (USER_DISTANCE < MAX_INFLUENCE) {
-
-    const NORMALIZED_DISTANCE = Math.max(0, 1 - USER_DISTANCE / (MAX_INFLUENCE * 1.4));
-    
-// Distance as fraction of influence radius: 0 = center, 1 = edge
-const R = Math.min(USER_DISTANCE / MAX_INFLUENCE, 1);
-
-// Where you want the orbit ring to live (0.0–1.0 of MAX_INFLUENCE)
-const RING = 0.35; // tweak between ~0.25 and 0.5 to change radius
-
-// Signed bell:
-// - negative when inside the ring (push out)
-// - zero at the ring
-// - positive between ring and edge (pull in)
-// - back to zero at the outer edge
-const RADIAL_STRENGTH = 3;  // overall “importance” of radial vs orbit
-const radialFactor = RADIAL_STRENGTH * (R - RING) * (1 - R);
-
-// 1) Radial term: toward finger when outside ring, away when inside
- PULL_X += OFFSET_USER_SPEED * radialFactor * (DX / USER_DISTANCE);
- PULL_Y += OFFSET_USER_SPEED * radialFactor * (DY / USER_DISTANCE);
-
-
-    // 2) Orbit when close, with minimum tangential speed so they never stall
-    let ORBIT_FORCE = OFFSET_USER_SPEED * NORMALIZED_DISTANCE * 0.4;
-    if (ORBIT_FORCE < 1) ORBIT_FORCE = 1;
-    PULL_X += (-DY / USER_DISTANCE) * ORBIT_FORCE * CLEANED_USER_SPEED / 10;
-    PULL_Y += ( DX / USER_DISTANCE) * ORBIT_FORCE * CLEANED_USER_SPEED / 10;
-
-    // clamp
-    if (Math.abs(PULL_X) > 3) PULL_X = 3 * Math.sign(PULL_X);
-    if (Math.abs(PULL_Y) > 3) PULL_Y = 3 * Math.sign(PULL_Y);
-
-// Repulsion pushes directly away from the finger
-PULL_X -= (DX / USER_DISTANCE) * REPULSION_VALUE;
-PULL_Y -= (DY / USER_DISTANCE) * REPULSION_VALUE;
-
-//slow transition to passive movement
-PULL_X *= CLEANED_USER_SPEED / 12;
-    PULL_Y *= CLEANED_USER_SPEED / 12;
-
-  }
-}
-
-//passive movement
-PULL_X += STAR.vx * OFFSET_USER_SPEED;
+    // Always add baseline star drift
+    PULL_X += STAR.vx * OFFSET_USER_SPEED;
     PULL_Y += STAR.vy * OFFSET_USER_SPEED;
 
-STAR.x += PULL_X;
+    // Apply final movement
+    STAR.x += PULL_X;
     STAR.y += PULL_Y;
 
-
-
-
-
-
-
-
-
-
-
-    // --- 3. Spark / fade / wrap behavior (unchanged) ---
+    // Twinkle + life cycle
     if (STAR.whiteValue > 0) {
       STAR.whiteValue *= 0.98;
       if (STAR.whiteValue < 0.001) STAR.whiteValue = 0;
@@ -325,21 +323,21 @@ STAR.x += PULL_X;
       STAR.opacity -= 0.0001;
     }
 
+    // Wrap around screen edges
     if (STAR.x < 0) STAR.x = WIDTH;
     if (STAR.x > WIDTH) STAR.x = 0;
     if (STAR.y < 0) STAR.y = HEIGHT;
     if (STAR.y > HEIGHT) STAR.y = 0;
   }
 
-  // Slowly decay pointer speed influence
+  // Let the "finger motion" effect slowly die out
   CLEANED_USER_SPEED *= 0.98;
   if (CLEANED_USER_SPEED < 0.05) CLEANED_USER_SPEED = 0;
 
-  // Gently decay repulsion bursts so they don't last forever
+  // Repulsion bursts decay too
   REPULSION_VALUE *= 0.965;
   if (REPULSION_VALUE < 0.01) REPULSION_VALUE = 0;
 }
-
 
 
 
