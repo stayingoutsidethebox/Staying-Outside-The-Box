@@ -176,19 +176,13 @@ function createStars() {
 }
 /*---------- Star animation step ----------*/
 // Move, fade, and wrap stars around the screen
+// Move, fade, and wrap stars around the screen
 function moveStars() {
   if (!HAS_CANVAS || !STARS.length) return;
 
   for (const STAR of STARS) {
 
-    // --- 1. Passive drift for this frame (unchanged baseline motion) ---
-    const passiveDX = STAR.vx * (CLEANED_USER_SPEED + 1);
-    const passiveDY = STAR.vy * (CLEANED_USER_SPEED + 1);
-
-    STAR.x += passiveDX;
-    STAR.y += passiveDY;
-
-    // --- 2. Pointer pull / push with wobble around the cursor ---
+    // --- 1. Pointer "gravity" modifies velocity (orbit around a ring) ---
     if (LAST_TIME !== 0 && CLEANED_USER_SPEED > 0.19) {
       const DX = LAST_X - STAR.x;
       const DY = LAST_Y - STAR.y;
@@ -196,78 +190,75 @@ function moveStars() {
 
       const MAX_INFLUENCE = 10000 * (SCALE_FACTOR / 500);
 
-      // Ignore very far stars and a tiny core right at the center
       if (DIST_SQ > 9 && DIST_SQ < MAX_INFLUENCE) {
         const DIST = Math.sqrt(DIST_SQ) || 1;
         const MAX_RADIUS = Math.sqrt(MAX_INFLUENCE);
-        const NORM = Math.min(DIST / MAX_RADIUS, 1);
 
-        // Simple falloff: strongest ~ mid-distance, fades near edge
-        const FALL_OFF = (1 - NORM) * (1 - NORM); // (1 - r)^2
+        // Target ring radius around your finger (fraction of the field)
+        const TARGET_RADIUS = MAX_RADIUS * 0.35;
 
-        // Base pull from your motion, modulated by distance
-        const SPEED_FACTOR = 0.4 + CLEANED_USER_SPEED;
-        const BASE_PULL = 0.02 * SPEED_FACTOR * FALL_OFF;
+        // Positive if outside the ring, negative if inside
+        const radialError = DIST - TARGET_RADIUS;
 
-        const ATTR_PULL = BASE_PULL;
-        const REP_PULL  = BASE_PULL * REPULSION_VALUE;
-
-        // Unit radial vector (toward the pointer)
+        // Unit radial vector (toward pointer)
         const RAD_X = DX / DIST;
         const RAD_Y = DY / DIST;
 
-        // Unit tangential vector (perpendicular) for orbit
+        // Tangential (perpendicular) for orbit
         const TAN_X = -RAD_Y;
         const TAN_Y = RAD_X;
 
-        // 0 = pure radial, 1 = pure orbit
-        const CURVE = 0.45;
-        const MIX_R = 1 - CURVE;
-        const MIX_T = CURVE;
+        // Base acceleration scale from your motion
+        const SPEED_FACTOR = 0.4 + CLEANED_USER_SPEED;
 
-        // Base attraction / repulsion directions
-        let ATTR_DIR_X = RAD_X * MIX_R + TAN_X * MIX_T;
-        let ATTR_DIR_Y = RAD_Y * MIX_R + TAN_Y * MIX_T;
+        // Spring-like radial term: pushes toward the ring, not the center
+        const radialK = 0.0006 * SPEED_FACTOR;
+        let radialAccel = -radialError * radialK;
 
-        let REP_DIR_X = -RAD_X * MIX_R + TAN_X * MIX_T;
-        let REP_DIR_Y = -RAD_Y * MIX_R + TAN_Y * MIX_T;
+        // Allow click repulsion to exaggerate radial motion
+        radialAccel *= (1 + REPULSION_VALUE);
 
-        // --- Wobble: mix in star's own velocity direction ---
-        const velLen = Math.hypot(STAR.vx, STAR.vy) || 1;
-        const velDirX = STAR.vx / velLen;
-        const velDirY = STAR.vy / velLen;
+        // Orbital term: always tangential
+        const orbitK = 0.0012 * SPEED_FACTOR;
+        let orbitAccel = orbitK;
 
-        const WOBBLE = 0.3;      // 0 = perfect orbit, 1 = pure velocity
+        // Base acceleration vector from ring-spring + orbit
+        let ax = RAD_X * radialAccel + TAN_X * orbitAccel;
+        let ay = RAD_Y * radialAccel + TAN_Y * orbitAccel;
+
+        // --- Wobble: mix accel direction with star's existing velocity ---
+        const vLen = Math.hypot(STAR.vx, STAR.vy) || 1;
+        const vDirX = STAR.vx / vLen;
+        const vDirY = STAR.vy / vLen;
+
+        const accelLen = Math.hypot(ax, ay) || 1;
+        let aDirX = ax / accelLen;
+        let aDirY = ay / accelLen;
+
+        const WOBBLE = 0.3;             // 0 = perfect ring orbit, 1 = follow velocity
         const INV_WOBBLE = 1 - WOBBLE;
 
-        const ATTR_DIR_X_WOBBLE = ATTR_DIR_X * INV_WOBBLE + velDirX * WOBBLE;
-        const ATTR_DIR_Y_WOBBLE = ATTR_DIR_Y * INV_WOBBLE + velDirY * WOBBLE;
+        // Blend the directions
+        const mixedDirX = aDirX * INV_WOBBLE + vDirX * WOBBLE;
+        const mixedDirY = aDirY * INV_WOBBLE + vDirY * WOBBLE;
 
-        const REP_DIR_X_WOBBLE = REP_DIR_X * INV_WOBBLE + velDirX * WOBBLE;
-        const REP_DIR_Y_WOBBLE = REP_DIR_Y * INV_WOBBLE + velDirY * WOBBLE;
+        // Keep same magnitude but use mixed direction
+        ax = mixedDirX * accelLen;
+        ay = mixedDirY * accelLen;
 
-        // Combined pointer influence direction
-        let dirX =
-          ATTR_DIR_X_WOBBLE * ATTR_PULL + REP_DIR_X_WOBBLE * REP_PULL;
-        let dirY =
-          ATTR_DIR_Y_WOBBLE * ATTR_PULL + REP_DIR_Y_WOBBLE * REP_PULL;
-
-        const dirLen = Math.hypot(dirX, dirY);
-        if (dirLen > 1e-5) {
-          dirX /= dirLen;
-          dirY /= dirLen;
-
-          // Step size grows with distance but is clamped
-          let step = BASE_PULL * DIST;
-
-          const MAX_STEP = 20 * (SCALE_FACTOR / 1000); // ~20px at full size
-          if (step > MAX_STEP) step = MAX_STEP;
-
-          STAR.x += dirX * step;
-          STAR.y += dirY * step;
-        }
+        // Apply acceleration to velocity (not directly to position)
+        STAR.vx += ax;
+        STAR.vy += ay;
       }
     }
+
+    // --- 2. Passive drift using velocity (like before) ---
+    STAR.x += STAR.vx * (CLEANED_USER_SPEED + 1);
+    STAR.y += STAR.vy * (CLEANED_USER_SPEED + 1);
+
+    // Gentle global friction so speeds don't blow up but never fully die
+    STAR.vx *= 0.998;
+    STAR.vy *= 0.998;
 
     // --- 3. Spark / fade / wrap behavior (unchanged) ---
     if (STAR.whiteValue > 0) {
