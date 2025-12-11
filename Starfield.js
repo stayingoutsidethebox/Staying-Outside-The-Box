@@ -177,121 +177,128 @@ function createStars() {
 /*---------- Star animation step ----------*/
 // Move, fade, and wrap stars around the screen
 function moveStars() {
-  if (!HAS_CANVAS || !STARS.length) return;
-  for (const STAR of STARS) {
-  // --- 1. Passive drift for this frame (unchanged baseline motion) ---
-  const passiveDX = STAR.vx * (CLEANED_USER_SPEED + 1);
-  const passiveDY = STAR.vy * (CLEANED_USER_SPEED + 1);
+  if (!HAS_CANVAS || !STARS.length) return;
 
-  // Apply passive drift first
-  STAR.x += passiveDX;
-  STAR.y += passiveDY;
+  for (const STAR of STARS) {
 
-  // --- 2. Pointer pull / push as a *bias* (not total direction override) ---
-  if (LAST_TIME !== 0 && CLEANED_USER_SPEED > 0.19) {
-    const DX = LAST_X - STAR.x;
-    const DY = LAST_Y - STAR.y;
-    const DIST_SQ = DX * DX + DY * DY;
+    // --- 1. Passive drift for this frame (unchanged baseline motion) ---
+    const passiveDX = STAR.vx * (CLEANED_USER_SPEED + 1);
+    const passiveDY = STAR.vy * (CLEANED_USER_SPEED + 1);
 
-    const MAX_INFLUENCE = 10000 * (SCALE_FACTOR / 500);
+    STAR.x += passiveDX;
+    STAR.y += passiveDY;
 
-    if (DIST_SQ < MAX_INFLUENCE) {
-      const DIST = Math.sqrt(DIST_SQ) || 1;
-      const MAX_RADIUS = Math.sqrt(MAX_INFLUENCE);
+    // --- 2. Pointer pull / push with wobble around the cursor ---
+    if (LAST_TIME !== 0 && CLEANED_USER_SPEED > 0.19) {
+      const DX = LAST_X - STAR.x;
+      const DY = LAST_Y - STAR.y;
+      const DIST_SQ = DX * DX + DY * DY;
 
-      // Normalized distance 0..1 from the pointer
-      const NORM = Math.min(DIST / MAX_RADIUS, 1);
+      const MAX_INFLUENCE = 10000 * (SCALE_FACTOR / 500);
 
-      // Exponent controls how fast pull grows with distance
-      const EXPONENT = 1.7; // try 1.4–2.2
-      // This makes a bell-shaped strength: 0 at center & edges, max in the middle
-      const radialEnvelope = Math.pow(NORM, EXPONENT) * (1 - NORM);
+      // Ignore very far stars and a tiny core right at the center
+      if (DIST_SQ > 9 && DIST_SQ < MAX_INFLUENCE) {
+        const DIST = Math.sqrt(DIST_SQ) || 1;
+        const MAX_RADIUS = Math.sqrt(MAX_INFLUENCE);
+        const NORM = Math.min(DIST / MAX_RADIUS, 1);
 
-      // Base pull from your motion, modulated by distance envelope
-      const BASE_PULL = 0.04 * CLEANED_USER_SPEED * radialEnvelope;
+        // Simple falloff: strongest ~ mid-distance, fades near edge
+        const FALL_OFF = (1 - NORM) * (1 - NORM); // (1 - r)^2
 
-      // Unit radial vector (toward the pointer)
-      const RAD_X = DX / DIST;
-      const RAD_Y = DY / DIST;
+        // Base pull from your motion, modulated by distance
+        const SPEED_FACTOR = 0.4 + CLEANED_USER_SPEED;
+        const BASE_PULL = 0.02 * SPEED_FACTOR * FALL_OFF;
 
-      // Optional tangential orbital component
-      const TAN_X = -RAD_Y;
-      const TAN_Y = RAD_X;
+        const ATTR_PULL = BASE_PULL;
+        const REP_PULL  = BASE_PULL * REPULSION_VALUE;
 
-      const CURVE = 0.45;           // 0 = pure radial, 1 = pure orbit
-      const MIX_R = 1 - CURVE;
-      const MIX_T = CURVE;
+        // Unit radial vector (toward the pointer)
+        const RAD_X = DX / DIST;
+        const RAD_Y = DY / DIST;
 
-      // Attraction direction (toward pointer + orbit)
-      const ATTR_DIR_X = RAD_X * MIX_R + TAN_X * MIX_T;
-      const ATTR_DIR_Y = RAD_Y * MIX_R + TAN_Y * MIX_T;
+        // Unit tangential vector (perpendicular) for orbit
+        const TAN_X = -RAD_Y;
+        const TAN_Y = RAD_X;
 
-      // Repulsion direction (away from pointer + same orbit direction)
-      const REP_DIR_X = -RAD_X * MIX_R + TAN_X * MIX_T;
-      const REP_DIR_Y = -RAD_Y * MIX_R + TAN_Y * MIX_T;
+        // 0 = pure radial, 1 = pure orbit
+        const CURVE = 0.45;
+        const MIX_R = 1 - CURVE;
+        const MIX_T = CURVE;
 
-// Add a bit of the star's own velocity direction to wobble the orbit
-const velLen = Math.hypot(STAR.vx, STAR.vy) || 1;
-const velDirX = STAR.vx / velLen;
-const velDirY = STAR.vy / velLen;
+        // Base attraction / repulsion directions
+        let ATTR_DIR_X = RAD_X * MIX_R + TAN_X * MIX_T;
+        let ATTR_DIR_Y = RAD_Y * MIX_R + TAN_Y * MIX_T;
 
-const WOBBLE = 0.3; // 0 = perfect orbit, 1 = follow velocity
+        let REP_DIR_X = -RAD_X * MIX_R + TAN_X * MIX_T;
+        let REP_DIR_Y = -RAD_Y * MIX_R + TAN_Y * MIX_T;
 
-// Blend pointer-defined direction with star's inherent drift direction
-const INV_WOBBLE = 1 - WOBBLE;
+        // --- Wobble: mix in star's own velocity direction ---
+        const velLen = Math.hypot(STAR.vx, STAR.vy) || 1;
+        const velDirX = STAR.vx / velLen;
+        const velDirY = STAR.vy / velLen;
 
-const ATTR_DIR_X_WOBBLE = ATTR_DIR_X * INV_WOBBLE + velDirX * WOBBLE;
-const ATTR_DIR_Y_WOBBLE = ATTR_DIR_Y * INV_WOBBLE + velDirY * WOBBLE;
+        const WOBBLE = 0.3;      // 0 = perfect orbit, 1 = pure velocity
+        const INV_WOBBLE = 1 - WOBBLE;
 
-const REP_DIR_X_WOBBLE = REP_DIR_X * INV_WOBBLE + velDirX * WOBBLE;
-const REP_DIR_Y_WOBBLE = REP_DIR_Y * INV_WOBBLE + velDirY * WOBBLE;
+        const ATTR_DIR_X_WOBBLE = ATTR_DIR_X * INV_WOBBLE + velDirX * WOBBLE;
+        const ATTR_DIR_Y_WOBBLE = ATTR_DIR_Y * INV_WOBBLE + velDirY * WOBBLE;
 
-      const ATTR_PULL = BASE_PULL;
-const REP_PULL = BASE_PULL * REPULSION_VALUE;
+        const REP_DIR_X_WOBBLE = REP_DIR_X * INV_WOBBLE + velDirX * WOBBLE;
+        const REP_DIR_Y_WOBBLE = REP_DIR_Y * INV_WOBBLE + velDirY * WOBBLE;
 
-// Combined pointer influence vector (small compared to passive)
-let biasX =
-  ATTR_DIR_X_WOBBLE * ATTR_PULL + REP_DIR_X_WOBBLE * REP_PULL;
-let biasY =
-  ATTR_DIR_Y_WOBBLE * ATTR_PULL + REP_DIR_Y_WOBBLE * REP_PULL;
+        // Combined pointer influence direction
+        let dirX =
+          ATTR_DIR_X_WOBBLE * ATTR_PULL + REP_DIR_X_WOBBLE * REP_PULL;
+        let dirY =
+          ATTR_DIR_Y_WOBBLE * ATTR_PULL + REP_DIR_Y_WOBBLE * REP_PULL;
 
-      // Scale by distance so further stars get a bigger nudge along that direction
-      biasX *= DIST;
-      biasY *= DIST;
+        const dirLen = Math.hypot(dirX, dirY);
+        if (dirLen > 1e-5) {
+          dirX /= dirLen;
+          dirY /= dirLen;
 
-      // Apply *additive* pointer influence
-      STAR.x += biasX;
-      STAR.y += biasY;
-    }
-  }
+          // Step size grows with distance but is clamped
+          let step = BASE_PULL * DIST;
 
-  // --- 3. Spark / fade / wrap behavior (unchanged) ---
-  if (STAR.whiteValue > 0) {
-    STAR.whiteValue *= 0.98;
-    if (STAR.whiteValue < 0.001) STAR.whiteValue = 0;
-  }
+          const MAX_STEP = 20 * (SCALE_FACTOR / 1000); // ~20px at full size
+          if (step > MAX_STEP) step = MAX_STEP;
 
-  if (STAR.opacity <= 0.005) {
-    STAR.opacity = 1;
-    if (Math.random() < 0.07) STAR.whiteValue = 1;
-  } else if (STAR.opacity > 0.02) {
-    STAR.opacity -= 0.005 * STAR.fadeSpeed;
-  } else {
-    STAR.opacity -= 0.0001;
-  }
+          STAR.x += dirX * step;
+          STAR.y += dirY * step;
+        }
+      }
+    }
 
-  if (STAR.x < 0) STAR.x = WIDTH;
-  if (STAR.x > WIDTH) STAR.x = 0;
-  if (STAR.y < 0) STAR.y = HEIGHT;
-  if (STAR.y > HEIGHT) STAR.y = 0;
+    // --- 3. Spark / fade / wrap behavior (unchanged) ---
+    if (STAR.whiteValue > 0) {
+      STAR.whiteValue *= 0.98;
+      if (STAR.whiteValue < 0.001) STAR.whiteValue = 0;
+    }
+
+    if (STAR.opacity <= 0.005) {
+      STAR.opacity = 1;
+      if (Math.random() < 0.07) STAR.whiteValue = 1;
+    } else if (STAR.opacity > 0.02) {
+      STAR.opacity -= 0.005 * STAR.fadeSpeed;
+    } else {
+      STAR.opacity -= 0.0001;
+    }
+
+    if (STAR.x < 0) STAR.x = WIDTH;
+    if (STAR.x > WIDTH) STAR.x = 0;
+    if (STAR.y < 0) STAR.y = HEIGHT;
+    if (STAR.y > HEIGHT) STAR.y = 0;
+  }
+
+  // Slowly decay pointer speed influence
+  CLEANED_USER_SPEED *= 0.95;
+  if (CLEANED_USER_SPEED < 0.05) CLEANED_USER_SPEED = 0;
+
+  // Gently decay repulsion bursts so they don't last forever
+  REPULSION_VALUE *= 0.965;
+  if (REPULSION_VALUE < 0.01) REPULSION_VALUE = 0;
 }
-  // Slowly decay pointer speed influence
-  CLEANED_USER_SPEED *= 0.95;
-  if (CLEANED_USER_SPEED < 0.05) CLEANED_USER_SPEED = 0;
-  // Gently decay repulsion bursts so they don't last forever
-  REPULSION_VALUE *= 0.965;
-  if (REPULSION_VALUE < 0.01) REPULSION_VALUE = 0;
-}
+
 /*---------- Star rendering ----------*/
 // Draw all lines and star bodies for the current frame
 function drawStarsWithLines() {
