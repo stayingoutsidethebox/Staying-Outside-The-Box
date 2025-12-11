@@ -277,8 +277,8 @@ if (CLEANED_USER_SPEED > 0.05 && USER_DISTANCE < MAX_INFLUENCE) {
     PULL_Y += STAR.momentumY;
     
     // Repulsion burst from clicks/taps: push straight away from finger
-    PULL_X -= DX * INV_DIST * REPULSION_VALUE;
-    PULL_Y -= DY * INV_DIST * REPULSION_VALUE;
+    PULL_X -= 3 * DX * INV_DIST * REPULSION_VALUE;
+    PULL_Y -= 3 * DY * INV_DIST * REPULSION_VALUE;
     
     // Always add baseline star drift
     PULL_X += STAR.vx * OFFSET_USER_SPEED;
