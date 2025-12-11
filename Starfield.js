@@ -272,6 +272,28 @@ function moveStars() {
         // Tangential unit vector (perpendicular) for orbit
         const TAN_X = -RAD_Y;
         const TAN_Y = RAD_X;
+        
+        
+        
+        
+        
+        
+        
+        // --- ensure a minimum tangential (orbit) speed ---
+const tSpeed = STAR.vx * TAN_X + STAR.vy * TAN_Y;           // current perpendicular speed
+if (Math.abs(tSpeed) < 0.02) {                              // 0.02 = floor, tweak if needed
+  const boost = (0.02 * Math.sign(tSpeed || 1)) - tSpeed;   // amount of extra tangential velocity
+  STAR.vx += boost * TAN_X;
+  STAR.vy += boost * TAN_Y;
+}
+
+
+
+
+
+
+
+
 
         // 0 = pure radial, 1 = pure orbit
         const CURVE = 0.6; // a bit more orbit than before
