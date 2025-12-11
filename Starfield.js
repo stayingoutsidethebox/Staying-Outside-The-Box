@@ -264,7 +264,7 @@ const RING = 0.35; // tweak between ~0.25 and 0.5 to change radius
 // - zero at the ring
 // - positive between ring and edge (pull in)
 // - back to zero at the outer edge
-const RADIAL_STRENGTH = 2.0;  // overall “importance” of radial vs orbit
+const RADIAL_STRENGTH = 3;  // overall “importance” of radial vs orbit
 const radialFactor = RADIAL_STRENGTH * (R - RING) * (1 - R);
 
 // 1) Radial term: toward finger when outside ring, away when inside
@@ -275,8 +275,8 @@ let PULL_Y = USER_SPEED * radialFactor * (DY / USER_DISTANCE);
     // 2) Orbit when close, with minimum tangential speed so they never stall
     let ORBIT_FORCE = USER_SPEED * NORMALIZED_DISTANCE * 0.4;
     if (ORBIT_FORCE < 1) ORBIT_FORCE = 1;
-    PULL_X += (-DY / USER_DISTANCE) * ORBIT_FORCE;
-    PULL_Y += ( DX / USER_DISTANCE) * ORBIT_FORCE;
+    PULL_X += (-DY / USER_DISTANCE) * ORBIT_FORCE * CLEANED_USER_SPEED / 10;
+    PULL_Y += ( DX / USER_DISTANCE) * ORBIT_FORCE * CLEANED_USER_SPEED / 10;
 
     // clamp
     if (Math.abs(PULL_X) > 3) PULL_X = 3 * Math.sign(PULL_X);
