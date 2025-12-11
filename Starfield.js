@@ -41,7 +41,7 @@ let SMOOTH_SPEED = 0;
 let CLEANED_USER_SPEED = 0;
 
 // Repulsion strength
-let REPULSION_VALUE = 0;
+let REPULSION_TIME = 0;
 
 // Canvas size and star scaling
 let WIDTH = 0;
@@ -72,7 +72,7 @@ function saveStarsToStorage() {
         width:           WIDTH,
         height:          HEIGHT,
         scaleFactor:     SCALE_FACTOR,
-        repulsionValue:  REPULSION_VALUE,
+        repulsionValue:  REPULSION_TIME,
         cleanedUserSpeed:CLEANED_USER_SPEED,
         smoothSpeed:     SMOOTH_SPEED,
         pointerSpeed:    POINTER_SPEED,
@@ -156,7 +156,7 @@ function initStars() {
           }
 
           // Restore motion state and pointer info
-          REPULSION_VALUE   = META.repulsionValue    ?? 0;
+          REPULSION_TIME   = META.repulsionValue    ?? 0;
           CLEANED_USER_SPEED = META.cleanedUserSpeed ?? 0;
           SMOOTH_SPEED       = META.smoothSpeed      ?? 0;
           POINTER_SPEED      = META.pointerSpeed     ?? 0;
@@ -277,8 +277,8 @@ if (CLEANED_USER_SPEED > 0.05 && USER_DISTANCE < MAX_INFLUENCE) {
     PULL_Y += STAR.momentumY;
     
     // Repulsion burst from clicks/taps: push straight away from finger
-    PULL_X -= 3 * DX * INV_DIST * REPULSION_VALUE;
-    PULL_Y -= 3 * DY * INV_DIST * REPULSION_VALUE;
+    PULL_X -= 3 * DX * INV_DIST * REPULSION_TIME;
+    PULL_Y -= 3 * DY * INV_DIST * REPULSION_TIME;
     
     // Always add baseline star drift
     PULL_X += STAR.vx * OFFSET_USER_SPEED;
@@ -289,8 +289,8 @@ if (CLEANED_USER_SPEED > 0.05 && USER_DISTANCE < MAX_INFLUENCE) {
     if (Math.abs(PULL_Y) > 3) PULL_Y = 3 * Math.sign(PULL_Y);
 
     // Apply final movement, while easing back to passive movement
-    STAR.x += PULL_X / 10 * CLEANED_USER_SPEED;
-    STAR.y += PULL_Y / 10 * CLEANED_USER_SPEED;
+    STAR.x += PULL_X / 10 * OFFSET_USER_SPEED;
+    STAR.y += PULL_Y / 10 * OFFSET_USER_SPEED;
 
 
 
@@ -330,8 +330,8 @@ if (CLEANED_USER_SPEED > 0.05 && USER_DISTANCE < MAX_INFLUENCE) {
   if (CLEANED_USER_SPEED < 0.05) CLEANED_USER_SPEED = 0;
 
   // Repulsion bursts decay too
-  REPULSION_VALUE *= 0.98;
-  if (REPULSION_VALUE < 0.01) REPULSION_VALUE = 0;
+  REPULSION_TIME *= 0.98;
+  if (REPULSION_TIME < 0.01) REPULSION_TIME = 0;
 }
 
 /*---------- Star rendering ----------*/
@@ -468,7 +468,7 @@ function updateSpeed(X, Y, TIME) {
 
 // Shared start handler for mouse/touch pointer interactions
 function startPointerInteraction(X, Y, TIME) {
-  REPULSION_VALUE = 10; // Repel on click/touch
+  REPULSION_TIME = 3; // Repel on click/touch
   updateSpeed(X, Y, TIME);
   CLEANED_USER_SPEED = CLEANED_USER_SPEED + 0.8;
 }
