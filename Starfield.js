@@ -296,8 +296,8 @@ if (CLEANED_USER_SPEED > 0.01 && USER_DISTANCE < MAX_INFLUENCE) {
     if (Math.abs(PULL_Y) > 3) PULL_Y = 3 * Math.sign(PULL_Y);
 
     // Apply final movement, while easing back to passive movement and adding passive drift
-    STAR.x += PULL_X + STAR.vx;
-    STAR.y += PULL_Y + STAR.vy;
+    STAR.x += star.vx * OFFSET_USER_SPEED + PULL_X;
+    STAR.y += star.vy * OFFSET_USER_SPEED + PULL_Y;
 
 
 
