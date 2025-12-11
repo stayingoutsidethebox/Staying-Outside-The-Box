@@ -260,8 +260,14 @@ if (CLEANED_USER_SPEED > 0.05) {
     if (Math.abs(PULL_X) > 3) PULL_X = 3 * Math.sign(PULL_X);
     if (Math.abs(PULL_Y) > 3) PULL_Y = 3 * Math.sign(PULL_Y);
 
-    STAR.x += PULL_X;
-    STAR.y += PULL_Y;
+    // --- ORBIT SKEW (tangential component) ---
+const ORBIT = 0.25; // 0 = no orbit, 1 = pure orbit
+const ORB_X = -PULL_Y * ORBIT; // rotate pull 90° clockwise
+const ORB_Y =  PULL_X * ORBIT; // rotate pull 90° clockwise
+
+// Final movement = radial pull + tangential orbit
+STAR.x += PULL_X + ORB_X;
+STAR.y += PULL_Y + ORB_Y;
   }
 }
 
