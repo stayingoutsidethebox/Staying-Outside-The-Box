@@ -311,15 +311,15 @@ PULL_Y += TOWARDS_USER_Y * 5;
     STAR.momentumY *= 0.99;
     
     // Repulsion burst from clicks/taps: push straight away from finger
-    const CLEANED_REPULSION = 3 * REPULSION_TIME * Math.max(0, 1 - USER_DISTANCE / (1.5 * MAX_INFLUENCE));
+    const CLEANED_REPULSION = 5 * REPULSION_TIME * Math.max(0, 1 - USER_DISTANCE / (1.5 * MAX_INFLUENCE));
     PULL_X -= TOWARDS_USER_X * CLEANED_REPULSION;
     PULL_Y -= TOWARDS_USER_Y * CLEANED_REPULSION;
     
     // Clamp and "circularize" combined user influence so it never explodes
     const PULL_HYPOT = Math.hypot(PULL_X, PULL_Y);
-    if (PULL_HYPOT > 3) {
-      PULL_X *= 3 / PULL_HYPOT;
-      PULL_Y *= 3 / PULL_HYPOT;
+    if (PULL_HYPOT > 5) {
+      PULL_X *= 5 / PULL_HYPOT;
+      PULL_Y *= 5 / PULL_HYPOT;
     }
     
     // Apply final movement, while easing back to passive movement and adding passive drift
