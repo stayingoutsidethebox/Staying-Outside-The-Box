@@ -278,9 +278,9 @@ function moveStars() {
     // Finger influence only matters when you've moved recently, and if in bounds
 if (CLEANED_USER_SPEED > 0.01 && USER_DISTANCE < MAX_INFLUENCE && REPULSION_TIME == 0) {
   // Make the ring
-  const RING_THICKNESS = 0.06;
-  const RING_RADIUS = Math.pow(Math.min(USER_DISTANCE / MAX_INFLUENCE, 1) - 0.35);
-  const RING_GAUSS = Math.exp(-RING_RADIUS / RING_THICKNESS);
+  const RING_THICKNESS = 0.12;
+  const RING_RADIUS = (Math.min(USER_DISTANCE / MAX_INFLUENCE, 1) - 0.35);
+  const RING_GAUSS = Math.exp(-(RING_RADIUS * RING_RADIUS) / (2 * RING_THICKNESS * RING_THICKNESS));
   const RADIAL_INFLUENCE = 13 * Math.sign(RING_RADIUS) * RING_GAUSS;
   
   STAR.momentumX += OFFSET_USER_SPEED * RADIAL_INFLUENCE * DX * INV_DIST;
