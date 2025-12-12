@@ -278,20 +278,18 @@ function moveStars() {
     // Finger influence only matters when you've moved recently, and if in bounds
 if (CLEANED_USER_SPEED > 0.01 && USER_DISTANCE < MAX_INFLUENCE && REPULSION_TIME == 0) {
 
-    // Ring-shaped attractor around your finger (closer to ring = faster, inside ring = repel)
   const R = Math.min(USER_DISTANCE / MAX_INFLUENCE, 1);
-const RING_RADIUS = 0.35;
-const RING_WIDTH = 0.12;        // σ
-const RING_OFFSET = R - RING_RADIUS;
+  const RING_RADIUS = 0.35;
+  const RING_STRENGTH = 13;
+  const RING_WIDTH = 0.12;
+  const RING_OFFSET = R - RING_RADIUS;
+  const RADIAL_INFLUENCE = RING_STRENGTH * RING_OFFSET * Math.exp(-(RING_OFFSET * RING_OFFSET) / (2 * RING_WIDTH * RING_WIDTH));
+  STAR.momentumX += OFFSET_USER_SPEED * RADIAL_INFLUENCE * DX * INV_DIST;
+  STAR.momentumY += OFFSET_USER_SPEED * RADIAL_INFLUENCE * DY * INV_DIST;
 
-const GAUSS =
-  Math.exp(-(RING_OFFSET * RING_OFFSET) / (2 * RING_WIDTH * RING_WIDTH));
-
-const RADIAL_INFLUENCE = RING_STRENGTH * RING_OFFSET * GAUSS;
-
-    // Decay PULL strength (CUS var is mever 0 in this bracket)
-    PULL_X *= CLEANED_USER_SPEED / 10;
-    PULL_Y *= CLEANED_USER_SPEED / 10;
+  //Decay PULL strength (CUS var is never 0 in this bracket)
+  PULL_X *= CLEANED_USER_SPEED / 10;
+  PULL_Y *= CLEANED_USER_SPEED / 10;
 }
 
     // Decay and apply momentum
