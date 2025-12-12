@@ -236,6 +236,9 @@ function moveStars() {
     const Y_DISTANCE = USER_Y - STAR.y;
     const USER_DISTANCE = 1 + Math.hypot(X_DISTANCE, Y_DISTANCE);
     const INV_DIST = 1 / USER_DISTANCE;
+    const TOWARDS_USER_X = X_DISTANCE * INV_DIST;
+    const TOWARDS_USER_Y = Y_DISTANCE * INV_DIST;
+
     
 
 
@@ -282,10 +285,14 @@ if (CLEANED_USER_SPEED > 0.01 && USER_DISTANCE < MAX_INFLUENCE) {
   const RING_RADIUS = 0.6;
   
   const CLEANED_RAD =(Math.min(USER_DISTANCE / MAX_INFLUENCE, 1) - RING_RADIUS);
-  const RADIAL_INFLUENCE = 20 * CLEANED_RAD * Math.exp(-(CLEANED_RAD * CLEANED_RAD) / (2 * RING_THICKNESS * RING_THICKNESS));
-  const MOMENTUM_FACTOR = (1 - Math.min(REPULSION_TIME / 30, 1)) * OFFSET_USER_SPEED * RADIAL_INFLUENCE * (CLEANED_USER_SPEED / 10) * INV_DIST;
-  STAR.momentumX += X_DISTANCE * MOMENTUM_FACTOR;
-  STAR.momentumY += Y_DISTANCE * MOMENTUM_FACTOR;
+  const RING_STRENGTH = 5 * CLEANED_RAD * Math.exp(-(CLEANED_RAD * CLEANED_RAD) / (2 * RING_THICKNESS * RING_THICKNESS));
+  const MOMENTUM_FACTOR = (1 - Math.min(REPULSION_TIME / 30, 1)) * OFFSET_USER_SPEED * RING_STRENGTH * (CLEANED_USER_SPEED / 10);
+  STAR.momentumX += TOWARDS_USER_X * MOMENTUM_FACTOR;
+  STAR.momentumY += TOWARDS_USER_Y * MOMENTUM_FACTOR;
+  
+  // Passive center pull
+PULL_X += TOWARDS_USER_X * 2;
+PULL_Y += TOWARDS_USER_Y * 2;
 }
 
     // Circular clamp (keeps direction, avoids diamond / axis bias)
@@ -308,9 +315,9 @@ if (CLEANED_USER_SPEED > 0.01 && USER_DISTANCE < MAX_INFLUENCE) {
     STAR.momentumY *= 0.99;
     
     // Repulsion burst from clicks/taps: push straight away from finger
-    const CLEANED_REPULSION = 3 * INV_DIST * REPULSION_TIME * Math.max(0, 1 - USER_DISTANCE / (1.5 * MAX_INFLUENCE));
-    PULL_X -= X_DISTANCE * CLEANED_REPULSION;
-    PULL_Y -= Y_DISTANCE * CLEANED_REPULSION;
+    const CLEANED_REPULSION = 3 * REPULSION_TIME * Math.max(0, 1 - USER_DISTANCE / (1.5 * MAX_INFLUENCE));
+    PULL_X -= TOWARDS_USER_X * CLEANED_REPULSION;
+    PULL_Y -= TOWARDS_USER_Y * CLEANED_REPULSION;
     
     // Clamp and "circularize" combined user influence so it never explodes
     const MAX_PULL = 3;
