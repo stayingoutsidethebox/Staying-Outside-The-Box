@@ -277,6 +277,9 @@ function moveStars() {
 
 
     // Finger influence only matters when you've moved recently, and if in bounds
+if you were going to make the alTERED BELL CURVE APPLY TO MOMENTUM INSTEAD OF RADius, and MOMENTUM BECOMES THE ADD TO PULL INSTEAD OF RADIUS in less than 6 lines, what would you do? 
+
+(bracket is purposely cut) 
 if (CLEANED_USER_SPEED > 0.01 && USER_DISTANCE < MAX_INFLUENCE) {
 
     // Ring-shaped attractor around your finger (closer to ring = faster, inside ring = repel)
@@ -291,22 +294,9 @@ if (CLEANED_USER_SPEED > 0.01 && USER_DISTANCE < MAX_INFLUENCE) {
     PULL_X *= CLEANED_USER_SPEED / 10;
     PULL_Y *= CLEANED_USER_SPEED / 10;
 
-
-
-
-//this shit new
-  const NEAR = (1 - R) * (RING_RADIUS - R);                 // bell-ish: + inside ring, − outside
-STAR.momentumX = (STAR.momentumX + DX * INV_DIST * NEAR * RING_STRENGTH) * 0.94;
-STAR.momentumY = (STAR.momentumY + DY * INV_DIST * NEAR * RING_STRENGTH) * 0.94;
-
-/*HEEEEERRRRREEEEEEEEEEEEEEEEEE
-STAR.momentumX += 0;
-STAR.momentumY += 0;
-*/
-
-
-PULL_X += STAR.momentumX;
-PULL_Y += STAR.momentumY;
+    //HEEEEERRRRREEEEEEEEEEEEEEEEEE
+    STAR.momentumX += 0;
+    STAR.momentumY += 0;
 }
 
     // Decay and apply momentum
@@ -329,7 +319,6 @@ PULL_Y += STAR.momentumY;
     // Apply final movement, while easing back to passive movement and adding passive drift
     STAR.x += STAR.vx * OFFSET_USER_SPEED + PULL_X;
     STAR.y += STAR.vy * OFFSET_USER_SPEED + PULL_Y;
-
 
 
 
