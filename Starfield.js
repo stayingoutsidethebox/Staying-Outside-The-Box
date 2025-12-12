@@ -276,7 +276,7 @@ function moveStars() {
 
 
     // Finger influence only matters when you've moved recently, and if in bounds
-if (CLEANED_USER_SPEED > 0.01 && USER_DISTANCE < MAX_INFLUENCE && REPULSION_TIME == 0) {
+if (CLEANED_USER_SPEED > 0.01 && USER_DISTANCE < MAX_INFLUENCE) {
 
     // Ring-shaped attractor around your finger (closer to ring = faster, inside ring = repel)
     const R = Math.min(USER_DISTANCE / MAX_INFLUENCE, 1);
@@ -289,11 +289,6 @@ if (CLEANED_USER_SPEED > 0.01 && USER_DISTANCE < MAX_INFLUENCE && REPULSION_TIME
     // Decay PULL strength (CUS var is mever 0 in this bracket)
     PULL_X *= CLEANED_USER_SPEED / 10;
     PULL_Y *= CLEANED_USER_SPEED / 10;
-}
-
-if(REPULSION_TIME > 0){
-  STAR.momentumX = 0;
-  STAR.momentumY = 0;
 }
 
     // Decay and apply momentum
