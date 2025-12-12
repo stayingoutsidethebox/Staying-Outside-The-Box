@@ -279,12 +279,11 @@ function moveStars() {
 if (CLEANED_USER_SPEED > 0.01 && USER_DISTANCE < MAX_INFLUENCE && REPULSION_TIME == 0) {
 
     // Ring-shaped attractor around your finger (closer to ring = faster, inside ring = repel)
-    const R = Math.min(USER_DISTANCE / MAX_INFLUENCE, 1);
-    const RING_RADIUS = 0.35;
-    const RING_STRENGTH = 13;
-    const RADIAL_INFLUENCE = RING_STRENGTH * (R - RING_RADIUS) * (1 - R);
-    STAR.momentumX += OFFSET_USER_SPEED * RADIAL_INFLUENCE * DX * INV_DIST;
-    STAR.momentumY += OFFSET_USER_SPEED * RADIAL_INFLUENCE * DY * INV_DIST;
+  const RING_RADIUS  = 0.35;
+  const RING_STRENGTH = 13;
+  const RING_THICKNESS = 0.3;
+  const TOLERANCE = Math.min(USER_DISTANCE / MAX_INFLUENCE, 1) - RING_RADIUS;
+  const RADIAL_INFLUENCE = RING_STRENGTH * TOLERANCE * Math.exp(-(TOLERANCE * TOLERANCE) / (2 * RING_THICKNESS));
 
     // Decay PULL strength (CUS var is mever 0 in this bracket)
     PULL_X *= CLEANED_USER_SPEED / 10;
@@ -353,7 +352,7 @@ if (CLEANED_USER_SPEED > 0.01 && USER_DISTANCE < MAX_INFLUENCE && REPULSION_TIME
   // Let the user influence slowly die out
   CLEANED_USER_SPEED *= 0.94;
   if (CLEANED_USER_SPEED < 0.01) CLEANED_USER_SPEED = 0;
-  REPULSION_TIME *= 0.9;
+  REPULSION_TIME *= 0.97;
   if (REPULSION_TIME < 0.01) REPULSION_TIME = 0;
         
 document.getElementById('repulsion').textContent = REPULSION_TIME.toFixed(3);
