@@ -300,8 +300,8 @@ if (CLEANED_USER_SPEED > 0.01 && USER_DISTANCE < MAX_INFLUENCE) {
 }
 
     // Decay and apply momentum
-    STAR.momentumX *= 0.97;
-    STAR.momentumY *= 0.97;
+    STAR.momentumX *= 0.9;
+    STAR.momentumY *= 0.9;
     if (Math.abs(STAR.momentumX) < 0.01) STAR.momentumX = 0;
     if (Math.abs(STAR.momentumY) < 0.01) STAR.momentumY = 0;
     PULL_X += STAR.momentumX;
