@@ -279,11 +279,10 @@ function moveStars() {
 if (CLEANED_USER_SPEED > 0.01 && USER_DISTANCE < MAX_INFLUENCE && REPULSION_TIME == 0) {
 
     // Ring-shaped attractor around your finger (closer to ring = faster, inside ring = repel)
-  const RING_RADIUS  = 0.35;
   const RING_STRENGTH = 13;
   const RING_THICKNESS = 0.3;
-  const TOLERANCE = Math.min(USER_DISTANCE / MAX_INFLUENCE, 1) - RING_RADIUS;
-  const RADIAL_INFLUENCE = RING_STRENGTH * TOLERANCE * Math.exp(-(TOLERANCE * TOLERANCE) / (2 * RING_THICKNESS));
+  const RING_RADIUS = Math.min(USER_DISTANCE / MAX_INFLUENCE, 1) - 0.35;
+  const RADIAL_INFLUENCE = RING_STRENGTH * RING_RADIUS * Math.exp(-(RING_RADIUS * RING_RADIUS) / (2 * RING_THICKNESS));
 
     // Decay PULL strength (CUS var is mever 0 in this bracket)
     PULL_X *= CLEANED_USER_SPEED / 10;
