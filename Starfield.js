@@ -310,9 +310,8 @@ PULL_Y += TOWARDS_USER_Y * 5;
     STAR.momentumY *= 0.99;
     
     // Repulsion burst from clicks/taps: push straight away from finger
-    const CLEANED_REPULSION = 5 * REPULSION_TIME * Math.max(0, 1 - USER_DISTANCE / (1.5 * MAX_INFLUENCE));
-    PULL_X -= TOWARDS_USER_X * CLEANED_REPULSION;
-    PULL_Y -= TOWARDS_USER_Y * CLEANED_REPULSION;
+    PULL_X += 40 * -TOWARDS_USER_X * REPULSION_TIME;
+    PULL_Y += 40 * -TOWARDS_USER_Y * REPULSION_TIME;
     
     // Clamp and "circularize" combined user influence so it never explodes
     const PULL_HYPOT = Math.hypot(PULL_X, PULL_Y);
@@ -507,7 +506,7 @@ function updateSpeed(X, Y, TIME) {
 
 // Shared start handler for mouse/touch pointer interactions
 function startPointerInteraction(X, Y, TIME) {
-  REPULSION_TIME = 8; // Repel on click/touch
+  REPULSION_TIME = 1; // Repel on click/touch
   updateSpeed(X, Y, TIME);
   CLEANED_USER_SPEED = CLEANED_USER_SPEED + 0.8;
 }
