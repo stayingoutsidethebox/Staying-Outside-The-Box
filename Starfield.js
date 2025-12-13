@@ -209,95 +209,69 @@ function createStars() {
     });
   }
 }
-
 /*---------- Star animation step ----------*/
-
+/*---------- Star animation step ----------*/
+/*---------- Star animation step ----------*/
+/*---------- Star animation step ----------*/
+/*---------- Star animation step ----------*/
+/*---------- Star animation step ----------*/
+/*---------- Star animation step ----------*/
+/*---------- Star animation step ----------*/
 // Move, fade, and wrap stars around the screen
 function moveStars() {
   if (!HAS_CANVAS || !STARS.length) return;
-
-  // Speed baseline + how far the finger can influence stars
-  const MAX_INFLUENCE = 50 * (SCALE_FACTOR / 500);
 
   for (const STAR of STARS) {
     // Accumulator for everything that moves this star this frame
     let PULL_X = 0;
     let PULL_Y = 0;
+
     const X_DISTANCE = USER_X - STAR.x;
     const Y_DISTANCE = USER_Y - STAR.y;
     const USER_DISTANCE = 1 + Math.hypot(X_DISTANCE, Y_DISTANCE);
     const INVERTED_DISTANCE = 1 / USER_DISTANCE;
+
     const TOWARDS_USER_X = X_DISTANCE * INVERTED_DISTANCE;
     const TOWARDS_USER_Y = Y_DISTANCE * INVERTED_DISTANCE;
 
-    
+    /*--------------------------------------*
+     *  FINGER RING INTERACTION
+     *--------------------------------------*/
+    if (
+      NORM_USER_SPEED > 0.001 &&
+      USER_DISTANCE < 220 * (SCALE_FACTOR / 1000)
+    ) {
+      // Ring params (scaled once by screen size)
+      const RING_RADIUS = 140 * (SCALE_FACTOR / 1000);
+      const RING_WIDTH  =  70 * (SCALE_FACTOR / 1000);
+      const RING_FORCE  = 18;
 
+      // Signed distance from ring
+      const d = USER_DISTANCE - RING_RADIUS;
 
+      // Smooth falloff (1 near ring, 0 far away)
+      const t = Math.max(0, 1 - Math.abs(d) / RING_WIDTH);
 
+      // Dead zone prevents jitter at equilibrium
+      const DEAD_BAND = 6 * (SCALE_FACTOR / 1000);
 
+      let dir = -Math.sign(d);
+      if (Math.abs(d) < DEAD_BAND) dir = 0;
 
+      // Final smooth radial force
+      const F = dir * RING_FORCE * t * t;
 
+      PULL_X += TOWARDS_USER_X * F;
+      PULL_Y += TOWARDS_USER_Y * F;
 
+      // Repulsion burst from clicks/taps
+      PULL_X -= TOWARDS_USER_X * 40 * NORM_REPULSION;
+      PULL_Y -= TOWARDS_USER_Y * 40 * NORM_REPULSION;
+    }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    // Finger influence only matters when you've moved recently, and if in bounds
-if (NORM_USER_SPEED > 0.001 && USER_DISTANCE < MAX_INFLUENCE) {
-  // Ring params (simple + stable)
-  const RING_RADIUS = 140;
-  const RING_WIDTH  = 70;
-  const RING_FORCE  = 18;                
-
-  // signed distance from the ring: negative = inside, positive = outside
-  const d = USER_DISTANCE - RING_RADIUS;
-
-  // smooth "how much to apply" (1 near ring, 0 far away)
-  const t = Math.max(0, 1 - Math.abs(d) / RING_WIDTH);
-
-  // direction: if outside (d>0) pull inward; if inside (d<0) push outward
-  const dir = -Math.sign(d);
-
-  // final radial force (smooth, strongest near ring, zero far away)
-  const F = dir * RING_FORCE * t * t; // squared makes it softer
-
-  // apply directly to this frame's pull
-  PULL_X += TOWARDS_USER_X * F;
-  PULL_Y += TOWARDS_USER_Y * F;
-  
-  // Repulsion burst from clicks/taps: push straight away from finger
-  PULL_X -= TOWARDS_USER_X * 40 * NORM_REPULSION;
-  PULL_Y -= TOWARDS_USER_Y * 40 * NORM_REPULSION;
-}
-
-    // Circular clamp (keeps direction, avoids diamond / axis bias)
+    /*--------------------------------------*
+     *  MOMENTUM CLAMP & DECAY
+     *--------------------------------------*/
     const STAR_HYPOT = Math.hypot(STAR.momentumX, STAR.momentumY);
     if (STAR_HYPOT < 0.01) {
       STAR.momentumX = 0;
@@ -306,39 +280,35 @@ if (NORM_USER_SPEED > 0.001 && USER_DISTANCE < MAX_INFLUENCE) {
       STAR.momentumX *= 5 / STAR_HYPOT;
       STAR.momentumY *= 5 / STAR_HYPOT;
     }
-    // Apply then decay momentum
+
     PULL_X += STAR.momentumX;
     PULL_Y += STAR.momentumY;
     STAR.momentumX *= 0.99;
     STAR.momentumY *= 0.99;
 
-    // Clamp and "circularize" combined user influence so it never explodes
+    /*--------------------------------------*
+     *  FINAL PULL CLAMP
+     *--------------------------------------*/
     const PULL_HYPOT = Math.hypot(PULL_X, PULL_Y);
     if (PULL_HYPOT > 5) {
       PULL_X *= 5 / PULL_HYPOT;
       PULL_Y *= 5 / PULL_HYPOT;
     }
-    
-  const SPEED_BOOST = Math.min(1 + INVERTED_DISTANCE * NORM_USER_SPEED * 20, 6);
-  STAR.x += STAR.vx * SPEED_BOOST + PULL_X;
-  STAR.y += STAR.vy * SPEED_BOOST + PULL_Y;
 
+    /*--------------------------------------*
+     *  APPLY MOVEMENT
+     *--------------------------------------*/
+    const SPEED_BOOST = Math.min(
+      1 + INVERTED_DISTANCE * NORM_USER_SPEED * 20,
+      6
+    );
 
+    STAR.x += STAR.vx * SPEED_BOOST + PULL_X;
+    STAR.y += STAR.vy * SPEED_BOOST + PULL_Y;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-    // Twinkle + life cycle
+    /*--------------------------------------*
+     *  TWINKLE & LIFE CYCLE
+     *--------------------------------------*/
     if (STAR.whiteValue > 0) {
       STAR.whiteValue *= 0.98;
       if (STAR.whiteValue < 0.001) STAR.whiteValue = 0;
@@ -353,22 +323,48 @@ if (NORM_USER_SPEED > 0.001 && USER_DISTANCE < MAX_INFLUENCE) {
       STAR.opacity -= 0.0001;
     }
 
-    // Wrap around screen edges
+    /*--------------------------------------*
+     *  SCREEN WRAP
+     *--------------------------------------*/
     if (STAR.x < 0) STAR.x = WIDTH;
     if (STAR.x > WIDTH) STAR.x = 0;
     if (STAR.y < 0) STAR.y = HEIGHT;
     if (STAR.y > HEIGHT) STAR.y = 0;
   }
-  
-  // Let the user influence slowly die out
+
+  /*--------------------------------------*
+   *  GLOBAL DECAY
+   *--------------------------------------*/
   NORM_USER_SPEED *= 0.94;
   if (NORM_USER_SPEED < 0.001) NORM_USER_SPEED = 0;
+
   NORM_REPULSION *= 0.85;
   if (NORM_REPULSION < 0.001) NORM_REPULSION = 0;
-        
-document.getElementById('repulsion').textContent = NORM_REPULSION.toFixed(3);
-document.getElementById('speed').textContent = NORM_USER_SPEED.toFixed(3);
+
+  document.getElementById('repulsion').textContent =
+    NORM_REPULSION.toFixed(3);
+  document.getElementById('speed').textContent =
+    NORM_USER_SPEED.toFixed(3);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /*---------- Star rendering ----------*/
 
