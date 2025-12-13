@@ -225,19 +225,23 @@ function moveStars() {
     const USER_DISTANCE = 1 + Math.hypot(X_DISTANCE, Y_DISTANCE);
     const INVERTED_DISTANCE = 1 / USER_DISTANCE;
 
-    const GRADIENT_TO_USER_X = X_DISTANCE * INVERTED_DISTANCE;
-    const GRADIENT_TO_USER_Y = Y_DISTANCE * INVERTED_DISTANCE;
+    const GRADIENT_TO_USER_X = X_DISTANCE * INVERTED_DISTANCE * INVERTED_DISTANCE;
+    const GRADIENT_TO_USER_Y = Y_DISTANCE * INVERTED_DISTANCE * INVERTED_DISTANCE;
 
     /*--------------------------------------*
      *  FINGER RING INTERACTION
      *--------------------------------------*/
 
+
+//add norm_speed? add scale_factor?
+
+
     // Repulsion burst from clicks/taps: push straight away from finger
-    PULL_X -= GRADIENT_TO_USER_X * 40 * NORM_REPULSION;
-    PULL_Y -= GRADIENT_TO_USER_Y * 40 * NORM_REPULSION;
+    PULL_X -= 40 * NORM_REPULSION * GRADIENT_TO_USER_X;
+    PULL_Y -= 40 * NORM_REPULSION * GRADIENT_TO_USER_Y;
 
     /*--------------------------------------*
-     *  CLAMP, APPLY, DECAY
+     *  MALE A CIRCLE, CLAMP, APPLY, DECAY
      *--------------------------------------*/
     // Circular clamp (keeps direction, avoids diamond / axis bias)
     const STAR_HYPOT = Math.hypot(STAR.momentumX, STAR.momentumY);
