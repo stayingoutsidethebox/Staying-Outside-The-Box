@@ -42,7 +42,7 @@ let NORM_REPULSION = 0;
 // Canvas size and star scaling
 let WIDTH = 0;
 let HEIGHT = 0;
-let SCALE_FACTOR = 0;
+let SCREEN_SIZE = 0;
 let MAX_STAR_COUNT = 0;
 let MAX_LINK_DISTANCE = 0;
 
@@ -67,7 +67,7 @@ function saveStarsToStorage() {
       JSON.stringify({
         width:           WIDTH,
         height:          HEIGHT,
-        scaleFactor:     SCALE_FACTOR,
+        scaleFactor:     SCREEN_SIZE,
         normRepulsion:   NORM_REPULSION,
         normUserSpeed:   NORM_USER_SPEED,
         userX:           USER_X,
@@ -188,7 +188,7 @@ function createStars() {
 
   // Keep size range valid even on very small screens
   const MIN_SIZE = 3;
-  const MAX_SIZE = SCALE_FACTOR / 400 || 3;
+  const MAX_SIZE = SCREEN_SIZE / 400 || 3;
 
   for (let I = 0; I < MAX_STAR_COUNT; I++) {
     STARS.push({
@@ -239,7 +239,7 @@ function moveStars() {
      *--------------------------------------*/
 
 
-if (NORM_USER_SPEED > 0.001 && USER_DISTANCE < MAX_INFLUENCE) {
+if (NORM_USER_SPEED > 0.001 && USER_DISTANCE < SCREEN_SIZE * 0.2) {
   // Ring params (simple + stable)
   const RING_RADIUS = 0.8;
   const RING_WIDTH  = 0.25;
@@ -416,7 +416,7 @@ function resizeCanvas() {
 
   const OLD_WIDTH = WIDTH;
   const OLD_HEIGHT = HEIGHT;
-  const OLD_SCALE_FACTOR = SCALE_FACTOR || 1;
+  const OLD_SCREEN_SIZE = SCREEN_SIZE || 1;
 
   WIDTH = window.innerWidth || 0;
   HEIGHT = window.innerHeight || 0;
@@ -424,15 +424,15 @@ function resizeCanvas() {
   CANVAS.width = WIDTH;
   CANVAS.height = HEIGHT;
 
-  SCALE_FACTOR = Math.min(WIDTH + HEIGHT, 2000);
-  MAX_STAR_COUNT = SCALE_FACTOR / 10;
-  MAX_LINK_DISTANCE = SCALE_FACTOR / 10;
+  SCREEN_SIZE = Math.min(WIDTH + HEIGHT, 2000);
+  MAX_STAR_COUNT = SCREEN_SIZE / 10;
+  MAX_LINK_DISTANCE = SCREEN_SIZE / 10;
 
   // Rescale stars if we already had a previous size
   if (OLD_WIDTH !== 0 && OLD_HEIGHT !== 0) {
     const SCALE_X = WIDTH / OLD_WIDTH;
     const SCALE_Y = HEIGHT / OLD_HEIGHT;
-    const SCALE_SIZE = SCALE_FACTOR / OLD_SCALE_FACTOR;
+    const SCALE_SIZE = SCREEN_SIZE / OLD_SCREEN_SIZE;
 
     for (const STAR of STARS) {
       STAR.x *= SCALE_X;
