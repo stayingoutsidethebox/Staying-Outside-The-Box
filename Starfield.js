@@ -210,6 +210,25 @@ function createStars() {
   }
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /*---------- Star animation step ----------*/
 // Move, fade, and wrap stars around the screen
 function moveStars() {
@@ -233,7 +252,7 @@ function moveStars() {
      *--------------------------------------*/
 
 
-//add norm_speed? add scale_factor?
+    //add norm_speed? add scale_factor?
 
 
     // Repulsion burst from clicks/taps: push straight away from finger
@@ -263,7 +282,6 @@ function moveStars() {
     if (PULL_HYPOT > 5) {
       PULL_X *= 5 / PULL_HYPOT;
       PULL_Y *= 5 / PULL_HYPOT;
-    }
     
     // Apply final movement, while easing back to passive movement and adding passive drift
     STAR.x += STAR.vx * (NORM_INV_DIST * NORM_USER_SPEED * 20 + 1) + PULL_X;
