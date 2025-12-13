@@ -222,12 +222,11 @@ function moveStars() {
 
     const X_DISTANCE = USER_X - STAR.x;
     const Y_DISTANCE = USER_Y - STAR.y;
-    const USER_DISTANCE = 1 + Math.hypot(X_DISTANCE, Y_DISTANCE);
-    const NORM_INV_DIST = Math.max(1, 1 / USER_DISTANCE);
-
-    // Normalized (0-1) gradient towards user
-    const NORM_GRAD_TO_USER_X = 4 * X_DISTANCE * NORM_INV_DIST * NORM_INV_DIST;
-    const NORM_GRAD_TO_USER_Y = 4 * Y_DISTANCE * NORM_INV_DIST * NORM_INV_DIST;
+    const USER_DISTANCE = Math.hypot(X_DISTANCE, Y_DISTANCE) || 1;
+    const INVERTED_DISTANCE = 1 / USER_DISTANCE;
+    // Normalized gradient towards user
+    const NORM_GRAD_TO_USER_X = X_DISTANCE * INVERTED_DISTANCE * INVERTED_DISTANCE; 
+    const NORM_GRAD_TO_USER_Y = Y_DISTANCE * INVERTED_DISTANCE * INVERTED_DISTANCE; 
 
     /*--------------------------------------*
      *  FINGER RING INTERACTION
