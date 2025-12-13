@@ -37,7 +37,7 @@ let USER_X = 0;
 let USER_Y = 0;
 let USER_TIME = 0;
 let NORM_USER_SPEED = 0;
-let NORM_REPULSION = 0;
+let REPEL_TIMER = 0;
 
 // Canvas size and star scaling
 let WIDTH = 0;
@@ -68,7 +68,7 @@ function saveStarsToStorage() {
         width:           WIDTH,
         height:          HEIGHT,
         scaleFactor:     SCREEN_SIZE,
-        normRepulsion:   NORM_REPULSION,
+        normRepulsion:   REPEL_TIMER,
         normUserSpeed:   NORM_USER_SPEED,
         userX:           USER_X,
         userY:           USER_Y,
@@ -150,7 +150,7 @@ function initStars() {
           }
 
           // Restore motion state and pointer info
-          NORM_REPULSION   = META.normRepulsion    ?? 0;
+          REPEL_TIMER   = META.normRepulsion    ?? 0;
           NORM_USER_SPEED = META.normUserSpeed ?? 0;
 
           if (typeof META.userX === 'number') USER_X = META.userX;
@@ -234,7 +234,8 @@ function createStars() {
 function moveStars() {
   if (!HAS_CANVAS || !STARS.length) return;
   /* ADJUSTMENTS */
-  const REPEL_BURST = 400;
+  const GLOBAL_INFLUENCE = 10;
+  const REPEL_POWER = 400;
   
   for (const STAR of STARS) {
     // Accumulator for everything that moves this star this frame
@@ -258,8 +259,8 @@ function moveStars() {
 
 
     // Repulsion burst from clicks/taps: push straight away from finger
-    PULL_X -= REPEL_BURST * NORM_REPULSION * NORM_GRAD_TO_USER_X;
-    PULL_Y -= REPEL_BURST * NORM_REPULSION * NORM_GRAD_TO_USER_Y;
+    PULL_X -= REPEL_POWER * REPEL_TIMER * NORM_GRAD_TO_USER_X;
+    PULL_Y -= REPEL_POWER * REPEL_TIMER * NORM_GRAD_TO_USER_Y;
 
     /*--------------------------------------*
      *  MALE A CIRCLE, CLAMP, APPLY, DECAY
@@ -287,8 +288,8 @@ function moveStars() {
     }
     
     // Apply final movement, while easing back to passive movement and adding passive drift
-    STAR.x += STAR.vx * (NORM_INV_DIST * NORM_USER_SPEED * 20 + 1) + PULL_X;
-    STAR.y += STAR.vy * (NORM_INV_DIST * NORM_USER_SPEED * 20 + 1) + PULL_Y;
+    STAR.x += STAR.vx * (NORM_INV_DIST * NORM_USER_SPEED * GLOBAL_INFLUENCE + 1) + PULL_X;
+    STAR.y += STAR.vy * (NORM_INV_DIST * NORM_USER_SPEED * GLOBAL_INFLUENCE + 1) + PULL_Y;
 
 
 
@@ -340,11 +341,11 @@ function moveStars() {
   NORM_USER_SPEED *= 0.94;
   if (NORM_USER_SPEED < 0.001) NORM_USER_SPEED = 0;
 
-  NORM_REPULSION *= 0.85;
-  if (NORM_REPULSION < 0.001) NORM_REPULSION = 0;
+  REPEL_TIMER *= 0.85;
+  if (REPEL_TIMER < 0.001) REPEL_TIMER = 0;
 
   document.getElementById('repulsion').textContent =
-    NORM_REPULSION.toFixed(3);
+    REPEL_TIMER.toFixed(3);
   document.getElementById('speed').textContent =
     NORM_USER_SPEED.toFixed(3);
 }
@@ -491,7 +492,7 @@ function updateSpeed(X, Y, TIME) {
 
 // Shared start handler for mouse/touch pointer interactions
 function startPointerInteraction(X, Y, TIME) {
-  NORM_REPULSION = 1; // Repel on click/touch
+  REPEL_TIMER = 1; // Repel on click/touch
   updateSpeed(X, Y, TIME);
 }
 
