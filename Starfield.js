@@ -242,10 +242,10 @@ function moveStars() {
     const X_DISTANCE = USER_X - STAR.x;
     const Y_DISTANCE = USER_Y - STAR.y;
     const USER_DISTANCE = Math.hypot(X_DISTANCE, Y_DISTANCE) || 1;
-    const INVERTED_DISTANCE = 1 / USER_DISTANCE;
+    const NORM_INV_DIST = 1 / USER_DISTANCE;
     // Normalized gradient towards user
-    const NORM_GRAD_TO_USER_X = X_DISTANCE * INVERTED_DISTANCE * INVERTED_DISTANCE; 
-    const NORM_GRAD_TO_USER_Y = Y_DISTANCE * INVERTED_DISTANCE * INVERTED_DISTANCE; 
+    const NORM_GRAD_TO_USER_X = X_DISTANCE * NORM_INV_DIST * NORM_INV_DIST; 
+    const NORM_GRAD_TO_USER_Y = Y_DISTANCE * NORM_INV_DIST * NORM_INV_DIST; 
 
     /*--------------------------------------*
      *  FINGER RING INTERACTION
@@ -282,6 +282,7 @@ function moveStars() {
     if (PULL_HYPOT > 5) {
       PULL_X *= 5 / PULL_HYPOT;
       PULL_Y *= 5 / PULL_HYPOT;
+    }
     
     // Apply final movement, while easing back to passive movement and adding passive drift
     STAR.x += STAR.vx * (NORM_INV_DIST * NORM_USER_SPEED * 20 + 1) + PULL_X;
