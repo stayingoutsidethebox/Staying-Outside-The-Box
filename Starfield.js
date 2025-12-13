@@ -247,23 +247,31 @@ function moveStars() {
       const RING_FORCE  = 18;
 
       // Signed distance from ring
-      const d = USER_DISTANCE - RING_RADIUS;
+      // Signed distance from ring
+const d = USER_DISTANCE - RING_RADIUS;
 
-      // Smooth falloff (1 near ring, 0 far away)
-      const t = Math.max(0, 1 - Math.abs(d) / RING_WIDTH);
+// Dead zone at the ring (keep your fan-out feel)
+const DEAD_BAND = 6 * (SCALE_FACTOR / 1000);
+if (!Math.abs(d) < DEAD_BAND) {
+  // ASYMMETRIC tolerance bands:
+  // - inside (repel) is tight
+  // - outside (attract) is wider
+  const INNER_WIDTH = 18 * (SCALE_FACTOR / 1000);  // try 10–25
+  const OUTER_WIDTH = 90 * (SCALE_FACTOR / 1000);  // try 60–140
 
-      // Dead zone prevents jitter at equilibrium
-      const DEAD_BAND = 6 * (SCALE_FACTOR / 1000);
+  const width = d < 0 ? INNER_WIDTH : OUTER_WIDTH;
 
-      let dir = -Math.sign(d);
-      if (Math.abs(d) < DEAD_BAND) dir = 0;
+  // 1 at the boundary, 0 at the edge of the band
+  const t = Math.max(0, 1 - Math.abs(d) / width);
 
-      // Final smooth radial force
-      const F = dir * RING_FORCE * t * t;
+  // direction: inside -> push outward, outside -> pull inward
+  const dir = d < 0 ? +1 : -1;
 
-      PULL_X += TOWARDS_USER_X * F;
-      PULL_Y += TOWARDS_USER_Y * F;
+  // Smooth force (so it doesn't snap)
+  const F = dir * RING_FORCE * t * t;
 
+  PULL_X += TOWARDS_USER_X * F;
+  PULL_Y += TOWARDS_USER_Y * F;
       // Repulsion burst from clicks/taps
       PULL_X -= TOWARDS_USER_X * 40 * NORM_REPULSION;
       PULL_Y -= TOWARDS_USER_Y * 40 * NORM_REPULSION;
