@@ -285,6 +285,7 @@ if (NORM_USER_SPEED > 0.001 && USER_DISTANCE < MAX_INFLUENCE) {
   STAR.momentumY += TOWARDS_USER_Y * MOMENTUM_FACTOR;
   
   // Passive center pull
+const CENTER_PULL = 0.35;
   const CENTER_FADE = Math.max(
   0,
   1 - USER_DISTANCE / MAX_INFLUENCE
