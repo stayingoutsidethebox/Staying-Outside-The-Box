@@ -270,7 +270,7 @@ function moveStars() {
 
 
     // Finger influence only matters when you've moved recently, and if in bounds
-if (NORM_USER_SPEED > 0.001 && USER_DISTANCE < MAX_INFLUENCE) {
+if (USER_DISTANCE < MAX_INFLUENCE) {
   // Make the ring
   const RING_THICKNESS = 0.2;
   const RING_RADIUS = 0.8;
@@ -287,6 +287,10 @@ if (NORM_USER_SPEED > 0.001 && USER_DISTANCE < MAX_INFLUENCE) {
   // Passive center pull
   PULL_X += TOWARDS_USER_X * 5;
   PULL_Y += TOWARDS_USER_Y * 5;
+  
+  // Repulsion burst from clicks/taps: push straight away from finger
+    PULL_X -= TOWARDS_USER_X * 40 * NORM_REPULSION;
+    PULL_Y -= TOWARDS_USER_Y * 40 * NORM_REPULSION;
 }
 
     // Circular clamp (keeps direction, avoids diamond / axis bias)
@@ -303,10 +307,6 @@ if (NORM_USER_SPEED > 0.001 && USER_DISTANCE < MAX_INFLUENCE) {
     PULL_Y += STAR.momentumY;
     STAR.momentumX *= 0.99;
     STAR.momentumY *= 0.99;
-    
-    // Repulsion burst from clicks/taps: push straight away from finger
-    PULL_X -= TOWARDS_USER_X * 40 * NORM_REPULSION * Math.max(0, 1 - USER_DISTANCE / (1.5 * MAX_INFLUENCE));
-    PULL_Y -= TOWARDS_USER_Y * 40 * NORM_REPULSION * Math.max(0, 1 - USER_DISTANCE / (1.5 * MAX_INFLUENCE));
 
     // Clamp and "circularize" combined user influence so it never explodes
     const PULL_HYPOT = Math.hypot(PULL_X, PULL_Y);
