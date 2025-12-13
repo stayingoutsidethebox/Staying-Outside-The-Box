@@ -237,7 +237,7 @@ function moveStars() {
     /*--------------------------------------*
      *  FINGER RING INTERACTION
      *--------------------------------------*/
-    not b bevause norm_user_speed ends up at 0, ill just add inverted distance to let ring takeover when close. c no its supposedd to look like it follows finger, no finger means no ring. ive removed the max_distance to keep the ring the same real life size on all screens. what should i change width and radius to?
+
 
 if (NORM_USER_SPEED > 0.001 && USER_DISTANCE < MAX_INFLUENCE) {
   // Ring params (simple + stable)
