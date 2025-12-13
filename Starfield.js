@@ -320,8 +320,8 @@ if (NORM_USER_SPEED > 0.001 && USER_DISTANCE < MAX_INFLUENCE) {
     }
     
     // Apply final movement, while easing back to passive movement and adding passive drift
-    STAR.x += STAR.vx * (NORM_USER_SPEED * 10 + 1) + PULL_X;
-    STAR.y += STAR.vy * (NORM_USER_SPEED * 10 + 1) + PULL_Y;
+    STAR.x += STAR.vx * (NORM_USER_SPEED * 20 + 1) + PULL_X;
+    STAR.y += STAR.vy * (NORM_USER_SPEED * 20 + 1) + PULL_Y;
 
 
 
