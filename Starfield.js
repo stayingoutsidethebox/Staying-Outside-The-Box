@@ -285,8 +285,8 @@ if (NORM_USER_SPEED > 0.001 && USER_DISTANCE < MAX_INFLUENCE) {
   STAR.momentumY += TOWARDS_USER_Y * MOMENTUM_FACTOR;
   
   // Passive center pull
-  PULL_X += TOWARDS_USER_X * 5;
-  PULL_Y += TOWARDS_USER_Y * 5;
+  PULL_X += TOWARDS_USER_X;
+  PULL_Y += TOWARDS_USER_Y;
   
   // Repulsion burst from clicks/taps: push straight away from finger
     PULL_X -= TOWARDS_USER_X * 40 * NORM_REPULSION;
