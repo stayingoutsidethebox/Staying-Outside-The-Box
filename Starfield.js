@@ -256,8 +256,8 @@ function moveStars() {
 
 
     // Repulsion burst from clicks/taps: push straight away from finger
-    PULL_X -= 40 * NORM_REPULSION * NORM_GRAD_TO_USER_X;
-    PULL_Y -= 40 * NORM_REPULSION * NORM_GRAD_TO_USER_Y;
+    PULL_X -= 400 * NORM_REPULSION * NORM_GRAD_TO_USER_X;
+    PULL_Y -= 400 * NORM_REPULSION * NORM_GRAD_TO_USER_Y;
 
     /*--------------------------------------*
      *  MALE A CIRCLE, CLAMP, APPLY, DECAY
