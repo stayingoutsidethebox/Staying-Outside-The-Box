@@ -36,12 +36,8 @@ let FREEZE_CONSTELLATION = false;
 let USER_X = 0;
 let USER_Y = 0;
 let USER_TIME = 0;
-let POINTER_SPEED = 0;
-let SMOOTH_SPEED = 0;
 let NORM_USER_SPEED = 0;
-
-// Repulsion strength
-let REPULSION_TIME = 0;
+let NORM_REPULSION = 0;
 
 // Canvas size and star scaling
 let WIDTH = 0;
@@ -72,13 +68,11 @@ function saveStarsToStorage() {
         width:           WIDTH,
         height:          HEIGHT,
         scaleFactor:     SCALE_FACTOR,
-        repulsionValue:  REPULSION_TIME,
-        cleanedUserSpeed:NORM_USER_SPEED,
-        smoothSpeed:     SMOOTH_SPEED,
-        pointerSpeed:    POINTER_SPEED,
-        lastX:           USER_X,
-        lastY:           USER_Y,
-        lastTime:        USER_TIME
+        normRepulsion:   NORM_REPULSION,
+        normUserSpeed:   NORM_USER_SPEED,
+        userX:           USER_X,
+        userY:           USER_Y,
+        userTime:        USER_TIME
       })
     );
   } catch (ERR) {
@@ -156,17 +150,15 @@ function initStars() {
           }
 
           // Restore motion state and pointer info
-          REPULSION_TIME   = META.repulsionValue    ?? 0;
-          NORM_USER_SPEED = META.cleanedUserSpeed ?? 0;
-          SMOOTH_SPEED       = META.smoothSpeed      ?? 0;
-          POINTER_SPEED      = META.pointerSpeed     ?? 0;
+          NORM_REPULSION   = META.normRepulsion    ?? 0;
+          NORM_USER_SPEED = META.normUserSpeed ?? 0;
 
-          if (typeof META.lastX === 'number') USER_X = META.lastX;
-          if (typeof META.lastY === 'number') USER_Y = META.lastY;
+          if (typeof META.userX === 'number') USER_X = META.userX;
+          if (typeof META.userY === 'number') USER_Y = META.userY;
 
           // USER_TIME is just a "pointer ever existed" flag in moveStars
-          if (typeof META.lastTime === 'number' && META.lastTime > 0) {
-            USER_TIME = META.lastTime;
+          if (typeof META.userTime === 'number' && META.userTime > 0) {
+            USER_TIME = META.userTime;
           } else {
             USER_TIME = (window.performance && performance.now)
               ? performance.now()
@@ -289,7 +281,7 @@ if (NORM_USER_SPEED > 0.001 && USER_DISTANCE < MAX_INFLUENCE) {
   const IS_IN_OR_OUT =(Math.min(USER_DISTANCE / MAX_INFLUENCE, 1) - RING_RADIUS);
   const THICKENED_SHAPE = Math.exp(-(IS_IN_OR_OUT * IS_IN_OR_OUT) / (2 * RING_THICKNESS * RING_THICKNESS));
   const FINAL_SHAPE = (IS_IN_OR_OUT < 0 ? INNER_REPEL : OUTER_ATTRACT) * IS_IN_OR_OUT * THICKENED_SHAPE;
-  const MOMENTUM_FACTOR = FINAL_SHAPE * NORM_USER_SPEED * (1 - Math.min(REPULSION_TIME / 30, 1));
+  const MOMENTUM_FACTOR = FINAL_SHAPE * NORM_USER_SPEED * (1 - Math.min(NORM_REPULSION / 30, 1));
   STAR.momentumX += TOWARDS_USER_X * MOMENTUM_FACTOR;
   STAR.momentumY += TOWARDS_USER_Y * MOMENTUM_FACTOR;
   
@@ -314,8 +306,8 @@ PULL_Y += TOWARDS_USER_Y * 5;
     STAR.momentumY *= 0.99;
     
     // Repulsion burst from clicks/taps: push straight away from finger
-    PULL_X -= TOWARDS_USER_X * 40 * REPULSION_TIME * Math.max(0, 1 - USER_DISTANCE / (1.5 * MAX_INFLUENCE)) * NORM_INV_DISTANCE;
-    PULL_Y -= TOWARDS_USER_Y * 40 * REPULSION_TIME * Math.max(0, 1 - USER_DISTANCE / (1.5 * MAX_INFLUENCE)) * NORM_INV_DISTANCE;
+    PULL_X -= TOWARDS_USER_X * 40 * NORM_REPULSION * Math.max(0, 1 - USER_DISTANCE / (1.5 * MAX_INFLUENCE)) * NORM_INV_DISTANCE;
+    PULL_Y -= TOWARDS_USER_Y * 40 * NORM_REPULSION * Math.max(0, 1 - USER_DISTANCE / (1.5 * MAX_INFLUENCE)) * NORM_INV_DISTANCE;
 
     // Clamp and "circularize" combined user influence so it never explodes
     const PULL_HYPOT = Math.hypot(PULL_X, PULL_Y);
@@ -369,10 +361,10 @@ PULL_Y += TOWARDS_USER_Y * 5;
   // Let the user influence slowly die out
   NORM_USER_SPEED *= 0.94;
   if (NORM_USER_SPEED < 0.001) NORM_USER_SPEED = 0;
-  REPULSION_TIME *= 0.85;
-  if (REPULSION_TIME < 0.001) REPULSION_TIME = 0;
+  NORM_REPULSION *= 0.85;
+  if (NORM_REPULSION < 0.001) NORM_REPULSION = 0;
         
-document.getElementById('repulsion').textContent = REPULSION_TIME.toFixed(3);
+document.getElementById('repulsion').textContent = NORM_REPULSION.toFixed(3);
 document.getElementById('speed').textContent = NORM_USER_SPEED.toFixed(3);
 }
 
@@ -484,23 +476,22 @@ function animate() {
 
 // Update pointer speed and derived NORM_USER_SPEED
 function updateSpeed(X, Y, TIME) {
-  // Fallback if a weird environment passes an invalid timestamp
-  if (!Number.isFinite(TIME)) {
-    TIME = (window.performance && performance.now)
-      ? performance.now()
-      : Date.now();
-  }
+  if (!Number.isFinite(TIME)) TIME = performance.now ? performance.now() : Date.now();
 
-  const DT = TIME - USER_TIME;
-  USER_TIME = TIME;
+  const DT = Math.max(1, TIME - USER_TIME);           
+  const DX = X - USER_X;
+  const DY = Y - USER_Y;
+  const USER_SPEED = Math.hypot(DX, DY) / DT;            
+  
+  NORM_USER_SPEED = Math.min(USER_SPEED / 1, 1);   
   USER_X = X;
   USER_Y = Y;
-  NORM_USER_SPEED = Math.min(Math.hypot(X - USER_X, Y - USER_Y) / DT / 1, 1);
+  USER_TIME = TIME;
 }
 
 // Shared start handler for mouse/touch pointer interactions
 function startPointerInteraction(X, Y, TIME) {
-  REPULSION_TIME = 1; // Repel on click/touch
+  NORM_REPULSION = 1; // Repel on click/touch
   updateSpeed(X, Y, TIME);
 }
 
