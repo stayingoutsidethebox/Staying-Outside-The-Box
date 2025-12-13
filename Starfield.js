@@ -272,9 +272,9 @@ function moveStars() {
     // Finger influence only matters when you've moved recently, and if in bounds
 if (NORM_USER_SPEED > 0.001 && USER_DISTANCE < MAX_INFLUENCE) {
   // Ring params (simple + stable)
-  const RING_RADIUS = 0.8 * MAX_INFLUENCE;   // ring radius in pixels
-  const RING_WIDTH  = 0.25 * MAX_INFLUENCE;  // softness / tolerance band
-  const RING_FORCE  = 3.0;                   // overall strength
+  const RING_RADIUS = 140;
+  const RING_WIDTH  = 70;
+  const RING_FORCE  = 18;                
 
   // signed distance from the ring: negative = inside, positive = outside
   const d = USER_DISTANCE - RING_RADIUS;
@@ -320,8 +320,8 @@ if (NORM_USER_SPEED > 0.001 && USER_DISTANCE < MAX_INFLUENCE) {
     }
     
     // Apply final movement, while easing back to passive movement and adding passive drift
-    STAR.x += STAR.vx * (NORM_USER_SPEED * 20 + 1) + PULL_X;
-    STAR.y += STAR.vy * (NORM_USER_SPEED * 20 + 1) + PULL_Y;
+    STAR.x += STAR.vx * (INVERTED_DISTANCE * NORM_USER_SPEED * 20 + 1) + PULL_X;
+    STAR.y += STAR.vy * (INVERTED_DISTANCE * NORM_USER_SPEED * 20 + 1) + PULL_Y;
 
 
 
