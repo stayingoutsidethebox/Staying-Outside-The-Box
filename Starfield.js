@@ -275,7 +275,7 @@ if (NORM_USER_SPEED > 0.001 && USER_DISTANCE < MAX_INFLUENCE) {
   const RING_THICKNESS = 0.2;
   const RING_RADIUS = 0.8;
   const INNER_REPEL = 4;
-  const OUTER_ATTRACT = 5;
+  const OUTER_ATTRACT = 10;
 
   const IS_IN_OR_OUT =(Math.min(USER_DISTANCE / MAX_INFLUENCE, 1) - RING_RADIUS);
   const THICKENED_SHAPE = Math.exp(-(IS_IN_OR_OUT * IS_IN_OR_OUT) / (2 * RING_THICKNESS * RING_THICKNESS));
@@ -285,8 +285,8 @@ if (NORM_USER_SPEED > 0.001 && USER_DISTANCE < MAX_INFLUENCE) {
   STAR.momentumY += TOWARDS_USER_Y * MOMENTUM_FACTOR;
   
   // Passive center pull
-  PULL_X += TOWARDS_USER_X;
-  PULL_Y += TOWARDS_USER_Y;
+  PULL_X += TOWARDS_USER_X / 2;
+  PULL_Y += TOWARDS_USER_Y / 2;
   
   // Repulsion burst from clicks/taps: push straight away from finger
     PULL_X -= TOWARDS_USER_X * 40 * NORM_REPULSION;
