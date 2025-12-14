@@ -255,13 +255,14 @@ function moveStars() {
     STAR.momentumX = Math.max(-5, Math.min(STAR.momentumX, 5));
     STAR.momentumY = Math.max(-5, Math.min(STAR.momentumY, 5));
     
+    const ATTRACT = 100000;
+    const REPEL = 8 * ATTRACT;
     // Gravity well around user
-    STAR.momentumX += 100000 * USER_SPEED * GRADIENT_TO_USER_X;
-    STAR.momentumY += 100000 * USER_SPEED * GRADIENT_TO_USER_Y;
+    STAR.momentumX += ATTRACT * USER_SPEED * GRADIENT_TO_USER_X;
+    STAR.momentumY += ATTRACT * USER_SPEED * GRADIENT_TO_USER_Y;
     // Repel immediate ring around user
-//need to use the same fall off variable as attraction
-    STAR.momentumX -= 150000000 * USER_SPEED * GRADIENT_TO_USER_X * INV_GRADIENT_DISTANCE;
-    STAR.momentumY -= 150000000 * USER_SPEED * GRADIENT_TO_USER_Y * INV_GRADIENT_DISTANCE;
+    STAR.momentumX -= REPEL * USER_SPEED * GRADIENT_TO_USER_X * INV_GRADIENT_DISTANCE;
+    STAR.momentumY -= REPEL * USER_SPEED * GRADIENT_TO_USER_Y * INV_GRADIENT_DISTANCE;
     
     // Clamp ring momentum high, and make it form a circle
     const LIMIT = 10;
