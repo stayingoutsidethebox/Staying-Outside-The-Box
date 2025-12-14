@@ -248,8 +248,8 @@ function moveStars() {
     STAR.momentumY += 10 * USER_SPEED * STAR.vy;
 
     // Gravity well around user
-    STAR.momentumX += 30 * USER_SPEED * GRADIENT_TO_USER_X;
-    STAR.momentumY += 30 * USER_SPEED * GRADIENT_TO_USER_Y;
+    STAR.momentumX += 300 * USER_SPEED * GRADIENT_TO_USER_X;
+    STAR.momentumY += 300 * USER_SPEED * GRADIENT_TO_USER_Y;
 
     // Clamp momentum, and make it form a circle
     const STAR_HYPOT = Math.hypot(STAR.momentumX, STAR.momentumY);
