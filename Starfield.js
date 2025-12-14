@@ -249,29 +249,24 @@ function moveStars() {
     /*--------------------------------------*
      *  FORM RING AROUND USER
      *--------------------------------------*/
-    // Increase all stars speed with user movememnt
-    const RING_RADIUS = 100;
-    const RING_SPEED = 200;
-    const GLOBAL_SPEED = 5;
-    STAR.momentumX += GLOBAL_SPEED * USER_SPEED * STAR.vx * (1 + RING_SPEED / (DISTANCE + RING_RADIUS));
-    STAR.momentumY += GLOBAL_SPEED * USER_SPEED * STAR.vy * (1 + RING_SPEED / (DISTANCE + RING_RADIUS));
+    // Increase all star speed (clamped) with user interaction
+    STAR.momentumX += GLOBAL_SPEED * USER_SPEED * STAR.vx;
+    STAR.momentumY += GLOBAL_SPEED * USER_SPEED * STAR.vy;
+    STAR.momentumX = Math.max(-5, Math.min(STAR.momentumX, 5));
+    STAR.momentumY = Math.max(-5, Math.min(STAR.momentumY, 5));
+    
     // Gravity well around user
     STAR.momentumX += 200 * USER_SPEED * GRADIENT_TO_USER_X;
     STAR.momentumY += 200 * USER_SPEED * GRADIENT_TO_USER_Y;
-    // Repel immediate area around user
+    // Repel immediate ring around user
 //need to use the same fall off variable as attraction
     //STAR.momentumX -= (dx / DISTANCE) * REPULSE;
     //STAR.momentumY -= (dy / DISTANCE) * REPULSE;
-
-    // Clamp momentum, and make it form a circle
-    const STAR_HYPOT = Math.hypot(STAR.momentumX, STAR.momentumY);
-    if (STAR_HYPOT < 0.001) {
-      STAR.momentumX = 0;
-      STAR.momentumY = 0;
-    } else if (STAR_HYPOT > 10) {
-      STAR.momentumX *= 10 / STAR_HYPOT;
-      STAR.momentumY *= 10 / STAR_HYPOT;
-    }
+    
+    // Clamp ring momentum high, and make it form a circle
+const cap = 10; // or 12, 15… (not 50)
+const h = Math.hypot(STAR.momentumX, STAR.momentumY);
+if (h > cap) { STAR.momentumX *= cap / h; STAR.momentumY *= cap / h; }
     
     // Apply calculated forces
     STAR.x += STAR.vx + STAR.momentumX - (REPEL_TIMER * GRADIENT_TO_USER_X);
