@@ -246,6 +246,9 @@ function moveStars() {
     const GRADIANT_TO_USER_X = X_DISTANCE * (INV_GRADIENT_DISTANCE ** 2); 
     const GRADIANT_TO_USER_Y = Y_DISTANCE * (INV_GRADIENT_DISTANCE ** 2); 
 
+    STAR.momentumX += USER_SPEED;
+    STAR.momentumY += USER_SPEED;
+
     //STAR.momentumX += USER_SPEED * GRADIANT_TO_USER_X;
     //STAR.momentumY += USER_SPEED * GRADIANT_TO_USER_Y;
 
@@ -259,8 +262,8 @@ function moveStars() {
       STAR.momentumY *= 5 / STAR_HYPOT;
     }
     
-    STAR.x += (STAR.vx * (USER_SPEED + 1)) + STAR.momentumX - (REPEL_TIMER * GRADIANT_TO_USER_X);
-    STAR.y += (STAR.vy * (USER_SPEED + 1)) + STAR.momentumY - (REPEL_TIMER * GRADIANT_TO_USER_Y);
+    STAR.x += STAR.vx + STAR.momentumX - (REPEL_TIMER * GRADIANT_TO_USER_X);
+    STAR.y += STAR.vy + STAR.momentumY - (REPEL_TIMER * GRADIANT_TO_USER_Y);
 
     STAR.momentumX *= 0.99;
     STAR.momentumY *= 0.99;
@@ -311,10 +314,10 @@ function moveStars() {
    *  GLOBAL DECAY
    *--------------------------------------*/
   USER_SPEED *= 0.97;
-  if (USER_SPEED < 0.001) USER_SPEED = 0;
+  if (USER_SPEED < 1) USER_SPEED = 0;
 
   REPEL_TIMER *= 0.85;
-  if (REPEL_TIMER < 0.001) REPEL_TIMER = 0;
+  if (REPEL_TIMER < 1) REPEL_TIMER = 0;
 
   document.getElementById('repulsion').textContent =
     REPEL_TIMER.toFixed(3);
