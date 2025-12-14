@@ -238,7 +238,9 @@ function moveStars() {
  
     const X_DISTANCE = USER_X - STAR.x;
     const Y_DISTANCE = USER_Y - STAR.y;
+    // Distance from user
     const DISTANCE = Math.hypot(X_DISTANCE, Y_DISTANCE) || 1;
+    // 0 = far, 1 = close
     const INV_GRADIENT_DISTANCE = 1 / DISTANCE;
     // Gradient towards user
     const GRADIENT_TO_USER_X = X_DISTANCE * (INV_GRADIENT_DISTANCE ** 2); 
@@ -248,8 +250,8 @@ function moveStars() {
     STAR.momentumY += 10 * USER_SPEED * STAR.vy;
 
     // Gravity well around user
-    STAR.momentumX += 300 * USER_SPEED * GRADIENT_TO_USER_X;
-    STAR.momentumY += 300 * USER_SPEED * GRADIENT_TO_USER_Y;
+    STAR.momentumX += 200 * USER_SPEED * GRADIENT_TO_USER_X;
+    STAR.momentumY += 200 * USER_SPEED * GRADIENT_TO_USER_Y;
 
     // Clamp momentum, and make it form a circle
     const STAR_HYPOT = Math.hypot(STAR.momentumX, STAR.momentumY);
@@ -320,7 +322,7 @@ function moveStars() {
   USER_SPEED *= 0.85;
   if (USER_SPEED < 0.001) USER_SPEED = 0;
 
-  REPEL_TIMER *= 0.85;
+  REPEL_TIMER *= 0.92;
   if (REPEL_TIMER < 0.001) REPEL_TIMER = 0;
 
   document.getElementById('repulsion').textContent =
@@ -475,7 +477,7 @@ function updateSpeed(X, Y, TIME) {
 
 // Shared start handler for mouse/touch pointer interactions
 function startPointerInteraction(X, Y, TIME) {
-  REPEL_TIMER = 2000; // Repel on click/touch
+  REPEL_TIMER = 1000; // Repel on click/touch
   updateSpeed(X, Y, TIME);
 }
 
