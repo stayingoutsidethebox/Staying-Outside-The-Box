@@ -270,7 +270,7 @@ function moveStars() {
     if (HYPOT > LIMIT) { STAR.momentumX *= LIMIT / HYPOT; STAR.momentumY *= LIMIT / HYPOT; }
     
     // All stars repel from pokes (clamped)
-    const GLOBAL_REPULSION = Math.min(5, REPEL_TIMER * GRADIENT_TO_USER_X / INV_GRADIENT_DISTANCE);
+    const GLOBAL_REPULSION = Math.min(3, REPEL_TIMER * GRADIENT_TO_USER_X / INV_GRADIENT_DISTANCE);
     
     // Apply calculated forces
     STAR.x += STAR.vx + STAR.momentumX - GLOBAL_REPULSION;
