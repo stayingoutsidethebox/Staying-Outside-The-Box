@@ -250,8 +250,8 @@ function moveStars() {
      *  FORM RING AROUND USER
      *--------------------------------------*/
     // Increase all star speed (clamped) with user interaction
-    STAR.momentumX += 10 * USER_SPEED * STAR.vx;
-    STAR.momentumY += 10 * USER_SPEED * STAR.vy;
+    STAR.momentumX += USER_SPEED * STAR.vx;
+    STAR.momentumY += USER_SPEED * STAR.vy;
     STAR.momentumX = Math.max(-5, Math.min(STAR.momentumX, 5));
     STAR.momentumY = Math.max(-5, Math.min(STAR.momentumY, 5));
     
@@ -264,9 +264,9 @@ function moveStars() {
     //STAR.momentumY -= (dy / DISTANCE) * REPULSE;
     
     // Clamp ring momentum high, and make it form a circle
-const cap = 10; // or 12, 15… (not 50)
-const h = Math.hypot(STAR.momentumX, STAR.momentumY);
-if (h > cap) { STAR.momentumX *= cap / h; STAR.momentumY *= cap / h; }
+const LIMIT = 10;
+const HYPOT = Math.hypot(STAR.momentumX, STAR.momentumY);
+if (HYPOT > LIMIT) { STAR.momentumX *= LIMIT / HYPOT; STAR.momentumY *= LIMIT / HYPOT; }
     
     // Apply calculated forces
     STAR.x += STAR.vx + STAR.momentumX - (REPEL_TIMER * GRADIENT_TO_USER_X);
