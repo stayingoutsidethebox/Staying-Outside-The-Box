@@ -234,7 +234,7 @@ function createStars() {
 function moveStars() {
   if (!HAS_CANVAS || !STARS.length) return;
   /* ADJUSTMENTS */
-  const GLOBAL_INFLUENCE = 3000;
+  const GLOBAL_INFLUENCE = 1500;
   const REPEL_POWER = 200;
   
   for (const STAR of STARS) {
@@ -339,7 +339,7 @@ function moveStars() {
   /*--------------------------------------*
    *  GLOBAL DECAY
    *--------------------------------------*/
-  USER_SPEED *= 0.94;
+  USER_SPEED *= 0.85;
   if (USER_SPEED < 0.001) USER_SPEED = 0;
 
   REPEL_TIMER *= 0.85;
