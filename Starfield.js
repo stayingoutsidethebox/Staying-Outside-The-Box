@@ -255,8 +255,8 @@ function moveStars() {
     STAR.momentumX = Math.max(-5, Math.min(STAR.momentumX, 5));
     STAR.momentumY = Math.max(-5, Math.min(STAR.momentumY, 5));
     
-    const ATTRACT = 100000;
-    const REPEL = 80 * ATTRACT;
+    const ATTRACT = 150000;
+    const REPEL = 60 * ATTRACT;
     // Gravity well around user
     STAR.momentumX += ATTRACT * USER_SPEED * GRADIENT_TO_USER_X;
     STAR.momentumY += ATTRACT * USER_SPEED * GRADIENT_TO_USER_Y;
@@ -270,7 +270,7 @@ function moveStars() {
     if (HYPOT > LIMIT) { STAR.momentumX *= LIMIT / HYPOT; STAR.momentumY *= LIMIT / HYPOT; }
     
     // All stars repel from pokes (clamped)
-    const GLOBAL_REPULSION = Math.min(6, REPEL_TIMER * GRADIENT_TO_USER_X);
+    const GLOBAL_REPULSION = Math.min(5, REPEL_TIMER * GRADIENT_TO_USER_X / INV_GRADIENT_DISTANCE);
     
     // Apply calculated forces
     STAR.x += STAR.vx + STAR.momentumX - GLOBAL_REPULSION;
