@@ -260,8 +260,8 @@ function moveStars() {
     STAR.momentumY += 300 * USER_SPEED * GRADIENT_TO_USER_Y;
     // Repel immediate ring around user
 //need to use the same fall off variable as attraction
-    STAR.momentumX -= 9000 * USER_SPEED * GRADIENT_TO_USER_X * INV_GRADIENT_DISTANCE;
-    STAR.momentumY -= 9000 * USER_SPEED * GRADIENT_TO_USER_Y * INV_GRADIENT_DISTANCE;
+    STAR.momentumX -= 12000 * USER_SPEED * GRADIENT_TO_USER_X * INV_GRADIENT_DISTANCE;
+    STAR.momentumY -= 12000 * USER_SPEED * GRADIENT_TO_USER_Y * INV_GRADIENT_DISTANCE;
     
     // Clamp ring momentum high, and make it form a circle
     const LIMIT = 10;
