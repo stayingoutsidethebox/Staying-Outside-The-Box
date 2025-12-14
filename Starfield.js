@@ -265,8 +265,8 @@ function moveStars() {
     STAR.y += STAR.vy + STAR.momentumY - (REPEL_TIMER * GRADIANT_TO_USER_Y);
     
     // Decay momentum
-    STAR.momentumX = Math.sign(STAR.momentumX) * Math.max(0, Math.abs(STAR.momentumX) - 0.5);
-    STAR.momentumY = Math.sign(STAR.momentumY) * Math.max(0, Math.abs(STAR.momentumY) - 0.5);
+    STAR.momentumX *= 0.99;
+    STAR.momentumY *= 0.99;
 
 
 
@@ -314,10 +314,10 @@ function moveStars() {
    *  GLOBAL DECAY
    *--------------------------------------*/
   USER_SPEED *= 0.97;
-  if (USER_SPEED < 1) USER_SPEED = 0;
+  if (USER_SPEED < 0.01) USER_SPEED = 0;
 
   REPEL_TIMER *= 0.85;
-  if (REPEL_TIMER < 1) REPEL_TIMER = 0;
+  if (REPEL_TIMER < 0.01) REPEL_TIMER = 0;
 
   document.getElementById('repulsion').textContent =
     REPEL_TIMER.toFixed(3);
