@@ -257,6 +257,7 @@ function moveStars() {
     STAR.momentumY = Math.max(-5, Math.min(STAR.momentumY, 5));
     
     // Gravity well around user
+//       no less than 10
     STAR.momentumX += 20 * USER_SPEED * GRADIENT_TO_USER_X;
     STAR.momentumY += 20 * USER_SPEED * GRADIENT_TO_USER_Y;
     // Repel immediate ring around user
