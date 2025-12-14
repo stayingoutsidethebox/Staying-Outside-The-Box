@@ -339,10 +339,10 @@ function moveStars() {
   /*--------------------------------------*
    *  GLOBAL DECAY
    *--------------------------------------*/
-  USER_SPEED *= 0.85;
+  USER_SPEED *= 0.5;
   if (USER_SPEED < 0.001) USER_SPEED = 0;
 
-  REPEL_TIMER *= 0.85;
+  REPEL_TIMER *= 0.5;
   if (REPEL_TIMER < 0.001) REPEL_TIMER = 0;
 
   document.getElementById('repulsion').textContent =
