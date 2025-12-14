@@ -241,15 +241,15 @@ function moveStars() {
     const DISTANCE = Math.hypot(X_DISTANCE, Y_DISTANCE) || 1;
     const INV_GRADIENT_DISTANCE = 1 / DISTANCE;
     // Gradient towards user
-    const GRADIANT_TO_USER_X = X_DISTANCE * (INV_GRADIENT_DISTANCE ** 2); 
-    const GRADIANT_TO_USER_Y = Y_DISTANCE * (INV_GRADIENT_DISTANCE ** 2); 
+    const GRADIENT_TO_USER_X = X_DISTANCE * (INV_GRADIENT_DISTANCE ** 2); 
+    const GRADIENT_TO_USER_Y = Y_DISTANCE * (INV_GRADIENT_DISTANCE ** 2); 
     // Increase all stars speed with user movememnt
     STAR.momentumX += 10 * USER_SPEED * STAR.vx;
     STAR.momentumY += 10 * USER_SPEED * STAR.vy;
 
     // Gravity well around user
-    STAR.momentumX *= USER_SPEED * GRADIANT_TO_USER_X;
-    STAR.momentumY *= USER_SPEED * GRADIANT_TO_USER_Y;
+    //STAR.momentumX *= USER_SPEED * GRADIENT_TO_USER_X;
+    //STAR.momentumY *= USER_SPEED * GRADIENT_TO_USER_Y;
 
     // Clamp momentum, and make it form a circle
     const STAR_HYPOT = Math.hypot(STAR.momentumX, STAR.momentumY);
@@ -262,8 +262,8 @@ function moveStars() {
     }
     
     // Apply calculated forces
-    STAR.x += STAR.vx + STAR.momentumX - (REPEL_TIMER * GRADIANT_TO_USER_X);
-    STAR.y += STAR.vy + STAR.momentumY - (REPEL_TIMER * GRADIANT_TO_USER_Y);
+    STAR.x += STAR.vx + STAR.momentumX - (REPEL_TIMER * GRADIENT_TO_USER_X);
+    STAR.y += STAR.vy + STAR.momentumY - (REPEL_TIMER * GRADIENT_TO_USER_Y);
     
     // Decay momentum
     STAR.momentumX *= 0.97;
