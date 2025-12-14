@@ -234,8 +234,8 @@ function createStars() {
 function moveStars() {
   if (!HAS_CANVAS || !STARS.length) return;
   /* ADJUSTMENTS */
-  const GLOBAL_INFLUENCE = 300;
-  const REPEL_POWER = 400;
+  const GLOBAL_INFLUENCE = 30;
+  const REPEL_POWER = 40;
   
   for (const STAR of STARS) {
     // Accumulator for everything that moves this star this frame
