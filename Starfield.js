@@ -235,13 +235,9 @@ function moveStars() {
   if (!HAS_CANVAS || !STARS.length) return;
   /* ADJUSTMENTS */
   const GLOBAL_INFLUENCE = 1500;
-  const REPEL_POWER = 200;
   
   for (const STAR of STARS) {
-    // Accumulator for everything that moves this star this frame
-    let PULL_X = 0;
-    let PULL_Y = 0;
-
+ 
     const X_DISTANCE = USER_X - STAR.x;
     const Y_DISTANCE = USER_Y - STAR.y;
     const DISTANCE = Math.hypot(X_DISTANCE, Y_DISTANCE) || 1;
@@ -250,21 +246,9 @@ function moveStars() {
     const GRADIANT_TO_USER_X = X_DISTANCE * (INV_GRADIENT_DISTANCE ** 2); 
     const GRADIANT_TO_USER_Y = Y_DISTANCE * (INV_GRADIENT_DISTANCE ** 2); 
 
-    /*--------------------------------------*
-     *  FINGER RING INTERACTION
-     *--------------------------------------*/
 
 
-    //add norm_speed? add scale_factor?
 
-
-    // Repulsion burst from clicks/taps: push straight away from finger
-    PULL_X -= REPEL_POWER * REPEL_TIMER * GRADIANT_TO_USER_X;
-    PULL_Y -= REPEL_POWER * REPEL_TIMER * GRADIANT_TO_USER_Y;
-
-    /*--------------------------------------*
-     *  MALE A CIRCLE, CLAMP, APPLY, DECAY
-     *--------------------------------------*/
     // Circular clamp (keeps direction, avoids diamond / axis bias)
     const STAR_HYPOT = Math.hypot(STAR.momentumX, STAR.momentumY);
     if (STAR_HYPOT < 0.01) {
@@ -274,25 +258,12 @@ function moveStars() {
       STAR.momentumX *= 5 / STAR_HYPOT;
       STAR.momentumY *= 5 / STAR_HYPOT;
     }
-    // Apply then decay momentum
-    PULL_X += STAR.momentumX;
-    PULL_Y += STAR.momentumY;
+    
+    STAR.x += (STAR.vx + STAR.momentumX) - (REPEL_TIMER * GRADIANT_TO_USER_X);
+    STAR.y += (STAR.vy + STAR.momentumY) - (REPEL_TIMER * GRADIANT_TO_USER_Y);
+
     STAR.momentumX *= 0.99;
     STAR.momentumY *= 0.99;
-
-    // Clamp and "circularize" combined user influence so it never explodes
-    const PULL_HYPOT = Math.hypot(PULL_X, PULL_Y);
-    if (PULL_HYPOT > 5) {
-      PULL_X *= 5 / PULL_HYPOT;
-      PULL_Y *= 5 / PULL_HYPOT;
-    }
-    
-        // Apply final movement, while easing back to passive movement and adding passive drift
-    const SPEED_BOOST = GLOBAL_INFLUENCE * INV_GRADIENT_DISTANCE * USER_SPEED + 1;
-    STAR.x += STAR.vx * SPEED_BOOST + PULL_X;
-    STAR.y += STAR.vy * SPEED_BOOST + PULL_Y;
-
-
 
 
 
@@ -339,7 +310,7 @@ function moveStars() {
   /*--------------------------------------*
    *  GLOBAL DECAY
    *--------------------------------------*/
-  USER_SPEED *= 0.99;
+  USER_SPEED *= 0.85;
   if (USER_SPEED < 0.001) USER_SPEED = 0;
 
   REPEL_TIMER *= 0.85;
@@ -493,7 +464,7 @@ function updateSpeed(X, Y, TIME) {
 
 // Shared start handler for mouse/touch pointer interactions
 function startPointerInteraction(X, Y, TIME) {
-  REPEL_TIMER = 10; // Repel on click/touch
+  REPEL_TIMER = 2000; // Repel on click/touch
   updateSpeed(X, Y, TIME);
 }
 
