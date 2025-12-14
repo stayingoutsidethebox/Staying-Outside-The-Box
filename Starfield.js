@@ -240,7 +240,7 @@ function moveStars() {
     const Y_DISTANCE = USER_Y - STAR.y;
     // Distance from user
     const DISTANCE = Math.hypot(X_DISTANCE, Y_DISTANCE) || 1;
-    // 0 = far, 1 = close
+    // 1 = far, bigger = close
     const INV_GRADIENT_DISTANCE = 1 / DISTANCE;
     // Gradient towards user
     const GRADIENT_TO_USER_X = X_DISTANCE * (INV_GRADIENT_DISTANCE ** 2); 
