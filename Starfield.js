@@ -250,16 +250,14 @@ function moveStars() {
      *  FORM RING AROUND USER
      *--------------------------------------*/
     // Increase all star speed (clamped) with user interaction
-    //   no less than 0.01, no more rhan .05
     STAR.momentumX += 0.03 * USER_SPEED * STAR.vx;
     STAR.momentumY += 0.03 * USER_SPEED * STAR.vy;
     STAR.momentumX = Math.max(-5, Math.min(STAR.momentumX, 5));
     STAR.momentumY = Math.max(-5, Math.min(STAR.momentumY, 5));
     
     // Gravity well around user
-//       no less than 10
-    STAR.momentumX += 20 * USER_SPEED * GRADIENT_TO_USER_X;
-    STAR.momentumY += 20 * USER_SPEED * GRADIENT_TO_USER_Y;
+    STAR.momentumX += 70 * USER_SPEED * GRADIENT_TO_USER_X;
+    STAR.momentumY += 70 * USER_SPEED * GRADIENT_TO_USER_Y;
     // Repel immediate ring around user
 //need to use the same fall off variable as attraction
     //STAR.momentumX -= (dx / DISTANCE) * REPULSE;
