@@ -247,13 +247,15 @@ function moveStars() {
     const GRADIENT_TO_USER_Y = Y_DISTANCE * (INV_GRADIENT_DISTANCE ** 2); 
     
     // Increase all stars speed with user movememnt
-                                                //STRENGTH         RADIUS
-    STAR.momentumX += 10 * USER_SPEED * STAR.vx * (160 / (DISTANCE + 80));
-    STAR.momentumY += 10 * USER_SPEED * STAR.vy * (160 / (DISTANCE + 80));
+    const RING_RADIUS = 100;
+    const RING_STRENGTH = 200;
+    STAR.momentumX += 10 * USER_SPEED * STAR.vx * (1 + RING_STRENGTH / (DISTANCE + RING_RADIUS));
+    STAR.momentumY += 10 * USER_SPEED * STAR.vy * (1 + RING_STRENGTH / (DISTANCE + RING_RADIUS));
     // Gravity well around user
     STAR.momentumX += 200 * USER_SPEED * GRADIENT_TO_USER_X;
     STAR.momentumY += 200 * USER_SPEED * GRADIENT_TO_USER_Y;
     // Repel immediate area around user
+//need to use the same fall off variable as attraction
     //STAR.momentumX -= (dx / DISTANCE) * REPULSE;
     //STAR.momentumY -= (dy / DISTANCE) * REPULSE;
 
