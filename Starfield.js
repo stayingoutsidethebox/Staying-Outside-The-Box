@@ -233,8 +233,6 @@ function createStars() {
 // Move, fade, and wrap stars around the screen
 function moveStars() {
   if (!HAS_CANVAS || !STARS.length) return;
-  /* ADJUSTMENTS */
-  const GLOBAL_INFLUENCE = 1500;
   
   for (const STAR of STARS) {
  
@@ -252,7 +250,10 @@ function moveStars() {
     //STAR.momentumX += USER_SPEED * GRADIANT_TO_USER_X;
     //STAR.momentumY += USER_SPEED * GRADIANT_TO_USER_Y;
 
-    // Circular clamp (keeps direction, avoids diamond / axis bias)
+    // Clamp high end
+    STAR.momentumX = Math.max(-100, Math.min(STAR.momentumX, 100));
+    STAR.momentumY = Math.max(-100, Math.min(STAR.momentumY, 100));
+    // Clamp low end, then make it form a circle
     const STAR_HYPOT = Math.hypot(STAR.momentumX, STAR.momentumY);
     if (STAR_HYPOT < 0.01) {
       STAR.momentumX = 0;
@@ -265,8 +266,8 @@ function moveStars() {
     STAR.x += STAR.vx + STAR.momentumX - (REPEL_TIMER * GRADIANT_TO_USER_X);
     STAR.y += STAR.vy + STAR.momentumY - (REPEL_TIMER * GRADIANT_TO_USER_Y);
 
-    STAR.momentumX *= 0.9;
-    STAR.momentumY *= 0.9;
+    STAR.momentumX -= 10;
+    STAR.momentumY -= 10;
 
 
 
