@@ -287,16 +287,19 @@ function moveStars() {
     /*--------------------------------------*
      *  TWINKLE & LIFE CYCLE
      *--------------------------------------*/
+// If the star has white value, decay it
     if (STAR.whiteValue > 0) {
       STAR.whiteValue *= 0.98;
       if (STAR.whiteValue < 0.001) STAR.whiteValue = 0;
     }
-
+// If the star has been hidden for a while, flicker the star back on
     if (STAR.opacity <= 0.005) {
       STAR.opacity = 1;
       if (Math.random() < 0.07) STAR.whiteValue = 1;
+      // Decay star opacity
     } else if (STAR.opacity > 0.02) {
       STAR.opacity -= 0.005 * STAR.fadeSpeed;
+      // If star is invisible, keep it hidden for a while
     } else {
       STAR.opacity -= 0.0001;
     }
