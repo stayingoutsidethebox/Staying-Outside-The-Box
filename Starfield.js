@@ -247,12 +247,12 @@ function moveStars() {
     STAR.momentumX += 10 * USER_SPEED * STAR.vx;
     STAR.momentumY += 10 * USER_SPEED * STAR.vy;
 
-    //STAR.momentumX += USER_SPEED * GRADIANT_TO_USER_X;
-    //STAR.momentumY += USER_SPEED * GRADIANT_TO_USER_Y;
+    STAR.momentumX += USER_SPEED * GRADIANT_TO_USER_X;
+    STAR.momentumY += USER_SPEED * GRADIANT_TO_USER_Y;
 
     // Clamp momentum, and make it form a circle
     const STAR_HYPOT = Math.hypot(STAR.momentumX, STAR.momentumY);
-    if (STAR_HYPOT < 0.01) {
+    if (STAR_HYPOT < 0.001) {
       STAR.momentumX = 0;
       STAR.momentumY = 0;
     } else if (STAR_HYPOT > 3) {
