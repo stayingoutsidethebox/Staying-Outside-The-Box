@@ -255,7 +255,7 @@ function moveStars() {
     STAR.momentumX = Math.max(-5, Math.min(STAR.momentumX, 5));
     STAR.momentumY = Math.max(-5, Math.min(STAR.momentumY, 5));
     
-    // Gravity well & repel center around user
+    // User gravity ring & repel ball
     //9000 too small
     const ATTRACT = 10000;
     const REPEL = 50 * ATTRACT;
@@ -269,7 +269,7 @@ function moveStars() {
     const HYPOT = Math.hypot(STAR.momentumX, STAR.momentumY);
     if (HYPOT > LIMIT) { STAR.momentumX *= LIMIT / HYPOT; STAR.momentumY *= LIMIT / HYPOT; }
     
-    // Add repulsion on pokes
+    // Add global repulsion on pokes
     const GLOBAL_REPULSION_X = Math.min(3, REPEL_TIMER * GRADIENT_TO_USER_X / INV_GRADIENT_DISTANCE);
     const GLOBAL_REPULSION_Y = Math.min(3, REPEL_TIMER * GRADIENT_TO_USER_Y / INV_GRADIENT_DISTANCE);
 
