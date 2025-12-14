@@ -234,8 +234,8 @@ function createStars() {
 function moveStars() {
   if (!HAS_CANVAS || !STARS.length) return;
   /* ADJUSTMENTS */
-  const GLOBAL_INFLUENCE = 300;
-  const REPEL_POWER = 400;
+  const GLOBAL_INFLUENCE = 30;
+  const REPEL_POWER = 40;
   
   for (const STAR of STARS) {
     // Accumulator for everything that moves this star this frame
@@ -288,7 +288,7 @@ function moveStars() {
     }
     
         // Apply final movement, while easing back to passive movement and adding passive drift
-    const SPEED_INCREASE = Math.pow(NORM_INV_DIST, 0.25) * (NORM_USER_SPEED * 10) * GLOBAL_INFLUENCE + 1;
+    const SPEED_INCREASE = Math.pow(NORM_INV_DIST, 0.25) * NORM_USER_SPEED * GLOBAL_INFLUENCE + 1;
     STAR.x += STAR.vx * SPEED_INCREASE + PULL_X;
     STAR.y += STAR.vy * SPEED_INCREASE + PULL_Y;
 
@@ -485,7 +485,7 @@ function updateSpeed(X, Y, TIME) {
   const DY = Y - USER_Y;
   const USER_SPEED = Math.hypot(DX, DY) / DT;            
   
-  NORM_USER_SPEED = Math.min(USER_SPEED / 0.9, 1);   
+  NORM_USER_SPEED = Math.min(USER_SPEED / 0.9, 10);   
   USER_X = X;
   USER_Y = Y;
   USER_TIME = TIME;
@@ -493,7 +493,7 @@ function updateSpeed(X, Y, TIME) {
 
 // Shared start handler for mouse/touch pointer interactions
 function startPointerInteraction(X, Y, TIME) {
-  REPEL_TIMER = 1; // Repel on click/touch
+  REPEL_TIMER = 10; // Repel on click/touch
   updateSpeed(X, Y, TIME);
 }
 
