@@ -322,9 +322,9 @@ RING_ALPHA  = Math.min(USER_SPEED * 0.04, 0.6);
 if (USER_TIME > 0) {
   BRUSH.save();
 
-  BRUSH.globalAlpha = RING_ALPHA;
   BRUSH.lineWidth = RING_WIDTH;
-  BRUSH.strokeStyle = 'rgba(255,255,255,1)';
+  BRUSH.strokeStyle = 'rgba(0, 0, 0, 1)';
+  BRUSH.globalAlpha = RING_ALPHA;
 
   BRUSH.beginPath();
   BRUSH.arc(USER_X, USER_Y, RING_RADIUS, 0, Math.PI * 2);
