@@ -266,14 +266,14 @@ function moveStars() {
     STAR.momentumY *= 0.97;
 
     // Screen wrap if passive
-    if(true/*USER_SPEED = 0 || FADE_WITH_DISTANCE < 0.005*/) {
+    if(USER_SPEED < 0.001 /* || FADE_WITH_DISTANCE < 0.005*/) {
       STAR.x = (STAR.x % WIDTH + WIDTH) % WIDTH;
       STAR.y = (STAR.y % HEIGHT + HEIGHT) % HEIGHT;
     }
     // Screen bounce if user interacting
     else {
       const R = (STAR.whiteValue * 2 + STAR.size) || 0;
-/*
+
       // Reflect off left/right walls (radius-aware)
       if (STAR.x < R) {
         STAR.x = 2 * R - STAR.x;
@@ -294,7 +294,7 @@ function moveStars() {
         STAR.y = 2 * (HEIGHT - R) - STAR.y;
         STAR.vy = -Math.abs(STAR.vy);
         STAR.momentumY = -Math.abs(STAR.momentumY);
-      }*/
+      }
     }
     
     // If the star has white value, decay it
