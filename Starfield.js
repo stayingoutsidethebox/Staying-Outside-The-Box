@@ -245,8 +245,11 @@ function createStars() {
 function moveStars() {
   if (!HAS_CANVAS || !STARS.length) return;
   // Interaction ring scales to screen size
-  const ATTRACT = 35 * BASE_SCREEN * Math.pow(SCREEN_SCALE, -4);
-const REPEL   = 1e5 * BASE_SCREEN * Math.pow(SCREEN_SCALE, -6);
+  const RADIUS_EXP = 1.3;                  // <-- increase to make laptop radius bigger
+const RING_SCALE = Math.pow(SCREEN_SCALE, RADIUS_EXP);
+const ATTRACT = 35 * BASE_SCREEN * Math.pow(RING_SCALE, -4);
+const REPEL   = 1e5 * BASE_SCREEN * Math.pow(RING_SCALE, -6);
+
 for (const STAR of STARS) {
  
     // Distance from user
@@ -254,8 +257,8 @@ for (const STAR of STARS) {
     const Y_DISTANCE = USER_Y - STAR.y;
     // Almost 1 when close, rapidly approaches 0 with distance
 const DISTANCE = Math.hypot(X_DISTANCE, Y_DISTANCE) || 1;
-const FADE_WITH_DISTANCE = 1 / (DISTANCE / SCREEN_SCALE);
-    
+const FADE_WITH_DISTANCE = RING_SCALE / DISTANCE;
+  
     // Increase all star speed (clamped low) with user interaction
     STAR.momentumX += 0.03 * USER_SPEED * STAR.vx;
     STAR.momentumY += 0.03 * USER_SPEED * STAR.vy;
