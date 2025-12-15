@@ -42,6 +42,7 @@ let USER_Y = 0;
 let USER_TIME = 0;
 let USER_SPEED = 0;
 let REPEL_TIMER = 0;
+let CIRCLE_TIMER = 0;
 
 // Canvas size and star scaling
 let WIDTH = 0;
@@ -341,6 +342,8 @@ const FADE_WITH_DISTANCE = RING_SCALE / DISTANCE;
   // Global variable decay
   USER_SPEED *= 0.85;
   if (USER_SPEED < 0.001) USER_SPEED = 0;
+  CIRCLE_TIMER *= 0.8;
+  if (CIRCLE_TIMER < 0.001) CIRCLE_TIMER = 0;
   REPEL_TIMER *= 0.94;
   if (REPEL_TIMER < 0.001) REPEL_TIMER = 0;
   /* DEBUG
@@ -496,6 +499,7 @@ function updateSpeed(X, Y, TIME) {
   const RAW_USER_SPEED = Math.hypot(DX, DY) / DT;            
   
   USER_SPEED = Math.min(RAW_USER_SPEED * 50, 50);
+  CIRCLE_TIMER = USER_SPEED * 1.5;
   USER_X = X;
   USER_Y = Y;
   USER_TIME = TIME;
