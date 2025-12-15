@@ -241,14 +241,12 @@ function moveStars() {
     STAR.momentumX = Math.max(-5, Math.min(STAR.momentumX, 5));
     STAR.momentumY = Math.max(-5, Math.min(STAR.momentumY, 5));
     
-    // User gravity ring & repel ball
-    const ATTRACT = 50000;
-              //  1000 - 5000
-    const REPEL = 2500 * ATTRACT;
-    STAR.momentumX += ATTRACT * USER_SPEED * X_DISTANCE * (FADE_WITH_DISTANCE ** 4);
-    STAR.momentumY += ATTRACT * USER_SPEED * Y_DISTANCE * (FADE_WITH_DISTANCE ** 4);
-    STAR.momentumX -= REPEL * USER_SPEED * X_DISTANCE * (FADE_WITH_DISTANCE ** 6);
-    STAR.momentumY -= REPEL * USER_SPEED * Y_DISTANCE * (FADE_WITH_DISTANCE ** 6);
+    // User gravity ring (attract from outside)
+    STAR.momentumX += 4.0e8 * USER_SPEED * X_DISTANCE * (FADE_WITH_DISTANCE ** 4);
+    STAR.momentumY += 4.0e8 * USER_SPEED * Y_DISTANCE * (FADE_WITH_DISTANCE ** 4);
+    // User gravity ring (repel from inside)
+    STAR.momentumX -= 1.25e8 * USER_SPEED * X_DISTANCE * (FADE_WITH_DISTANCE ** 6);
+    STAR.momentumY -= 1.25e8 * USER_SPEED * Y_DISTANCE * (FADE_WITH_DISTANCE ** 6);
     
     // Global repulsion on pokes
     const GLOBAL_REPULSION_X = -X_DISTANCE * REPEL_TIMER * (FADE_WITH_DISTANCE ** 3);
