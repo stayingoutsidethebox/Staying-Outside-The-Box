@@ -231,6 +231,8 @@ function createStars() {
 // Move, fade, and wrap stars around user interaction
 function moveStars() {
   if (!HAS_CANVAS || !STARS.length) return;
+      // Scale gravity ring to screen size
+    const INV_SCREEN_SIZE = Math.pow(1234 / SCREEN_SIZE, 0.5);
   for (const STAR of STARS) {
  
     // Distance from user
@@ -245,8 +247,6 @@ function moveStars() {
     STAR.momentumX = Math.max(-5, Math.min(STAR.momentumX, 5));
     STAR.momentumY = Math.max(-5, Math.min(STAR.momentumY, 5));
     
-    // Scale gravity ring to screen size
-    const INV_SCREEN_SIZE = Math.pow(1234 / SCREEN_SIZE, 0.5);
     // User gravity ring (attract from outside)
     STAR.momentumX += 4.0e4 * USER_SPEED * X_DISTANCE * (FADE_WITH_DISTANCE ** (INV_SCREEN_SIZE * 4));
     STAR.momentumY += 4.0e4 * USER_SPEED * Y_DISTANCE * (FADE_WITH_DISTANCE ** (INV_SCREEN_SIZE * 4));
