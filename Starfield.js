@@ -230,16 +230,12 @@ function moveStars() {
   
   for (const STAR of STARS) {
  
+    // Distance from user
     const X_DISTANCE = USER_X - STAR.x;
     const Y_DISTANCE = USER_Y - STAR.y;
-    // Distance from user
-    const DISTANCE = Math.hypot(X_DISTANCE, Y_DISTANCE) || 1;
-    // 0 = far, 1 = close
-    const INV_GRADIENT_DISTANCE = 1 / DISTANCE;
-    // Gradient towards user
-    const GRADIENT_TO_USER_X = X_DISTANCE * (INV_GRADIENT_DISTANCE ** 4);
-    const GRADIENT_TO_USER_Y = Y_DISTANCE * (INV_GRADIENT_DISTANCE ** 4);
-    
+    // Close = 1, Far = 0
+    const INVERTED_DISTANCE = 1 / (Math.hypot(X_DISTANCE, Y_DISTANCE) || 1);
+
     /*--------------------------------------*
      *  FORM RING AROUND USER
      *--------------------------------------*/
@@ -252,10 +248,10 @@ function moveStars() {
     // User gravity ring & repel ball
     const ATTRACT = 50000;
     const REPEL = 1000 * ATTRACT;
-    STAR.momentumX += ATTRACT * USER_SPEED * GRADIENT_TO_USER_X;
-    STAR.momentumY += ATTRACT * USER_SPEED * GRADIENT_TO_USER_Y;
-    STAR.momentumX -= REPEL * USER_SPEED * GRADIENT_TO_USER_X * (INV_GRADIENT_DISTANCE ** 2);
-    STAR.momentumY -= REPEL * USER_SPEED * GRADIENT_TO_USER_Y * (INV_GRADIENT_DISTANCE ** 2);
+    STAR.momentumX += ATTRACT * USER_SPEED * X_DISTANCE * (INVERTED_DISTANCE ** 4);
+    STAR.momentumY += ATTRACT * USER_SPEED * Y_DISTANCE * (INVERTED_DISTANCE ** 4);
+    STAR.momentumX -= REPEL * USER_SPEED * X_DISTANCE * (INVERTED_DISTANCE ** 6);
+    STAR.momentumY -= REPEL * USER_SPEED * Y_DISTANCE * (INVERTED_DISTANCE ** 6);
     
     // Clamp ring momentum high, and make it form a circle
     const LIMIT = 10;
@@ -263,8 +259,8 @@ function moveStars() {
     if (HYPOT > LIMIT) { STAR.momentumX *= LIMIT / HYPOT; STAR.momentumY *= LIMIT / HYPOT; }
     
     // Add global repulsion on pokes
-    const GLOBAL_REPULSION_X = Math.min(3, REPEL_TIMER * GRADIENT_TO_USER_X / INV_GRADIENT_DISTANCE);
-    const GLOBAL_REPULSION_Y = Math.min(3, REPEL_TIMER * GRADIENT_TO_USER_Y / INV_GRADIENT_DISTANCE);
+    const GLOBAL_REPULSION_X = Math.min(3, REPEL_TIMER * (INVERTED_DISTANCE ** 3));
+    const GLOBAL_REPULSION_Y = Math.min(3, REPEL_TIMER * (INVERTED_DISTANCE ** 3));
 
     // Add all vectors up and apply them
     STAR.x += STAR.vx + STAR.momentumX - GLOBAL_REPULSION_X;
