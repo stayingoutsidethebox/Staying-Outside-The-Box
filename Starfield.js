@@ -257,7 +257,7 @@ function moveStars() {
     STAR.momentumY = Math.max(-5, Math.min(STAR.momentumY, 5));
     
     // Scale forces to screen size
-    const ATTRACT = 32.5 * SCREEN_SIZE;
+    const ATTRACT = 35 * SCREEN_SIZE;
     const REPEL   = 1e5 * SCREEN_SIZE;
     // User gravity ring (attract from outside)
     STAR.momentumX += ATTRACT * USER_SPEED * X_DISTANCE * (FADE_WITH_DISTANCE ** 4);
