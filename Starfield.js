@@ -242,8 +242,8 @@ function moveStars() {
     STAR.momentumY = Math.max(-5, Math.min(STAR.momentumY, 5));
     
     // User gravity ring (attract from outside)
-    STAR.momentumX += 4.0e8 * USER_SPEED * X_DISTANCE * (FADE_WITH_DISTANCE ** 4);
-    STAR.momentumY += 4.0e8 * USER_SPEED * Y_DISTANCE * (FADE_WITH_DISTANCE ** 4);
+    STAR.momentumX += 4.0e4 * USER_SPEED * X_DISTANCE * (FADE_WITH_DISTANCE ** 4);
+    STAR.momentumY += 4.0e4 * USER_SPEED * Y_DISTANCE * (FADE_WITH_DISTANCE ** 4);
     // User gravity ring (repel from inside)
     STAR.momentumX -= 1.25e8 * USER_SPEED * X_DISTANCE * (FADE_WITH_DISTANCE ** 6);
     STAR.momentumY -= 1.25e8 * USER_SPEED * Y_DISTANCE * (FADE_WITH_DISTANCE ** 6);
