@@ -272,27 +272,29 @@ function moveStars() {
     }
     // Screen bounce if user interacting
     else {
-      // Reflect off left/right walls
-      if (STAR.x < 0) {
-        STAR.x = -STAR.x; // mirror back in
+      const R = (STAR.whiteValue * 2 + STAR.size) || 0;
+/*
+      // Reflect off left/right walls (radius-aware)
+      if (STAR.x < R) {
+        STAR.x = 2 * R - STAR.x;
         STAR.vx = Math.abs(STAR.vx);
         STAR.momentumX = Math.abs(STAR.momentumX);
-      } else if (STAR.x > WIDTH) {
-        STAR.x = 2 * WIDTH - STAR.x; // mirror back in
+      } else if (STAR.x > WIDTH - R) {
+        STAR.x = 2 * (WIDTH - R) - STAR.x;
         STAR.vx = -Math.abs(STAR.vx);
         STAR.momentumX = -Math.abs(STAR.momentumX);
       }
-    
-      // Reflect off top/bottom walls
-      if (STAR.y < 0) {
-        STAR.y = -STAR.y;
+      
+      // Reflect off top/bottom walls (radius-aware)
+      if (STAR.y < R) {
+        STAR.y = 2 * R - STAR.y;
         STAR.vy = Math.abs(STAR.vy);
         STAR.momentumY = Math.abs(STAR.momentumY);
-      } else if (STAR.y > HEIGHT) {
-        STAR.y = 2 * HEIGHT - STAR.y;
+      } else if (STAR.y > HEIGHT - R) {
+        STAR.y = 2 * (HEIGHT - R) - STAR.y;
         STAR.vy = -Math.abs(STAR.vy);
         STAR.momentumY = -Math.abs(STAR.momentumY);
-      }
+      }*/
     }
     
     // If the star has white value, decay it
