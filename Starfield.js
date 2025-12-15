@@ -233,7 +233,7 @@ function moveStars() {
     const X_DISTANCE = USER_X - STAR.x;
     const Y_DISTANCE = USER_Y - STAR.y;
     // Almost 1 when close, rapidly approaches 0 with distance
-    const INVERTED_DISTANCE = 1 / (Math.hypot(X_DISTANCE, Y_DISTANCE) || 1);
+    const FADE_WITH_DISTANCE = 1 / (Math.hypot(X_DISTANCE, Y_DISTANCE) || 1);
     
     // Increase all star speed (clamped low) with user interaction
     STAR.momentumX += 0.03 * USER_SPEED * STAR.vx;
@@ -244,14 +244,14 @@ function moveStars() {
     // User gravity ring & repel ball
     const ATTRACT = 50000;
     const REPEL = 1000 * ATTRACT;
-    STAR.momentumX += ATTRACT * USER_SPEED * X_DISTANCE * (INVERTED_DISTANCE ** 4);
-    STAR.momentumY += ATTRACT * USER_SPEED * Y_DISTANCE * (INVERTED_DISTANCE ** 4);
-    STAR.momentumX -= REPEL * USER_SPEED * X_DISTANCE * (INVERTED_DISTANCE ** 6);
-    STAR.momentumY -= REPEL * USER_SPEED * Y_DISTANCE * (INVERTED_DISTANCE ** 6);
+    STAR.momentumX += ATTRACT * USER_SPEED * X_DISTANCE * (FADE_WITH_DISTANCE ** 4);
+    STAR.momentumY += ATTRACT * USER_SPEED * Y_DISTANCE * (FADE_WITH_DISTANCE ** 4);
+    STAR.momentumX -= REPEL * USER_SPEED * X_DISTANCE * (FADE_WITH_DISTANCE ** 6);
+    STAR.momentumY -= REPEL * USER_SPEED * Y_DISTANCE * (FADE_WITH_DISTANCE ** 6);
     
     // Global repulsion on pokes
-    const GLOBAL_REPULSION_X = X_DISTANCE * REPEL_TIMER * (INVERTED_DISTANCE ** 3));
-    const GLOBAL_REPULSION_Y = Y_DISTANCE * REPEL_TIMER * (INVERTED_DISTANCE ** 3));
+    const GLOBAL_REPULSION_X = -X_DISTANCE * REPEL_TIMER * (FADE_WITH_DISTANCE ** 3);
+    const GLOBAL_REPULSION_Y = -Y_DISTANCE * REPEL_TIMER * (FADE_WITH_DISTANCE ** 3);
 
     // Make momentum form a circle (clamped high)
     const LIMIT = 10;
@@ -259,8 +259,8 @@ function moveStars() {
     if (HYPOT > LIMIT) { STAR.momentumX *= LIMIT / HYPOT; STAR.momentumY *= LIMIT / HYPOT; }
     
     // Add all vectors up and apply them
-    STAR.x += STAR.vx + STAR.momentumX - GLOBAL_REPULSION_X;
-    STAR.y += STAR.vy + STAR.momentumY - GLOBAL_REPULSION_Y;
+    STAR.x += STAR.vx + STAR.momentumX + GLOBAL_REPULSION_X;
+    STAR.y += STAR.vy + STAR.momentumY + GLOBAL_REPULSION_Y;
 
     // Decay momentum
     STAR.momentumX *= 0.97;
