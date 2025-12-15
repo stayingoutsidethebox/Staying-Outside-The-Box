@@ -290,7 +290,7 @@ function moveStars() {
   // Global variable decay
   USER_SPEED *= 0.85;
   if (USER_SPEED < 0.001) USER_SPEED = 0;
-  REPEL_TIMER *= 0.92;
+  REPEL_TIMER *= 0.94;
   if (REPEL_TIMER < 0.001) REPEL_TIMER = 0;
 }
 
@@ -417,7 +417,7 @@ function updateSpeed(X, Y, TIME) {
 
 // Shared start handler for mouse/touch pointer interactions
 function startPointerInteraction(X, Y, TIME) {
-  REPEL_TIMER = 10000; // Repel on click/touch
+  REPEL_TIMER = 50000; // Repel on click/touch
   updateSpeed(X, Y, TIME);
 }
 
