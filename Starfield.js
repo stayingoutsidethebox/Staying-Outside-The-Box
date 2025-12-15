@@ -29,8 +29,11 @@ if (!HAS_CANVAS) {
   console.warn('Constellation canvas not found or unsupported; starfield disabled.');
 }
 
-// Freeze flag to pause star motion during transitions
+// Prevent repeats & loops
 let FREEZE_CONSTELLATION = false;
+let ANIMATION_STARTED = false;
+let RESIZE_WIRED = false;
+let STARS_INITIALIZED = false;
 
 // Pointer tracking
 let USER_X = 0;
@@ -526,10 +529,6 @@ function sizesReady() {
     HEIGHT > 50
   );
 }
-
-let ANIMATION_STARTED = false;
-let RESIZE_WIRED = false;
-let STARS_INITIALIZED = false;
 
 function startStarfield() {
   resizeCanvas();
