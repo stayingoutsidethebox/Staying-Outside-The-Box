@@ -248,7 +248,7 @@ function moveStars() {
     const X_DISTANCE = USER_X - STAR.x;
     const Y_DISTANCE = USER_Y - STAR.y;
     // Almost 1 when close, rapidly approaches 0 with distance
-    const FADE_WITH_DISTANCE = 1 / (Math.hypot(X_DISTANCE, Y_DISTANCE) || 1);
+    const FADE_WITH_DISTANCE = 1 / ((Math.hypot(X_DISTANCE, Y_DISTANCE) / (SCREEN_SIZE / 1234)) || 1);
     
     // Increase all star speed (clamped low) with user interaction
     STAR.momentumX += 0.03 * USER_SPEED * STAR.vx;
