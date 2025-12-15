@@ -256,16 +256,16 @@ function moveStars() {
     STAR.momentumX = Math.max(-5, Math.min(STAR.momentumX, 5));
     STAR.momentumY = Math.max(-5, Math.min(STAR.momentumY, 5));
     
-    // Scale user interaction to screen size
-    const ATTRACT = 4.0e4 /* * SCALE_FACTOR */;
-    const REPEL = 1.25e8 /* * SCALE_FACTOR */;
+    // Scale forces to screen size
+    const ATTRACT = 32.5 * SCREEN_SIZE;
+    const REPEL   = 1e5 * SCREEN_SIZE;
     // User gravity ring (attract from outside)
     STAR.momentumX += ATTRACT * USER_SPEED * X_DISTANCE * (FADE_WITH_DISTANCE ** 4);
     STAR.momentumY += ATTRACT * USER_SPEED * Y_DISTANCE * (FADE_WITH_DISTANCE ** 4);
     // User gravity ring (repel from inside)
     STAR.momentumX -= REPEL * USER_SPEED * X_DISTANCE * (FADE_WITH_DISTANCE ** 6);
     STAR.momentumY -= REPEL * USER_SPEED * Y_DISTANCE * (FADE_WITH_DISTANCE ** 6);
-    
+
     // Global repulsion on pokes
     const GLOBAL_REPULSION_X = -X_DISTANCE * REPEL_TIMER * (FADE_WITH_DISTANCE ** 3);
     const GLOBAL_REPULSION_Y = -Y_DISTANCE * REPEL_TIMER * (FADE_WITH_DISTANCE ** 3);
