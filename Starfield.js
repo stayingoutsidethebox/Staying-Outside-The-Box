@@ -47,6 +47,8 @@ let REPEL_TIMER = 0;
 let WIDTH = 0;
 let HEIGHT = 0;
 let SCREEN_SIZE = 0;
+const BASE_SCREEN = 1234;
+const SCALED_SCREEN_SIZE = 0;
 let MAX_STAR_COUNT = 0;
 let MAX_LINK_DISTANCE = 0;
 
@@ -243,15 +245,16 @@ function createStars() {
 function moveStars() {
   if (!HAS_CANVAS || !STARS.length) return;
   // Interaction ring scales to screen size
-    const ATTRACT = 35 * SCREEN_SIZE;
-    const REPEL   = 1e5 * SCREEN_SIZE;
+  const ATTRACT = 35 * BASE_SCREEN * Math.pow(SCALED_SCREEN_SIZE, 0.5);
+  const REPEL = 1e5 * BASE_SCREEN * Math.pow(SCALED_SCREEN_SIZE, 0.5);
   for (const STAR of STARS) {
  
     // Distance from user
     const X_DISTANCE = USER_X - STAR.x;
     const Y_DISTANCE = USER_Y - STAR.y;
+    const DISTANCE = Math.hypot(X_DISTANCE, Y_DISTANCE) || 1;
     // Almost 1 when close, rapidly approaches 0 with distance
-    const FADE_WITH_DISTANCE = 1 / ((Math.hypot(X_DISTANCE, Y_DISTANCE) / (SCREEN_SIZE / 1234)) || 1);
+    const FADE_WITH_DISTANCE = 1 / (DISTANCE / SCALED_SCREEN_SIZE);
     
     // Increase all star speed (clamped low) with user interaction
     STAR.momentumX += 0.03 * USER_SPEED * STAR.vx;
@@ -445,6 +448,7 @@ function resizeCanvas() {
   CANVAS.height = HEIGHT;
 
   SCREEN_SIZE = Math.min(WIDTH + HEIGHT, 2000);
+  SCALED_SCREEN_SIZE = SCREEN_SIZE / BASE_SCREEN
   MAX_STAR_COUNT = SCREEN_SIZE / 10;
   MAX_LINK_DISTANCE = SCREEN_SIZE / 10;
 
