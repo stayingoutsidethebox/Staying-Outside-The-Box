@@ -284,17 +284,16 @@ function moveStars() {
     }
 
     // Make momentum form a circle (clamped high)
-    const LIMIT = 10;
     const HYPOT = Math.hypot(STAR.momentumX, STAR.momentumY);
-    if (HYPOT > LIMIT) { STAR.momentumX *= LIMIT / HYPOT; STAR.momentumY *= LIMIT / HYPOT; }
+    if (HYPOT > LIMIT) { STAR.momentumX *= 13 / HYPOT; STAR.momentumY *= 13 / HYPOT; }
     
     // Apply momentum and passive movement
     STAR.x += STAR.vx + STAR.momentumX;
     STAR.y += STAR.vy + STAR.momentumY;
 
     // Decay momentum
-    STAR.momentumX *= 0.97;
-    STAR.momentumY *= 0.97;
+    STAR.momentumX *= 0.98;
+    STAR.momentumY *= 0.98;
 
     // Screen wrap if passive
     if(USER_SPEED < 0.5 || FADE_WITH_DISTANCE < 0.003 || REPEL_TIMER > 1000) {
