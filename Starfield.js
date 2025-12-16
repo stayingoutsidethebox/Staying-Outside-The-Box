@@ -265,8 +265,19 @@ function moveStars() {
       (FADE_WITH_DISTANCE ** (INV_SCREEN_SIZE * 5));
     
     // User gravity ring (repel from inside)
-    STAR.momentumX -= 1.25e8 * USER_SPEED * X_DISTANCE * (FADE_WITH_DISTANCE ** (INV_SCREEN_SIZE * 6));
-    STAR.momentumY -= 1.25e8 * USER_SPEED * Y_DISTANCE * (FADE_WITH_DISTANCE ** (INV_SCREEN_SIZE * 6));
+    STAR.momentumX -=
+      1.25e8 *
+      USER_SPEED *
+      X_DISTANCE *
+      (INV_SCREEN_SIZE ** 5) *
+      (FADE_WITH_DISTANCE ** (INV_SCREEN_SIZE * 6));
+    
+    STAR.momentumY -=
+      1.25e8 *
+      USER_SPEED *
+      Y_DISTANCE *
+      (INV_SCREEN_SIZE ** 5) *
+      (FADE_WITH_DISTANCE ** (INV_SCREEN_SIZE * 6));
     
     // Repel on poke
     if ((Math.hypot(X_DISTANCE, Y_DISTANCE)) < SCREEN_SIZE * 0.4) {
