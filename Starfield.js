@@ -214,19 +214,6 @@ function createStars() {
   }
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 /*---------- Star animation step ----------*/
 // Move, fade, and wrap stars around user interaction
 function moveStars() {
@@ -247,34 +234,41 @@ function moveStars() {
     STAR.momentumX = Math.max(-3, Math.min(STAR.momentumX, 3));
     STAR.momentumY = Math.max(-3, Math.min(STAR.momentumY, 3));
     
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    const ATTRACT_STRENGTH = 140;
+    const ATTRACT_RADIUS   = 210;
+    const REPEL_STRENGTH   = 200;
+    const REPEL_RADIUS     = 260;
+
     // User gravity ring (attract from outside)
-    //STAR.momentumX += 4.0e4 * USER_SPEED * X_DISTANCE * (SCREEN_SIZE * ?) * (FADE_WITH_DISTANCE ** (INV_SCREEN_SIZE * 4));
-    //STAR.momentumY += 4.0e4 * USER_SPEED * Y_DISTANCE * (SCREEN_SIZE * ?) * (FADE_WITH_DISTANCE ** (INV_SCREEN_SIZE * 4));
+    STAR.momentumX += (ATTRACT_STRENGTH * 1000) * USER_SPEED * X_DISTANCE * (INV_SCREEN_SIZE ** 5) * (FADE_WITH_DISTANCE ** (INV_SCREEN_SIZE * (1 / ATTRACT_RADIUS * 882)));
+    STAR.momentumY += (ATTRACT_STRENGTH * 1000) * USER_SPEED * Y_DISTANCE * (INV_SCREEN_SIZE ** 5) * (FADE_WITH_DISTANCE ** (INV_SCREEN_SIZE * (1 / ATTRACT_RADIUS * 882)));
     // User gravity ring (repel from inside)
-    //STAR.momentumX -= 1.25e8 * USER_SPEED * X_DISTANCE * (FADE_WITH_DISTANCE ** (INV_SCREEN_SIZE * 6));
-    //STAR.momentumY -= 1.25e8 * USER_SPEED * Y_DISTANCE * (FADE_WITH_DISTANCE ** (INV_SCREEN_SIZE * 6));
-    
-    
-    
-    
-    
-    
-    const ATTRACT_STRENGTH = 1.4e5;
-    const ATTRACT_RADIUS = 0.2380952381;
-    const REPEL_STRENGTH = 1e7;
-    const REPEL_RADIUS = 0.1923076923;
-    const ATT_STR_FACTOR = 1;
-    const ATT_RAD_FACTOR = 1;
-    const REP_STR_FACTOR = 1;
-    const REP_RAD_FACTOR = 1;
-         
-    // User gravity ring (attract from outside)
-    STAR.momentumX += (ATTRACT_STRENGTH * ATT_STR_FACTOR) * USER_SPEED * X_DISTANCE * (INV_SCREEN_SIZE ** 5) * (FADE_WITH_DISTANCE ** (INV_SCREEN_SIZE * (1 / ATTRACT_RADIUS * ATT_RAD_FACTOR)));
-    STAR.momentumY += (ATTRACT_STRENGTH * ATT_STR_FACTOR) * USER_SPEED * Y_DISTANCE * (INV_SCREEN_SIZE ** 5) * (FADE_WITH_DISTANCE ** (INV_SCREEN_SIZE * (1 / ATTRACT_RADIUS * ATT_RAD_FACTOR)));
-    // User gravity ring (repel from inside)
-    STAR.momentumX -= (REPEL_STRENGTH * REP_STR_FACTOR) * USER_SPEED * X_DISTANCE * (INV_SCREEN_SIZE ** 5) * (FADE_WITH_DISTANCE ** (INV_SCREEN_SIZE * (1 / REPEL_RADIUS * REP_RAD_FACTOR)));
-    STAR.momentumY -= (REPEL_STRENGTH * REP_STR_FACTOR) * USER_SPEED * Y_DISTANCE * (INV_SCREEN_SIZE ** 5) * (FADE_WITH_DISTANCE ** (INV_SCREEN_SIZE * (1 / REPEL_RADIUS * REP_RAD_FACTOR))); 
+    STAR.momentumX -= (REPEL_STRENGTH * 50000) * USER_SPEED * X_DISTANCE * (INV_SCREEN_SIZE ** 5) * (FADE_WITH_DISTANCE ** (INV_SCREEN_SIZE * (1 / REPEL_RADIUS * 1352)));
+    STAR.momentumY -= (REPEL_STRENGTH * 50000) * USER_SPEED * Y_DISTANCE * (INV_SCREEN_SIZE ** 5) * (FADE_WITH_DISTANCE ** (INV_SCREEN_SIZE * (1 / REPEL_RADIUS * 1352))); 
       
+  
+  
+  
+  
+  
+  
   
   
   
