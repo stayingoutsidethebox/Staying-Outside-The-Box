@@ -146,6 +146,7 @@ function transitionTo(URL, IS_MENU = false) {
   if (IS_TRANSITIONING) return;
   if (!URL) return;
   IS_TRANSITIONING = true;
+  window.USER_CIRCLE.circle_active = true;
 
   const PAGE = getPage();
 
