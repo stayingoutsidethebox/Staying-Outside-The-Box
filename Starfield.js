@@ -250,32 +250,17 @@ function moveStars() {
     // User gravity ring (attract from outside)
     STAR.momentumX += 4.0e4 * USER_SPEED * X_DISTANCE * (FADE_WITH_DISTANCE ** (INV_SCREEN_SIZE * 4));
     STAR.momentumY += 4.0e4 * USER_SPEED * Y_DISTANCE * (FADE_WITH_DISTANCE ** (INV_SCREEN_SIZE * 4));
-    //laptop 3.2 & 5
     // User gravity ring (repel from inside)
     STAR.momentumX -= 1.25e8 * USER_SPEED * X_DISTANCE * (FADE_WITH_DISTANCE ** (INV_SCREEN_SIZE * 6));
     STAR.momentumY -= 1.25e8 * USER_SPEED * Y_DISTANCE * (FADE_WITH_DISTANCE ** (INV_SCREEN_SIZE * 6));
     //0.00486 * SCREEN_SIZE
     // Global repulsion on pokes
-    let GLOBAL_REPULSION_Y = 0;
     let GLOBAL_REPULSION_X = 0;
-        
-    if (Y_DISTANCE <= SCREEN_SIZE * 0.25) {
-      GLOBAL_REPULSION_Y =
-        -Y_DISTANCE *
-        REPEL_TIMER *
-        (FADE_WITH_DISTANCE ** (INV_SCREEN_SIZE * 3));
+    let GLOBAL_REPULSION_Y = 0;
+    if ((Math.hypot(X_DISTANCE, Y_DISTANCE)) < SCREEN_SIZE * 0.25) {
+      GLOBAL_REPULSION_X = -X_DISTANCE * REPEL_TIMER * (FADE_WITH_DISTANCE ** (INV_SCREEN_SIZE * 3));
+      GLOBAL_REPULSION_Y = -Y_DISTANCE * REPEL_TIMER * (FADE_WITH_DISTANCE ** (INV_SCREEN_SIZE * 3));
     }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
 
     // Make momentum form a circle (clamped high)
     const LIMIT = 10;
