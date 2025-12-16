@@ -259,27 +259,36 @@ function moveStars() {
     
     
     
-    STAR.momentumX +=
-  4.0e4 * USER_SPEED * X_DISTANCE *
+    // User gravity ring (attract from outside)
+STAR.momentumX +=
+  9.0e4 *
+  USER_SPEED *
+  X_DISTANCE *
   (INV_SCREEN_SIZE ** 5) *
   (FADE_WITH_DISTANCE ** (INV_SCREEN_SIZE * 4.5));
 
 STAR.momentumY +=
-  4.0e4 * USER_SPEED * Y_DISTANCE *
+  9.0e4 *
+  USER_SPEED *
+  Y_DISTANCE *
   (INV_SCREEN_SIZE ** 5) *
   (FADE_WITH_DISTANCE ** (INV_SCREEN_SIZE * 4.5));
 
+
+// User gravity ring (repel from inside) — unchanged
 STAR.momentumX -=
-  1.25e8 * USER_SPEED * X_DISTANCE *
+  1.25e8 *
+  USER_SPEED *
+  X_DISTANCE *
   (INV_SCREEN_SIZE ** 5) *
-  (FADE_WITH_DISTANCE ** (INV_SCREEN_SIZE * 7));
+  (FADE_WITH_DISTANCE ** (INV_SCREEN_SIZE * 6));
 
 STAR.momentumY -=
-  1.25e8 * USER_SPEED * Y_DISTANCE *
+  1.25e8 *
+  USER_SPEED *
+  Y_DISTANCE *
   (INV_SCREEN_SIZE ** 5) *
-  (FADE_WITH_DISTANCE ** (INV_SCREEN_SIZE * 7));
-  
-  
+  (FADE_WITH_DISTANCE ** (INV_SCREEN_SIZE * 6));
   
   
   
