@@ -284,8 +284,9 @@ function moveStars() {
     }
 
     // Make momentum form a circle (clamped high)
+    const LIMIT = 13;
     const HYPOT = Math.hypot(STAR.momentumX, STAR.momentumY);
-    if (HYPOT > LIMIT) { STAR.momentumX *= 13 / HYPOT; STAR.momentumY *= 13 / HYPOT; }
+    if (HYPOT > LIMIT) { STAR.momentumX *= LIMIT / HYPOT; STAR.momentumY *= LIMIT / HYPOT; }
     
     // Apply momentum and passive movement
     STAR.x += STAR.vx + STAR.momentumX;
