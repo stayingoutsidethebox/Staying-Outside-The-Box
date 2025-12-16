@@ -377,6 +377,28 @@ document.getElementById('dbgMode').textContent =
 
 /*---------- Star rendering ----------*/
 
+function edgeFactor(STAR) {
+  const R = (STAR.whiteValue * 2 + STAR.size) || 0;
+
+  // distance from the "fully off-screen" threshold on each side
+  const left   = STAR.x + R;          // 0 when x == -R
+  const right  = WIDTH  + R - STAR.x; // 0 when x == WIDTH + R
+  const top    = STAR.y + R;          // 0 when y == -R
+  const bottom = HEIGHT + R - STAR.y; // 0 when y == HEIGHT + R
+
+  const d = Math.min(left, right, top, bottom);
+
+  // fade band width (gentle). tweak this number.
+  const FADE_BAND = Math.min(90, SCREEN_SIZE * 0.03);
+
+  let t = d / FADE_BAND;
+  if (t < 0) t = 0;
+  if (t > 1) t = 1;
+
+  // smoothstep (soft fade)
+  return t * t * (3 - 2 * t);
+}
+
 // Draw all lines and star bodies for the current frame
 function drawStarsWithLines() {
   if (!HAS_CANVAS || !BRUSH) return;
@@ -406,29 +428,7 @@ function drawStarsWithLines() {
   // Lines between nearby stars
   BRUSH.lineWidth = 1;
   const COUNT = STARS.length;
-  
-  // 0 at/beyond wrap threshold, 1 when safely away from edges
-function edgeFactor(STAR) {
-  const R = (STAR.whiteValue * 2 + STAR.size) || 0;
 
-  // distance from the "fully off-screen" threshold on each side
-  const left   = STAR.x + R;          // 0 when x == -R
-  const right  = WIDTH  + R - STAR.x; // 0 when x == WIDTH + R
-  const top    = STAR.y + R;          // 0 when y == -R
-  const bottom = HEIGHT + R - STAR.y; // 0 when y == HEIGHT + R
-
-  const d = Math.min(left, right, top, bottom);
-
-  // fade band width (gentle). tweak this number.
-  const FADE_BAND = Math.min(90, SCREEN_SIZE * 0.03);
-
-  let t = d / FADE_BAND;
-  if (t < 0) t = 0;
-  if (t > 1) t = 1;
-
-  // smoothstep (soft fade)
-  return t * t * (3 - 2 * t);
-}
 
   for (let I = 0; I < COUNT; I++) {
     for (let J = I + 1; J < COUNT; J++) {
