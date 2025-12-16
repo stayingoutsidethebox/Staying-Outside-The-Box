@@ -327,7 +327,7 @@ function moveStars() {
   // Global variable decay
   USER_SPEED *= 0.85;
   if (USER_SPEED < 0.001) USER_SPEED = 0;
-  CIRCLE_TIMER *= 0.99;
+  CIRCLE_TIMER *= 0.92;
   if (CIRCLE_TIMER < 0.001) CIRCLE_TIMER = 0;
   REPEL_TIMER *= 0.94;
   if (REPEL_TIMER < 0.001) REPEL_TIMER = 0;
@@ -438,7 +438,7 @@ function resizeCanvas() {
   CANVAS.width = WIDTH;
   CANVAS.height = HEIGHT;
 
-  SCREEN_SIZE = Math.min(WIDTH + HEIGHT, 2000);
+  SCREEN_SIZE = WIDTH + HEIGHT;
   MAX_STAR_COUNT = SCREEN_SIZE / 10;
   MAX_LINK_DISTANCE = SCREEN_SIZE / 10;
 
