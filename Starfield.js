@@ -620,4 +620,8 @@ try {
   console.error('Initialization error in starfield script:', ERR);
 }
 
+// Expose starfield controls for other scripts
+window.resizeCanvas = resizeCanvas;
+window.saveStarsToStorage = saveStarsToStorage;
+
 //#endregion STARFIELD INITIALIZATION
