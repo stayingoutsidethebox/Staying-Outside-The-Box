@@ -209,6 +209,14 @@ function createStars() {
 
 /*---------- Star animation step ----------*/
 
+    let ATTRACT_STRENGTH = 300;
+    let ATTRACT_RADIUS = 205;
+    let ATTRACT_SCALE = 6.5;
+    
+    let REPEL_STRENGTH = 380;
+    let REPEL_RADIUS = 250;
+    let REPEL_SCALE = 5;
+
 // Debugging tool
 function bindSlider(id, setter) {
   const el = document.getElementById(id);
@@ -216,6 +224,15 @@ function bindSlider(id, setter) {
   setter(Number(el.value));
   el.addEventListener('input', () => setter(Number(el.value)));
 }
+
+bindSlider('ATTRACT_STRENGTH', v => ATTRACT_STRENGTH = v);
+bindSlider('ATTRACT_RADIUS',   v => ATTRACT_RADIUS   = v);
+bindSlider('ATTRACT_SCALE',    v => ATTRACT_SCALE    = v);
+
+bindSlider('REPEL_STRENGTH',   v => REPEL_STRENGTH   = v);
+bindSlider('REPEL_RADIUS',     v => REPEL_RADIUS     = v);
+bindSlider('REPEL_SCALE',      v => REPEL_SCALE      = v);
+     
 
 // Move, fade, and wrap stars around user interaction
 function moveStars() {
@@ -236,52 +253,6 @@ function moveStars() {
     STAR.momentumX = Math.max(-3, Math.min(STAR.momentumX, 3));
     STAR.momentumY = Math.max(-3, Math.min(STAR.momentumY, 3));
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    let ATTRACT_STRENGTH = 300;
-    let ATTRACT_RADIUS = 205;
-    let ATTRACT_SCALE = 6.5;
-    
-    let REPEL_STRENGTH = 380;
-    let REPEL_RADIUS = 250;
-    let REPEL_SCALE = 5;
-
-bindSlider('ATTRACT_STRENGTH', v => ATTRACT_STRENGTH = v);
-bindSlider('ATTRACT_RADIUS',   v => ATTRACT_RADIUS   = v);
-bindSlider('ATTRACT_SCALE',    v => ATTRACT_SCALE    = v);
-
-bindSlider('REPEL_STRENGTH',   v => REPEL_STRENGTH   = v);
-bindSlider('REPEL_RADIUS',     v => REPEL_RADIUS     = v);
-bindSlider('REPEL_SCALE',      v => REPEL_SCALE      = v);
-        
     // User gravity ring (attract from outside)
     STAR.momentumX += (ATTRACT_STRENGTH * 1000) * USER_SPEED * X_DISTANCE * (INV_SCREEN_SIZE ** ATTRACT_SCALE) * (FADE_WITH_DISTANCE ** (INV_SCREEN_SIZE * (1 / ATTRACT_RADIUS * 882)));
     STAR.momentumY += (ATTRACT_STRENGTH * 1000) * USER_SPEED * Y_DISTANCE * (INV_SCREEN_SIZE ** ATTRACT_SCALE) * (FADE_WITH_DISTANCE ** (INV_SCREEN_SIZE * (1 / ATTRACT_RADIUS * 882)));
