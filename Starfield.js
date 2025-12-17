@@ -305,8 +305,8 @@ function moveStars() {
     STAR.y += STAR.vy + STAR.momentumY;
 
     // Decay momentum
-    STAR.momentumX *= 0.99;
-    STAR.momentumY *= 0.99;
+    STAR.momentumX *= 0.98;
+    STAR.momentumY *= 0.98;
 
     // Screen wrap if passive (wait until full star is off-screen)
     if (CIRCLE_TIMER = 0 || FADE_WITH_DISTANCE < 0.004 || REPEL_TIMER > 1000) {
