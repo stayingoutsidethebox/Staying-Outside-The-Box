@@ -209,13 +209,13 @@ function createStars() {
 
 /*---------- Star animation step ----------*/
 
-    let ATTRACT_STRENGTH = 300;
-    let ATTRACT_RADIUS = 205;
-    let ATTRACT_SCALE = 6.5;
+    let ATTRACT_STRENGTH = 50;
+    let ATTRACT_RADIUS = 245;
+    let ATTRACT_SCALE = 1;
     
-    let REPEL_STRENGTH = 380;
-    let REPEL_RADIUS = 250;
-    let REPEL_SCALE = 5;
+    let REPEL_STRENGTH = 126;
+    let REPEL_RADIUS = 277;
+    let REPEL_SCALE = 3.8;
 
 // Debugging tool
 function bindControl(id, setter) {
@@ -226,7 +226,7 @@ function bindControl(id, setter) {
   if (!slider) return;
 
   const min = Number(slider.min || (number && number.min) || 0);
-  const max = Number(slider.max || (number && number.max) || 100);
+  const max = Number(slider.max || (number && number.max) || 10);
 
   const clamp = (v) => Math.min(max, Math.max(min, v));
 
