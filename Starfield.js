@@ -211,7 +211,7 @@ function createStars() {
 
     let ATTRACT_STRENGTH = 50;
     let ATTRACT_RADIUS = 245;
-    let ATTRACT_SCALE = 1;
+    let ATTRACT_SCALE = 5.5;
     
     let REPEL_STRENGTH = 126;
     let REPEL_RADIUS = 277;
