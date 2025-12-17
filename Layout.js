@@ -97,10 +97,19 @@ window.addEventListener("load", () => {
   );
 
   // Trigger slide-in
-  requestAnimationFrame(() => {
-    PAGE.classList.add("ready");
-    PAGE.addEventListener("transitionend", () => lockScrollToContainer(PAGE), { once: true });
-  });
+  // Trigger slide-in
+requestAnimationFrame(() => {
+  PAGE.classList.add("ready");
+
+  const lockOnce = () => lockScrollToContainer(PAGE);
+
+  // 1) Normal path: lock when the CSS transition finishes
+  PAGE.addEventListener("transitionend", lockOnce, { once: true });
+
+  // 2) Safety net: lock even if transitionend never fires
+  const MS = getSlideDurationSeconds() * 1000;
+  setTimeout(lockOnce, MS + 80);
+});
 
   // Back button visibility:
   // • If came from Menu → hide
