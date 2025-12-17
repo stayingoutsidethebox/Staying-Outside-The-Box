@@ -555,7 +555,7 @@ function updateSpeed(X, Y, TIME) {
   const RAW_USER_SPEED = Math.hypot(DX, DY) / DT;
 
   USER_SPEED = Math.min(RAW_USER_SPEED * 50, 50);
-  CIRCLE_TIMER = USER_SPEED;
+  CIRCLE_TIMER = Math.max(CIRCLE_TIMER, USER_SPEED);
   USER_X = X;
   USER_Y = Y;
   USER_TIME = TIME;
