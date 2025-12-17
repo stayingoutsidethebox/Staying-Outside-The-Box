@@ -40,8 +40,9 @@ let USER_X = 0;
 let USER_Y = 0;
 let USER_TIME = 0;
 let USER_SPEED = 0;
-let CIRCLE_TIMER =0;
 let REPEL_TIMER = 0;
+let CIRCLE_TIMER =0;
+window.REMOVE_CIRCLE = window.REMOVE_CIRCLE ?? false;
 
 // Canvas size and star scaling
 let WIDTH = 0;
@@ -296,6 +297,7 @@ function moveStars() {
     STAR.momentumX *= 0.98;
     STAR.momentumY *= 0.98;
 
+    
     // Screen wrap if passive (wait until full star is off-screen)
     if (CIRCLE_TIMER < 0.5 || FADE_WITH_DISTANCE < 0.003 || REPEL_TIMER > 1000) {
       const R = (STAR.whiteValue * 2 + STAR.size) || 0; // same radius you draw with
@@ -376,7 +378,8 @@ document.getElementById('dbgMode').textContent =
 
 // Draw all lines and star bodies for the current frame
 function drawStarsWithLines() {
-  if (!HAS_CANVAS || !BRUSH) return;
+  // If not finished loading, or loading another page, then cancel
+  if (window.REMOVE_CIRCLE || !HAS_CANVAS || !BRUSH) return;
 
   // Clear entire canvas
   BRUSH.clearRect(0, 0, WIDTH, HEIGHT);
