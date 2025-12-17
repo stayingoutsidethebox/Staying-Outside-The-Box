@@ -24,6 +24,17 @@
 const CANVAS = document.getElementById('constellations');
 const BRUSH = CANVAS && CANVAS.getContext ? CANVAS.getContext('2d') : null;
 const HAS_CANVAS = !!(CANVAS && BRUSH);
+// --- STARFIELD PUBLIC API (cross-script safe) ---
+window.STARFIELD = window.STARFIELD || {};
+window.STARFIELD.userCircle = window.STARFIELD.userCircle || { circle_active: true };
+
+// Expose controls (Layout.js can call these)
+window.STARFIELD.setCircleActive = (v = true) => {
+  window.STARFIELD.userCircle.circle_active = !!v;
+};
+window.STARFIELD.freeze = (v = true) => {
+  FREEZE_CONSTELLATION = !!v;
+};
 
 if (!HAS_CANVAS) {
   console.warn('Constellation canvas not found or unsupported; starfield disabled.');
@@ -300,7 +311,8 @@ function moveStars() {
     STAR.momentumY *= 0.98;
 
     // Screen wrap if passive (wait until full star is off-screen)
-    if (CIRCLE_TIMER < 0.5 || FADE_WITH_DISTANCE < 0.003 || REPEL_TIMER > 1000) {
+const CIRCLE_ACTIVE = window.USER_CIRCLE?.circle_active ?? true;
+if (CIRCLE_TIMER > 0 && RING_ALPHA > 0.001 && CIRCLE_ACTIVE) {
       const R = (STAR.whiteValue * 2 + STAR.size) || 0; // same radius you draw with
       if (STAR.x < -R) STAR.x = WIDTH + R;
       else if (STAR.x > WIDTH + R) STAR.x = -R;
@@ -621,7 +633,7 @@ try {
 }
 
 // Expose starfield controls for other scripts
-window.resizeCanvas = resizeCanvas;
-window.saveStarsToStorage = saveStarsToStorage;
+window.STARFIELD.resize = resizeCanvas;
+window.STARFIELD.save = saveStarsToStorage;
 
 //#endregion STARFIELD INITIALIZATION
