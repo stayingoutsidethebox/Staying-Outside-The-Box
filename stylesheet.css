@@ -305,6 +305,12 @@ img {
  *  6 INTERACTION STATES (HOVER, FOCUS, TOUCH)
  *========================================*/
 
+/* Fix false hover css activation */
+a, button, .imgButton {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
 /* Basic link hover scaling */
 a:hover {
   transform: scale(1.05);
