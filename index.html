@@ -38,12 +38,41 @@
     </header>
     <main>
       
-      <!--<div id="debugPanel">
+      <div id="debugPanel">
   <div>USER_SPEED: <span id="dbgSpeed">0</span></div>
   <div>REPEL_TIMER: <span id="dbgRepel">0</span></div>
   <div>FADE: <span id="dbgFade">0</span></div>
   <div>MODE: <span id="dbgMode">wrap</span></div>
-</div>-->
+  
+  <div id="gravityControls" style="position:fixed;bottom:12px;left:12px;
+  background:rgba(0,0,0,0.6);padding:10px;border-radius:8px;
+  font:12px monospace;z-index:9999;color:white">
+
+  <label>Attract Strength
+    <input type="range" min="1" max="1000" value="180" id="ATTRACT_STRENGTH">
+  </label><br>
+
+  <label>Attract Radius
+    <input type="range" min="1" max="1000" value="210" id="ATTRACT_RADIUS">
+  </label><br>
+
+  <label>Attract Scale
+    <input type="range" min="1" max="100" value="100" id="ATTRACT_SCALE">
+  </label><br><br>
+
+  <label>Repel Strength
+    <input type="range" min="1" max="1000" value="200" id="REPEL_STRENGTH">
+  </label><br>
+
+  <label>Repel Radius
+    <input type="range" min="1" max="1000" value="260" id="REPEL_RADIUS">
+  </label><br>
+
+  <label>Repel Scale
+    <input type="range" min="1" max="100" value="100" id="REPEL_SCALE">
+  </label>
+</div>
+</div>
 
       <!-- Apple has to be first to legally use the image -->
       <article class="hoverTogether" href="https://podcasts.apple.com/us/podcast/staying-outside-the-box/id1696482273" target="_blank" rel="noopener noreferrer">
