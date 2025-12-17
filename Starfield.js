@@ -1,4 +1,4 @@
-starfield backup
+
 // thank heavens for chatGPT <3
 
 /*==============================================================*
@@ -402,8 +402,7 @@ function drawStarsWithLines() {
       const STAR_B = STARS[J];
       const X_DISTANCE = STAR_A.x - STAR_B.x;
       const Y_DISTANCE = STAR_A.y - STAR_B.y;
-      const DISTANCE = Math.hypot(X_DISTANCE, Y_DISTANCE);
-      //const DISTANCE= Math.hypot(X_DISTANCE, Y_DISTANCE) / 1100 * SCREEN_SIZE;
+      const DISTANCE= Math.hypot(X_DISTANCE, Y_DISTANCE) / 1100 * SCREEN_SIZE;
 
       if (DISTANCE < MAX_LINK_DISTANCE) {
         // Dimmer with distance
