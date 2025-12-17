@@ -218,11 +218,37 @@ function createStars() {
     let REPEL_SCALE = 5;
 
 // Debugging tool
-function bindSlider(id, setter) {
-  const el = document.getElementById(id);
-  if (!el) return;
-  setter(Number(el.value));
-  el.addEventListener('input', () => setter(Number(el.value)));
+function bindControl(id, setter) {
+  const slider = document.getElementById(id);
+  const number = document.getElementById(id + '_num');
+  const label  = document.getElementById(id + '_val');
+
+  if (!slider) return;
+
+  const min = Number(slider.min || (number && number.min) || 0);
+  const max = Number(slider.max || (number && number.max) || 100);
+
+  const clamp = (v) => Math.min(max, Math.max(min, v));
+
+  const apply = (v) => {
+    v = clamp(Number(v));
+    if (!Number.isFinite(v)) return;
+
+    slider.value = String(v);
+    if (number) number.value = String(v);
+    if (label) label.textContent = String(v);
+    setter(v);
+  };
+
+  // init from slider's current value
+  apply(slider.value);
+
+  slider.addEventListener('input', () => apply(slider.value));
+
+  if (number) {
+    number.addEventListener('input', () => apply(number.value)); // live typing
+    number.addEventListener('change', () => apply(number.value)); // on blur/enter
+  }
 }
 
 bindSlider('ATTRACT_STRENGTH', v => ATTRACT_STRENGTH = v);
@@ -233,6 +259,13 @@ bindSlider('REPEL_STRENGTH',   v => REPEL_STRENGTH   = v);
 bindSlider('REPEL_RADIUS',     v => REPEL_RADIUS     = v);
 bindSlider('REPEL_SCALE',      v => REPEL_SCALE      = v);
      
+ bindControl('ATTRACT_STRENGTH', v => ATTRACT_STRENGTH = v);
+  bindControl('ATTRACT_RADIUS',   v => ATTRACT_RADIUS   = v);
+  bindControl('ATTRACT_SCALE',    v => ATTRACT_SCALE    = v);
+
+  bindControl('REPEL_STRENGTH',   v => REPEL_STRENGTH   = v);
+  bindControl('REPEL_RADIUS',     v => REPEL_RADIUS     = v);
+  bindControl('REPEL_SCALE',      v => REPEL_SCALE      = v);
 
 // Move, fade, and wrap stars around user interaction
 function moveStars() {
