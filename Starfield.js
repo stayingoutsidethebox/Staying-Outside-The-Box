@@ -278,18 +278,27 @@ function moveStars() {
     STAR.momentumX = Math.max(-3, Math.min(STAR.momentumX, 3));
     STAR.momentumY = Math.max(-3, Math.min(STAR.momentumY, 3));
 
-    if (DISTANCE < SCREEN_SIZE * 0.2) {
-      // User gravity ring (attract from outside)
-      STAR.momentumX += ATTRACT_STRENGTH * USER_SPEED * (ATTRACT_RADIUS / INV_X_DIST);
-      STAR.momentumY += ATTRACT_STRENGTH * USER_SPEED * (ATTRACT_RADIUS / INV_Y_DIST);
-      // User gravity ring (repel from inside)
-      STAR.momentumX -= REPEL_STRENGTH * USER_SPEED * (REPEL_RADIUS / INV_X_DIST);
-      STAR.momentumY -= REPEL_STRENGTH * USER_SPEED * (REPEL_RADIUS / INV_Y_DIST);
-        
-      // Repel on poke
-      STAR.momentumX += -1.3 * REPEL_TIMER * INV_X_DIST;
-      STAR.momentumY += -1.3 * REPEL_TIMER * INV_Y_DIST;
-    }
+const RANGE = SCREEN_SIZE * 0.2;
+
+if (DISTANCE < RANGE) {
+  // falloff 1 at center -> 0 at edge (you can swap to INV_DIST, INV_DIST^2, etc.)
+  const DIST_GRADIENT = 1 - (DISTANCE / RANGE);
+
+  // attraction (toward user)
+  const ATTRACT = ATTRACT_STRENGTH * USER_SPEED * DIST_GRADIENT;
+  STAR.momentumX += ATTRACT * TO_USER_X;
+  STAR.momentumY += ATTRACT * TO_USER_Y;
+
+  // repulsion (away from user)
+  const REPEL = REPEL_STRENGTH * USER_SPEED * DIST_GRADIENT;
+  STAR.momentumX += REPEL * -TO_USER_X;
+  STAR.momentumY += REPEL * -TO_USER_Y;
+
+  // poke (extra kick away)
+  const POKE = 1.3 * REPEL_TIMER * DIST_GRADIENT;
+  STAR.momentumX += POKE * -TO_USER_X;
+  STAR.momentumY += POKE * -TO_USER_Y;
+}
 
     // Make momentum form a circle (clamped high)
     const LIMIT = 13;
@@ -308,7 +317,7 @@ function moveStars() {
     STAR.momentumY *= 0.98;
 
     // Screen wrap if passive (wait until full star is off-screen)
-    if (CIRCLE_TIMER = 0 || X_DISTANCE + Y_DISTANCE > 200 || REPEL_TIMER > 1000) {
+    if (CIRCLE_TIMER = 0 || DISTANCE > 200 || REPEL_TIMER > 1000) {
       const R = (STAR.whiteValue * 2 + STAR.size) || 0; // same radius you draw with
       if (STAR.x < -R) STAR.x = WIDTH + R;
       else if (STAR.x > WIDTH + R) STAR.x = -R;
