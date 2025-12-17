@@ -268,9 +268,10 @@ function moveStars() {
     const X_DISTANCE = USER_X - STAR.x;
     const Y_DISTANCE = USER_Y - STAR.y;
     const DISTANCE = Math.hypot(X_DISTANCE, Y_DISTANCE) + 0.0001;
-    const INV_DIST = 1 / DISTANCE;
     const TO_USER_X = X_DISTANCE / DISTANCE;
     const TO_USER_Y = Y_DISTANCE / DISTANCE;
+    const RANGE = SCREEN_SIZE * 0.2;
+    const DIST_GRADIENT = 1 - (DISTANCE / RANGE);
     
     // Increase all star speed (clamped low) with user interaction
     STAR.momentumX += 0.03 * USER_SPEED * STAR.vx + randomBetween(-0.8, 0.8);
@@ -278,11 +279,7 @@ function moveStars() {
     STAR.momentumX = Math.max(-3, Math.min(STAR.momentumX, 3));
     STAR.momentumY = Math.max(-3, Math.min(STAR.momentumY, 3));
 
-const RANGE = SCREEN_SIZE * 0.2;
-
 if (DISTANCE < RANGE) {
-  // falloff 1 at center -> 0 at edge (you can swap to INV_DIST, INV_DIST^2, etc.)
-  const DIST_GRADIENT = 1 - (DISTANCE / RANGE);
 
   // attraction (toward user)
   const ATTRACT = ATTRACT_STRENGTH * USER_SPEED * DIST_GRADIENT;
@@ -317,7 +314,7 @@ if (DISTANCE < RANGE) {
     STAR.momentumY *= 0.98;
 
     // Screen wrap if passive (wait until full star is off-screen)
-    if (CIRCLE_TIMER = 0 || DISTANCE > 200 || REPEL_TIMER > 1000) {
+    if (CIRCLE_TIMER == 0 || DISTANCE > 200 || REPEL_TIMER > 1000) {
       const R = (STAR.whiteValue * 2 + STAR.size) || 0; // same radius you draw with
       if (STAR.x < -R) STAR.x = WIDTH + R;
       else if (STAR.x > WIDTH + R) STAR.x = -R;
@@ -384,11 +381,11 @@ if (DISTANCE < RANGE) {
 
   const DBG_STAR = STARS[0];
 
-document.getElementById('dbgSpeed').textContent =
-  USER_SPEED.toFixed(3);
+const DBG_SPEED = document.getElementById('dbgSpeed');
+if (DBG_SPEED) DBG_SPEED.textContent = USER_SPEED.toFixed(3);
 
-document.getElementById('dbgRepel').textContent =
-  REPEL_TIMER.toFixed(1);
+const DBG_REPEL = document.getElementById('dbgRepel');
+if (DBG_REPEL) DBG_REPEL.textContent = REPEL_TIMER.toFixed(1);
 }
 
 /*---------- Star rendering ----------*/
