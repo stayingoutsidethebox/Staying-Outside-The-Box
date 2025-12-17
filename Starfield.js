@@ -265,27 +265,28 @@ function moveStars() {
   if (!HAS_CANVAS || !STARS.length) return;
   for (const STAR of STARS) {
 
-    // Distance from user
     const X_DISTANCE = USER_X - STAR.x;
     const Y_DISTANCE = USER_Y - STAR.y;
-
+    const DISTANCE = Math.hypot(X_DISTANCE, Y_DISTANCE);
+    const INV_X_DIST = (X_DISTANCE / (X_DISTANCE * X_DISTANCE);
+    const INV_Y_DIST = (Y_DISTANCE / (Y_DISTANCE * Y_DISTANCE);
     // Increase all star speed (clamped low) with user interaction
     STAR.momentumX += 0.03 * USER_SPEED * STAR.vx + randomBetween(-0.8, 0.8);
     STAR.momentumY += 0.03 * USER_SPEED * STAR.vy + randomBetween(-0.8, 0.8);
     STAR.momentumX = Math.max(-3, Math.min(STAR.momentumX, 3));
     STAR.momentumY = Math.max(-3, Math.min(STAR.momentumY, 3));
 
-    if ((Math.hypot(X_DISTANCE, Y_DISTANCE)) < SCREEN_SIZE * 0.2) {
+    if (DISTANCE < SCREEN_SIZE * 0.2) {
       // User gravity ring (attract from outside)
-      STAR.momentumX += ATTRACT_STRENGTH * USER_SPEED * (1 / X_DISTANCE)
-      STAR.momentumY += ATTRACT_STRENGTH * USER_SPEED * (INV_SCREEN_SIZE ** ATTRACT_SCALE) * (FADE_WITH_DISTANCE ** (INV_SCREEN_SIZE * (1 / ATTRACT_RADIUS * 882)));
+      STAR.momentumX += ATTRACT_STRENGTH * USER_SPEED * (ATTRACT_RADIUS / INV_X_DIST);
+      STAR.momentumY += ATTRACT_STRENGTH * USER_SPEED * (ATTRACT_RADIUS / INV_Y_DIST);
       // User gravity ring (repel from inside)
-      STAR.momentumX -= (REPEL_STRENGTH * 50000) * USER_SPEED * X_DISTANCE * (INV_SCREEN_SIZE ** REPEL_SCALE) * (FADE_WITH_DISTANCE ** (INV_SCREEN_SIZE * (1 / REPEL_RADIUS * 1352)));
-      STAR.momentumY -= (REPEL_STRENGTH * 50000) * USER_SPEED * Y_DISTANCE * (INV_SCREEN_SIZE ** REPEL_SCALE) * (FADE_WITH_DISTANCE ** (INV_SCREEN_SIZE * (1 / REPEL_RADIUS * 1352)));
-  
+      STAR.momentumX -= REPEL_STRENGTH * USER_SPEED * (REPEL_RADIUS / INV_X_DIST);
+      STAR.momentumY -= REPEL_STRENGTH * USER_SPEED * (REPEL_RADIUS / INV_Y_DIST);
+        
       // Repel on poke
-      STAR.momentumX += -1.3 * X_DISTANCE * REPEL_TIMER * (FADE_WITH_DISTANCE ** (INV_SCREEN_SIZE * 3.7));
-      STAR.momentumY += -1.3 * Y_DISTANCE * REPEL_TIMER * (FADE_WITH_DISTANCE ** (INV_SCREEN_SIZE * 3.7));
+      STAR.momentumX += -1.3 * REPEL_TIMER * INV_X_DIST;
+      STAR.momentumY += -1.3 * REPEL_TIMER * INV_Y_DIST;
     }
 
     // Make momentum form a circle (clamped high)
