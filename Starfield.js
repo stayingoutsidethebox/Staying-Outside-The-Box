@@ -257,10 +257,10 @@ function moveStars() {
 
 
 
-    const ATTRACT_STRENGTH = 450;
+    const ATTRACT_STRENGTH = 375;
     const REPEL_STRENGTH = 270;
     
-    const ATTRACT_RADIUS = 300;
+    const ATTRACT_RADIUS = 250;
     const REPEL_RADIUS = 245;
 
     // User gravity ring (attract from outside)
