@@ -402,14 +402,12 @@ function drawStarsWithLines() {
       const STAR_B = STARS[J];
       const X_DISTANCE = STAR_A.x - STAR_B.x;
       const Y_DISTANCE = STAR_A.y - STAR_B.y;
-      const DISTANCE= Math.hypot(X_DISTANCE, Y_DISTANCE) / 1100 * SCREEN_SIZE;
+      const DISTANCE = Math.hypot(X_DISTANCE, Y_DISTANCE);
+      //const DISTANCE= Math.hypot(X_DISTANCE, Y_DISTANCE) / 1100 * SCREEN_SIZE;
 
-      if (DISTANCE< MAX_LINK_DISTANCE) {
+      if (DISTANCE < MAX_LINK_DISTANCE) {
         // Dimmer with distance
-        let ALPHA =
-          (1 - DISTANCE/ MAX_LINK_DISTANCE) *
-          ((STAR_A.opacity + STAR_B.opacity) / 2);
-
+        let ALPHA = (1 - DISTANCE / MAX_LINK_DISTANCE) * ((STAR_A.opacity + STAR_B.opacity) / 2);
         // Dimmer near edges for screen wrapping (fade out before teleport)
         ALPHA *= Math.min(edgeFactor(STAR_A), edgeFactor(STAR_B));
 
