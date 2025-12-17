@@ -263,15 +263,11 @@ function bindControl(id, setter) {
 // Move, fade, and wrap stars around user interaction
 function moveStars() {
   if (!HAS_CANVAS || !STARS.length) return;
-  // Scale gravity ring to screen size
-  const INV_SCREEN_SIZE = Math.pow(1100 / SCREEN_SIZE, 0.2);
   for (const STAR of STARS) {
 
     // Distance from user
     const X_DISTANCE = USER_X - STAR.x;
     const Y_DISTANCE = USER_Y - STAR.y;
-    // Almost 1 when close, rapidly approaches 0 with distance
-    const FADE_WITH_DISTANCE = 1 / (Math.hypot(X_DISTANCE, Y_DISTANCE) || 1);
 
     // Increase all star speed (clamped low) with user interaction
     STAR.momentumX += 0.03 * USER_SPEED * STAR.vx + randomBetween(-0.8, 0.8);
@@ -281,8 +277,8 @@ function moveStars() {
 
     if ((Math.hypot(X_DISTANCE, Y_DISTANCE)) < SCREEN_SIZE * 0.2) {
       // User gravity ring (attract from outside)
-      STAR.momentumX += (ATTRACT_STRENGTH * 1000) * USER_SPEED * X_DISTANCE * (INV_SCREEN_SIZE ** ATTRACT_SCALE) * (FADE_WITH_DISTANCE ** (INV_SCREEN_SIZE * (1 / ATTRACT_RADIUS * 882)));
-      STAR.momentumY += (ATTRACT_STRENGTH * 1000) * USER_SPEED * Y_DISTANCE * (INV_SCREEN_SIZE ** ATTRACT_SCALE) * (FADE_WITH_DISTANCE ** (INV_SCREEN_SIZE * (1 / ATTRACT_RADIUS * 882)));
+      STAR.momentumX += ATTRACT_STRENGTH * USER_SPEED * (1 / X_DISTANCE)
+      STAR.momentumY += ATTRACT_STRENGTH * USER_SPEED * (INV_SCREEN_SIZE ** ATTRACT_SCALE) * (FADE_WITH_DISTANCE ** (INV_SCREEN_SIZE * (1 / ATTRACT_RADIUS * 882)));
       // User gravity ring (repel from inside)
       STAR.momentumX -= (REPEL_STRENGTH * 50000) * USER_SPEED * X_DISTANCE * (INV_SCREEN_SIZE ** REPEL_SCALE) * (FADE_WITH_DISTANCE ** (INV_SCREEN_SIZE * (1 / REPEL_RADIUS * 1352)));
       STAR.momentumY -= (REPEL_STRENGTH * 50000) * USER_SPEED * Y_DISTANCE * (INV_SCREEN_SIZE ** REPEL_SCALE) * (FADE_WITH_DISTANCE ** (INV_SCREEN_SIZE * (1 / REPEL_RADIUS * 1352)));
@@ -309,7 +305,7 @@ function moveStars() {
     STAR.momentumY *= 0.98;
 
     // Screen wrap if passive (wait until full star is off-screen)
-    if (CIRCLE_TIMER = 0 || FADE_WITH_DISTANCE < 0.004 || REPEL_TIMER > 1000) {
+    if (CIRCLE_TIMER = 0 || X_DISTANCE + Y_DISTANCE > 200 || REPEL_TIMER > 1000) {
       const R = (STAR.whiteValue * 2 + STAR.size) || 0; // same radius you draw with
       if (STAR.x < -R) STAR.x = WIDTH + R;
       else if (STAR.x > WIDTH + R) STAR.x = -R;
@@ -381,13 +377,6 @@ document.getElementById('dbgSpeed').textContent =
 
 document.getElementById('dbgRepel').textContent =
   REPEL_TIMER.toFixed(1);
-
-document.getElementById('dbgFade').textContent =
-  (1 / (Math.hypot(USER_X - DBG_STAR.x, USER_Y - DBG_STAR.y) || 1)).toFixed(5);
-
-document.getElementById('dbgMode').textContent =
-  (USER_SPEED < 0.001 || REPEL_TIMER > 0) ? 'wrap' : 'bounce';
-
 }
 
 /*---------- Star rendering ----------*/
