@@ -309,7 +309,7 @@ function moveStars() {
     STAR.momentumY *= 0.99;
 
     // Screen wrap if passive (wait until full star is off-screen)
-    if (CIRCLE_TIMER = 0 || FADE_WITH_DISTANCE < 0.002 || REPEL_TIMER > 1000) {
+    if (CIRCLE_TIMER = 0 || FADE_WITH_DISTANCE < 0.004 || REPEL_TIMER > 1000) {
       const R = (STAR.whiteValue * 2 + STAR.size) || 0; // same radius you draw with
       if (STAR.x < -R) STAR.x = WIDTH + R;
       else if (STAR.x > WIDTH + R) STAR.x = -R;
