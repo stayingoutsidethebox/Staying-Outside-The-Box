@@ -252,7 +252,7 @@ function bindControl(id, setter) {
 }
 
 
- bindControl('ATTRACT_STRENGTH', v => ATTRACT_STRENGTH = v);
+  bindControl('ATTRACT_STRENGTH', v => ATTRACT_STRENGTH = v);
   bindControl('ATTRACT_RADIUS',   v => ATTRACT_RADIUS   = v);
   bindControl('ATTRACT_SCALE',    v => ATTRACT_SCALE    = v);
 
@@ -279,7 +279,7 @@ function moveStars() {
     STAR.momentumX = Math.max(-3, Math.min(STAR.momentumX, 3));
     STAR.momentumY = Math.max(-3, Math.min(STAR.momentumY, 3));
 
-    if ((Math.hypot(X_DISTANCE, Y_DISTANCE)) < SCREEN_SIZE * 0.4) {
+    if ((Math.hypot(X_DISTANCE, Y_DISTANCE)) < SCREEN_SIZE * 0.2) {
       // User gravity ring (attract from outside)
       STAR.momentumX += (ATTRACT_STRENGTH * 1000) * USER_SPEED * X_DISTANCE * (INV_SCREEN_SIZE ** ATTRACT_SCALE) * (FADE_WITH_DISTANCE ** (INV_SCREEN_SIZE * (1 / ATTRACT_RADIUS * 882)));
       STAR.momentumY += (ATTRACT_STRENGTH * 1000) * USER_SPEED * Y_DISTANCE * (INV_SCREEN_SIZE ** ATTRACT_SCALE) * (FADE_WITH_DISTANCE ** (INV_SCREEN_SIZE * (1 / ATTRACT_RADIUS * 882)));
