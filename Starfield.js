@@ -67,7 +67,6 @@ function saveStarsToStorage() {
       JSON.stringify({
         width: WIDTH,
         height: HEIGHT,
-        scaleFactor: SCREEN_SIZE,
         repelTimer: REPEL_TIMER,
         userSpeed: USER_SPEED,
         userX: USER_X,
@@ -445,7 +444,6 @@ function drawStarsWithLines() {
 // Redraw without user circle on page leave
 window.forceStarfieldRedraw = () => {
   if (!BRUSH || !CANVAS) return;
-  BRUSH.clearRect(0, 0, CANVAS.width, CANVAS.height);
   drawStarsWithLines();
 };
 
@@ -466,7 +464,7 @@ function resizeCanvas() {
   CANVAS.height = HEIGHT;
 
   SCREEN_SIZE = WIDTH + HEIGHT;
-  MAX_STAR_COUNT = SCREEN_SIZE / 10;
+  MAX_STAR_COUNT = Math.min(450, SCREEN_SIZE / 10);
   MAX_LINK_DISTANCE = SCREEN_SIZE / 10;
 
   // Rescale stars if we already had a previous size
