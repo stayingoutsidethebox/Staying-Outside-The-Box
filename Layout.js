@@ -43,8 +43,27 @@ function freeScrollLayout(PAGE = getPage()) {
   BODY.style.height = "auto";
   if (PAGE) PAGE.style.overflowY = "visible";
 
+  // 🔥 Scrollbar reappeared → viewport width changed
+  if (typeof resizeCanvas === "function") resizeCanvas();
+
+  requestAnimationFrame(() => {
+    try { window.scrollTo(0, CURRENT_SCROLL); } catch {}
+  });
+}
+
+function freeScrollLayout(PAGE = getPage()) {
+  const HTML = document.documentElement;
+  const BODY = document.body;
+
+  const CURRENT_SCROLL =
+    PAGE?.scrollTop ?? window.scrollY ?? 0;
+
+  HTML.style.overflowY = "auto";
+  BODY.style.height = "auto";
+  if (PAGE) PAGE.style.overflowY = "visible";
+
   // Resync canvas after scrollbar/layout changes
-  if (typeof resizeCanvas === "function") window.STARFIELD?.resize?.();
+  if (typeof resizeCanvas === "function") resizeCanvas();
 
   requestAnimationFrame(() => {
     try { window.scrollTo(0, CURRENT_SCROLL); } catch {}
@@ -83,7 +102,7 @@ window.addEventListener("load", () => {
   // Trigger slide-in
   requestAnimationFrame(() => {
     PAGE.classList.add("ready");
-    //PAGE.addEventListener("transitionend", () => lockScrollToContainer(PAGE), { once: true });
+    PAGE.addEventListener("transitionend", () => lockScrollToContainer(PAGE), { once: true });
   });
 
   // Back button visibility:
@@ -114,7 +133,7 @@ window.addEventListener("pageshow", (event) => {
   if (event.persisted || performance?.getEntriesByType("navigation")[0]?.type === "back_forward") {
     PAGE.classList.remove("slide-out");
     PAGE.classList.add("ready");
-    //lockScrollToContainer(PAGE);
+    lockScrollToContainer(PAGE);
     IS_TRANSITIONING = false;
     PAGE.scrollTop = 0;
   }
@@ -127,8 +146,6 @@ function transitionTo(URL, IS_MENU = false) {
   if (IS_TRANSITIONING) return;
   if (!URL) return;
   IS_TRANSITIONING = true;
-window.USER_CIRCLE = window.USER_CIRCLE || {};
-window.USER_CIRCLE.circle_active = true;
 
   const PAGE = getPage();
 
@@ -142,10 +159,8 @@ window.USER_CIRCLE.circle_active = true;
   if (!PAGE) return (location.href = URL);
 
   // Pause starfield safely if Starfield.js is loaded
-  if (typeof FREEZE_CONSTELLATION !== "undefined") window.STARFIELD?.freeze(true);
-  if (typeof saveStarsToStorage === "function") window.STARFIELD?.save?.();
-  
-
+  if (typeof FREEZE_CONSTELLATION !== "undefined") FREEZE_CONSTELLATION = true;
+  if (typeof saveStarsToStorage === "function") saveStarsToStorage();
 
   // Compute slide distance
   const DIST = window.innerHeight + (PAGE.scrollTop ?? 0);
