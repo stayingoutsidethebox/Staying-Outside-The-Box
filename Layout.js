@@ -201,56 +201,84 @@ function toggleElement(ID) {
   if (EL) EL.hidden = !EL.hidden;
 }
 
-function wireTouchEvent(selector = "a") {
+function wirePointerEvent(selector = "a") {
   const items = document.querySelectorAll(selector);
   if (!items.length) return;
 
   items.forEach((el) => {
-    let sx = 0,
-      sy = 0,
-      moved = false;
+    let sx = 0;
+    let sy = 0;
+    let moved = false;
+    let pid = null;
 
     el.addEventListener(
-      "touchstart",
+      "pointerdown",
       (e) => {
-        const t = e.touches[0];
-        sx = t.clientX;
-        sy = t.clientY;
+        // Only treat touch like your old touch handlers
+        if (e.pointerType !== "touch") return;
+
+        pid = e.pointerId;
         moved = false;
+        sx = e.clientX;
+        sy = e.clientY;
+
+        // Guarantees this element receives pointerup/cancel even if finger drifts
+        try { el.setPointerCapture(pid); } catch {}
       },
       { passive: true }
     );
 
     el.addEventListener(
-      "touchmove",
+      "pointermove",
       (e) => {
-        const t = e.touches[0];
-        if (Math.hypot(t.clientX - sx, t.clientY - sy) > 10) moved = true;
+        if (e.pointerId !== pid) return;
+        if (Math.hypot(e.clientX - sx, e.clientY - sy) > 10) moved = true;
       },
       { passive: true }
     );
 
     el.addEventListener(
-      "touchend",
+      "pointerup",
       (e) => {
-        if (moved) return;
+        if (e.pointerId !== pid) return;
 
+        try { el.releasePointerCapture(pid); } catch {}
+        pid = null;
+
+        // If the finger slid around, do NOT navigate and also unstick styles
+        if (moved) {
+          try { el.blur(); } catch {}
+          return;
+        }
+
+        // Take over navigation (like your touchend + preventDefault)
         e.preventDefault();
 
         if (el.id === "homepageBack") {
-          return transitionTo("back");
+          transitionTo("back");
+          return;
         }
 
         const url = el.getAttribute("href");
         if (!url) return;
 
-        const isMenu = el.dataset.menu === "1";
-        transitionTo(url, isMenu);
+        transitionTo(url);
       },
       { passive: false }
     );
+
+    el.addEventListener(
+      "pointercancel",
+      () => {
+        pid = null;
+        try { el.blur(); } catch {}
+      },
+      { passive: true }
+    );
   });
 }
+
+document.addEventListener("DOMContentLoaded", () => wirePointerEvent());
 
 document.addEventListener("DOMContentLoaded", () => wireTouchEvent());
 //#endregion
