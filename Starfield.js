@@ -371,7 +371,12 @@ bindSlider('REPEL_SCALE',      v => REPEL_SCALE      = v);
   if (CIRCLE_TIMER < 0.001) CIRCLE_TIMER = 0;
   REPEL_TIMER *= 0.85;
   if (REPEL_TIMER < 0.001) REPEL_TIMER = 0;
-  /* DEBUG
+
+
+
+
+
+
   const DBG_STAR = STARS[0];
 
 document.getElementById('dbgSpeed').textContent =
@@ -385,7 +390,7 @@ document.getElementById('dbgFade').textContent =
 
 document.getElementById('dbgMode').textContent =
   (USER_SPEED < 0.001 || REPEL_TIMER > 0) ? 'wrap' : 'bounce';
-*/
+
 }
 
 /*---------- Star rendering ----------*/
