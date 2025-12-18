@@ -91,9 +91,11 @@ function saveStarsToStorage() {
         attractStrength: ATTRACT_STRENGTH,
         attractRadius: ATTRACT_RADIUS,
         attractScale: ATTRACT_SCALE,
+        clamp: CLAMP,
         repelStrength: REPEL_STRENGTH,
         repelRadius: REPEL_RADIUS,
-        repelScale: REPEL_SCALE
+        repelScale: REPEL_SCALE,
+        poke: POKE
       })
     );
   } catch (ERR) {
@@ -172,11 +174,12 @@ function initStars() {
           ATTRACT_STRENGTH = META.attractStrength ?? ATTRACT_STRENGTH;
           ATTRACT_RADIUS   = META.attractRadius   ?? ATTRACT_RADIUS;
           ATTRACT_SCALE    = META.attractScale    ?? ATTRACT_SCALE;
-
+          CLAMP            = META.clamp           ?? CLAMP;
           REPEL_STRENGTH   = META.repelStrength   ?? REPEL_STRENGTH;
           REPEL_RADIUS     = META.repelRadius     ?? REPEL_RADIUS;
           REPEL_SCALE      = META.repelScale      ?? REPEL_SCALE;
-
+          POKE            = META.poke           ?? POKE;
+          
           if (typeof META.userX === 'number') USER_X = META.userX;
           if (typeof META.userY === 'number') USER_Y = META.userY;
 
@@ -315,9 +318,11 @@ function enableStepperHold(button, onStep) {
 let ATTRACT_STRENGTH = 50;
 let ATTRACT_RADIUS = 50;
 let ATTRACT_SCALE = 5;
+let CLAMP = 0;
 let REPEL_STRENGTH = 50;
 let REPEL_RADIUS = 50;
 let REPEL_SCALE = 5;
+let POKE = 0;
 
 function bindControl(ID, setter, INITIAL_VALUE) {
   const SLIDER = document.getElementById(ID);
@@ -485,7 +490,7 @@ STAR.momentumX += REPEL * -TO_USER_X;
 STAR.momentumY += REPEL * -TO_USER_Y;
 
       // Poke: extra kick away (also respects repel radius)
-      const POKE = 0.05 * POKE_TIMER * REPEL_SHAPE;
+      POKE = 0.05 * POKE_TIMER * REPEL_SHAPE;
       STAR.momentumX += POKE * -TO_USER_X;
       STAR.momentumY += POKE * -TO_USER_Y;
     }
@@ -499,7 +504,7 @@ STAR.momentumY += REPEL * -TO_USER_Y;
     let FORCE_Y = STAR.momentumY;
 
     // Clamp force magnitude
-    const LIMIT = 5 * (SCALE_TO_SCREEN ** 2);
+    const LIMIT = CLAMP * (SCALE_TO_SCREEN ** 2);
     const HYPOT = Math.hypot(FORCE_X, FORCE_Y);
     if (HYPOT > LIMIT) {
       FORCE_X *= LIMIT / HYPOT;
