@@ -247,8 +247,8 @@ function createStars() {
  *==============================================================*/
 
 function enableStepperHold(button, onStep) {
-  let holdTimer = null;
-  let repeatTimer = null;
+  let HOLD_TIMER = null;
+  let REPEAT_TIMER = null;
 
   const INITIAL_DELAY = 350;   // ms before repeat starts
   const START_INTERVAL = 120;  // initial repeat speed
@@ -256,41 +256,41 @@ function enableStepperHold(button, onStep) {
   const ACCELERATION = 0.88;   // interval shrink per tick
 
   const startHold = () => {
-    let interval = START_INTERVAL;
+    let INTERVAL = START_INTERVAL;
 
     // Immediate first step
     onStep();
 
-    holdTimer = setTimeout(() => {
-      repeatTimer = setInterval(() => {
+    HOLD_TIMER = setTimeout(() => {
+      REPEAT_TIMER = setInterval(() => {
         onStep();
-        interval = Math.max(MIN_INTERVAL, interval * ACCELERATION);
+        INTERVAL = Math.max(MIN_INTERVAL, INTERVAL * ACCELERATION);
 
         // Restart interval to apply acceleration
-        clearInterval(repeatTimer);
-        repeatTimer = setInterval(onStep, interval);
-      }, interval);
+        clearInterval(REPEAT_TIMER);
+        REPEAT_TIMER = setInterval(onStep, INTERVAL);
+      }, INTERVAL);
     }, INITIAL_DELAY);
   };
 
   const stopHold = () => {
-    clearTimeout(holdTimer);
-    clearInterval(repeatTimer);
-    holdTimer = null;
-    repeatTimer = null;
+    clearTimeout(HOLD_TIMER);
+    clearInterval(REPEAT_TIMER);
+    HOLD_TIMER = null;
+    REPEAT_TIMER = null;
   };
 
   // Mouse
-  button.addEventListener('mousedown', (e) => {
-    e.preventDefault();
+  button.addEventListener('mousedown', (E) => {
+    E.preventDefault();
     startHold();
   });
   button.addEventListener('mouseup', stopHold);
   button.addEventListener('mouseleave', stopHold);
 
   // Touch
-  button.addEventListener('touchstart', (e) => {
-    e.preventDefault();
+  button.addEventListener('touchstart', (E) => {
+    E.preventDefault();
     startHold();
   }, { passive: false });
 
@@ -318,62 +318,62 @@ let REPEL_STRENGTH = 0.91;
 let REPEL_RADIUS = 140;
 let REPEL_SCALE = 3.2;
 
-function bindControl(id, setter, initialValue) {
-  const slider = document.getElementById(id);
-  if (!slider) return false;
+function bindControl(ID, setter, INITIAL_VALUE) {
+  const SLIDER = document.getElementById(ID);
+  if (!SLIDER) return false;
 
-  const number = document.getElementById(id + '_num');
+  const HTML_ELEMENT = document.getElementById(ID + '_num');
 
   // Find the nearest .ctl container, then the stepper buttons
-  const ctl = slider.closest('.ctl') || slider.parentElement;
-  const stepBtns = ctl ? ctl.querySelectorAll('.stepBtn[data-step]') : [];
+  const CONTROL_BLOCK = SLIDER.closest('.controlBlock');
+  const STEP_BUTTONS = CONTROL_BLOCK ? CONTROL_BLOCK.querySelectorAll('.stepBtn[data-step]') : [];
 
-  const min = Number(slider.min || (number && number.min) || 0);
-  const max = Number(slider.max || (number && number.max) || 10);
+  const MIN = Number(SLIDER.min || (HTML_ELEMENT && HTML_ELEMENT.min) || 0);
+  const MAX = Number(SLIDER.max || (HTML_ELEMENT && HTML_ELEMENT.max) || 10);
 
-  const clamp = (v) => Math.min(max, Math.max(min, v));
+  const clamp = (v) => Math.min(MAX, Math.max(MIN, v));
 
   const apply = (v) => {
     v = clamp(Number(v));
     if (!Number.isFinite(v)) return;
 
-    slider.value = String(v);
-    if (number) number.value = String(v);
+    SLIDER.value = String(v);
+    if (HTML_ELEMENT) HTML_ELEMENT.value = String(v);
 
     setter(v);
 
-    // Keep your slider gradient fill in sync (if you use that)
-    slider.dispatchEvent(new Event('input', { bubbles: true }));
+    // Keep your SLIDER gradient fill in sync (if you use that)
+    SLIDER.dispatchEvent(new Event('input', { bubbles: true }));
   };
 
   // Step size: prefer slider.step, else number.step, else 1
-  const rawStep = Number(slider.step || (number && number.step) || 1);
-  const step = Number.isFinite(rawStep) && rawStep > 0 ? rawStep : 1;
+  const RAW_STEP = Number(SLIDER.step || (HTML_ELEMENT && HTML_ELEMENT.step) || 1);
+  const STEP = Number.isFinite(RAW_STEP) && RAW_STEP > 0 ? RAW_STEP : 1;
 
-  const nudge = (dir) => {
-    const current = Number(slider.value);
-    const next = current + dir * step;
-    apply(next);
+  const nudge = (DIR) => {
+    const CURRENT = Number(SLIDER.value);
+    const NEXT = CURRENT + DIR * STEP;
+    apply(NEXT);
   };
 
   // Initialize from JS value (NOT HTML)
-  apply(initialValue ?? slider.value);
+  apply(INITIAL_VALUE ?? SLIDER.value);
 
   // Slider drag
-  slider.addEventListener('input', () => apply(slider.value));
+  SLIDER.addEventListener('input', () => apply(SLIDER.value));
 
   // Number typing
-  if (number) {
-    number.addEventListener('input', () => apply(number.value));
-    number.addEventListener('change', () => apply(number.value));
+  if (HTML_ELEMENT) {
+    HTML_ELEMENT.addEventListener('input', () => apply(HTML_ELEMENT.value));
+    HTML_ELEMENT.addEventListener('change', () => apply(HTML_ELEMENT.value));
   }
 
   // +/- buttons (hold-to-repeat)
-  stepBtns.forEach(btn => {
-    const dir = Number(btn.dataset.step) || 0;
-    if (!dir) return;
+  STEP_BUTTONS.forEach(BTN => {
+    const DIR = Number(BTN.dataset.step) || 0;
+    if (!DIR) return;
 
-    enableStepperHold(btn, () => nudge(dir));
+    enableStepperHold(BTN, () => nudge(DIR));
   });
 
   return true;
