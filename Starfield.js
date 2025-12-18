@@ -207,6 +207,23 @@ function createStars() {
   }
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /*---------- Star animation step ----------*/
 
     let ATTRACT_STRENGTH = 50;
@@ -281,20 +298,33 @@ function moveStars() {
 
 if (DISTANCE < RANGE) {
 
+  // Radii are in pixels (same units as DISTANCE).
+  // 1 at center -> 0 at radius -> stays 0 beyond radius.
+  const ATTR_T = 1 - (DISTANCE / (ATTRACT_RADIUS || 1));
+  const REPEL_T = 1 - (DISTANCE / (REPEL_RADIUS  || 1));
+
+  const ATTR_FALLOFF = Math.max(0, ATTR_T);
+  const REPEL_FALLOFF = Math.max(0, REPEL_T);
+
+  // (Optional) sharpen/soften with scale sliders:
+  // higher scale = tighter/stronger near center, weaker at edge
+  const ATTR_SHAPE = Math.pow(ATTR_FALLOFF, Math.max(0.1, ATTRACT_SCALE));
+  const REPEL_SHAPE = Math.pow(REPEL_FALLOFF, Math.max(0.1, REPEL_SCALE));
+
   // attraction (toward user)
-  const ATTRACT = ATTRACT_STRENGTH * USER_SPEED * DIST_GRADIENT;
+  const ATTRACT = ATTRACT_STRENGTH * USER_SPEED * ATTR_SHAPE;
   STAR.momentumX += ATTRACT * TO_USER_X;
   STAR.momentumY += ATTRACT * TO_USER_Y;
 
   // repulsion (away from user)
-  const REPEL = REPEL_STRENGTH * USER_SPEED * DIST_GRADIENT;
-  STAR.momentumX += REPEL * -TO_USER_X;
-  STAR.momentumY += REPEL * -TO_USER_Y;
+  const REPEL = REPEL_STRENGTH * USER_SPEED * REPEL_SHAPE;
+  STAR.momentumX -= REPEL * TO_USER_X;
+  STAR.momentumY -= REPEL * TO_USER_Y;
 
-  // poke (extra kick away)
-  const POKE = 1.3 * REPEL_TIMER * DIST_GRADIENT;
-  STAR.momentumX += POKE * -TO_USER_X;
-  STAR.momentumY += POKE * -TO_USER_Y;
+  // poke (extra kick away) also respects repel radius
+  const POKE = 1.3 * REPEL_TIMER * REPEL_SHAPE;
+  STAR.momentumX -= POKE * TO_USER_X;
+  STAR.momentumY -= POKE * TO_USER_Y;
 }
 
     // Make momentum form a circle (clamped high)
