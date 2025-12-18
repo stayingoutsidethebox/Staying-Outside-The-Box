@@ -288,25 +288,18 @@ function moveStars() {
     const TO_USER_X = X_DISTANCE / DISTANCE;
     const TO_USER_Y = Y_DISTANCE / DISTANCE;
     const RANGE = SCREEN_SIZE * 0.2;
-    const DIST_GRADIENT = 1 - (DISTANCE / RANGE);
     
-    // Increase all star speed (clamped low) with user interaction
-    STAR.momentumX += 0.1 * USER_SPEED * STAR.vx;
-    STAR.momentumY += 0.1 * USER_SPEED * STAR.vy;
-    STAR.momentumX = Math.max(-3, Math.min(STAR.momentumX, 3));
-    STAR.momentumY = Math.max(-3, Math.min(STAR.momentumY, 3));
-
+// Adhere to gravity ring if close enough
 if (DISTANCE < RANGE) {
 
-  // Radii are in pixels (same units as DISTANCE).
   // 1 at center -> 0 at radius -> stays 0 beyond radius.
-  const ATTR_T = 1 - (DISTANCE / (ATTRACT_RADIUS || 1));
-  const REPEL_T = 1 - (DISTANCE / (REPEL_RADIUS  || 1));
+  const ATTR_GRADIENT = 1 - (DISTANCE / (ATTRACT_RADIUS || 1));
+  const REPEL_GRADIENT = 1 - (DISTANCE / (REPEL_RADIUS  || 1));
+  
+  // Clamp
+  const ATTR_FALLOFF = Math.max(0, ATTR_GRADIENT);
+  const REPEL_FALLOFF = Math.max(0, REPEL_GRADIENT);
 
-  const ATTR_FALLOFF = Math.max(0, ATTR_T);
-  const REPEL_FALLOFF = Math.max(0, REPEL_T);
-
-  // (Optional) sharpen/soften with scale sliders:
   // higher scale = tighter/stronger near center, weaker at edge
   const ATTR_SHAPE = Math.pow(ATTR_FALLOFF, Math.max(0.1, ATTRACT_SCALE));
   const REPEL_SHAPE = Math.pow(REPEL_FALLOFF, Math.max(0.1, REPEL_SCALE));
@@ -327,7 +320,11 @@ if (DISTANCE < RANGE) {
   STAR.momentumY -= POKE * TO_USER_Y;
 }
 
-    // Make momentum form a circle (clamped high)
+// Globally increase star speed with user interaction
+    STAR.momentumX += 0.1 * USER_SPEED * STAR.vx;
+    STAR.momentumY += 0.1 * USER_SPEED * STAR.vy;
+    
+    // Make momentum form a circle and clamp
     const LIMIT = 13;
     const HYPOT = Math.hypot(STAR.momentumX, STAR.momentumY);
     if (HYPOT > LIMIT) {
@@ -336,8 +333,8 @@ if (DISTANCE < RANGE) {
     }
 
     // Apply momentum and passive movement
-    STAR.x += STAR.vx + STAR.momentumX + randomBetween(-0.3, 0.3);
-    STAR.y += STAR.vy + STAR.momentumY + randomBetween(-0.3, 0.3);
+    STAR.x += STAR.vx + STAR.momentumX + randomBetween(-0.2, 0.2);
+    STAR.y += STAR.vy + STAR.momentumY + randomBetween(-0.2, 0.2);
 
     // Decay momentum
     STAR.momentumX *= 0.98;
