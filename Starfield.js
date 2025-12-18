@@ -318,11 +318,11 @@ function enableStepperHold(button, onStep) {
 let ATTRACT_STRENGTH = 50;
 let ATTRACT_RADIUS = 50;
 let ATTRACT_SCALE = 5;
-let CLAMP = 0;
+let CLAMP = 5;
 let REPEL_STRENGTH = 50;
 let REPEL_RADIUS = 50;
 let REPEL_SCALE = 5;
-let POKE_STRENGTH = 0;
+let POKE_STRENGTH = 5;
 
 function bindControl(ID, setter, INITIAL_VALUE) {
   const SLIDER = document.getElementById(ID);
