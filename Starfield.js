@@ -454,7 +454,7 @@ function moveStars() {
 
     // Clamp momentum magnitude
     const LIMIT = 9;
-    const HYPOT = Math.hypot(STAR.momentumX, STAR.momentumY);
+    const HYPOT = Math.hypot(FORCE_X, FORCE_Y);
     if (HYPOT > LIMIT) {
       FORCE_X *= LIMIT / HYPOT;
       FORCE_Y *= LIMIT / HYPOT;
