@@ -104,8 +104,9 @@
         box-shadow: var(--SHADOW);
       }
       
+      /* Prevent slider from growing */
       input[type="range"]:active {
-        transform: scale(1.05);
+        transform: none;
       }
 
       /*==============================*
@@ -144,7 +145,7 @@
        *  3) CONTROL ROWS (LABEL + INPUTS)
        *==============================*/
 
-      .ctl{
+      .controlBlock{
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 6dvmin 0;
@@ -360,7 +361,7 @@
           <section>
             <h3>Attract</h3>
 
-            <div class="ctl">
+            <div class="controlBlock">
               <label>Strength</label>
               <input id="ATTRACT_STRENGTH" type="range" min="0" max="3" step="0.01" value="0.35">
               <input id="ATTRACT_STRENGTH_num" type="number" min="0" max="3" step="0.01" value="0.35">
@@ -370,7 +371,7 @@
               </div>
             </div>
 
-            <div class="ctl">
+            <div class="controlBlock">
               <label>Radius</label>
               <input id="ATTRACT_RADIUS" type="range" min="40" max="600" step="5" value="260">
               <input id="ATTRACT_RADIUS_num" type="number" min="40" max="600" step="5" value="260">
@@ -380,7 +381,7 @@
               </div>
             </div>
 
-            <div class="ctl">
+            <div class="controlBlock">
               <label>Scale</label>
               <input id="ATTRACT_SCALE" type="range" min="0.2" max="6" step="0.1" value="2.2">
               <input id="ATTRACT_SCALE_num" type="number" min="0.2" max="6" step="0.1" value="2.2">
@@ -397,7 +398,7 @@
           <section>
             <h3>Repel</h3>
 
-            <div class="ctl">
+            <div class="controlBlock">
               <label>Strength</label>
               <input id="REPEL_STRENGTH" type="range" min="0" max="6" step="0.01" value="0.85">
               <input id="REPEL_STRENGTH_num" type="number" min="0" max="6" step="0.01" value="0.85">
@@ -407,7 +408,7 @@
               </div>
             </div>
 
-            <div class="ctl">
+            <div class="controlBlock">
               <label>Radius</label>
               <input id="REPEL_RADIUS" type="range" min="20" max="400" step="5" value="160">
               <input id="REPEL_RADIUS_num" type="number" min="20" max="400" step="5" value="160">
@@ -417,7 +418,7 @@
               </div>
             </div>
 
-            <div class="ctl">
+            <div class="controlBlock">
               <label>Scale</label>
               <input id="REPEL_SCALE" type="range" min="0.2" max="6" step="0.1" value="2.6">
               <input id="REPEL_SCALE_num" type="number" min="0.2" max="6" step="0.1" value="2.6">
