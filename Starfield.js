@@ -457,7 +457,7 @@ const REPEL_SHAPE =
 
 // Attraction (toward user)
 const ATTRACT =
-  (ATTRACT_STRENGTH * (SCALE_TO_SCREEN ** -2.75)) * USER_SPEED * ATTR_SHAPE;
+  (ATTRACT_STRENGTH * (SCALE_TO_SCREEN ** -8.46)) * USER_SPEED * ATTR_SHAPE;
 
 STAR.momentumX += ATTRACT * TO_USER_X;
 STAR.momentumY += ATTRACT * TO_USER_Y;
