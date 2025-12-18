@@ -603,7 +603,7 @@ function drawStarsWithLines() {
     const BASE = Math.min(WIDTH, HEIGHT);
     const SCALE = Math.pow(SCREEN_SIZE / 1200, 0.35);
     const RING_RADIUS = 0.06 * BASE * SCALE;
-    const RING_WIDTH = 1.5 + CIRCLE_TIMER * 0.15;
+    const RING_WIDTH = CIRCLE_TIMER * 0.15 + 1.5;
     const RING_ALPHA = Math.min(CIRCLE_TIMER * 0.07, 1);
 
     if (USER_TIME > 0 && RING_ALPHA > 0.001) {
