@@ -312,7 +312,7 @@ function enableStepperHold(button, onStep) {
  *   - Dispatches 'input' on slider after apply to keep fill sync.
  *==============================================================*/
 
-let ATTRACT_STRENGTH = 0.4;
+let ATTRACT_STRENGTH = 0.3;
 let ATTRACT_RADIUS = 260;
 let ATTRACT_SCALE = 2.4;
 let REPEL_STRENGTH = 0.91;
@@ -437,35 +437,50 @@ function moveStars() {
     // Apply gravity ring forces only within influence range
     if (DISTANCE < RANGE) {
 
-      // Linear gradient: 1 at center -> 0 at radius -> stays 0 beyond radius
+
+
+
+
+
+
+
+
+// Linear gradient
 let ATTR_GRADIENT =
-  1 - (DISTANCE / ((ATTRACT_RADIUS * (SCALE_TO_SCREEN ** 1.11)) || 1));
+  1 - (DISTANCE / (((ATTRACT_RADIUS * 5.2) * (SCALE_TO_SCREEN ** 1.11)) || 1));
 
 let REPEL_GRADIENT =
-  1 - (DISTANCE / ((REPEL_RADIUS  * (SCALE_TO_SCREEN ** 0.66)) || 1));
-
+  1 - (DISTANCE / (((REPEL_RADIUS * 2.8) * (SCALE_TO_SCREEN ** 0.66)) || 1));
 // Clamp
 ATTR_GRADIENT = Math.max(0, ATTR_GRADIENT);
 REPEL_GRADIENT = Math.max(0, REPEL_GRADIENT);
 
-// Shape curve: higher scale = tighter near center, weaker at edge
 const ATTR_SHAPE =
-  Math.pow(ATTR_GRADIENT, Math.max(0.1, (ATTRACT_SCALE * (SCALE_TO_SCREEN ** -8.89))));
+  Math.pow(
+    ATTR_GRADIENT,
+    Math.max(0.1, ((ATTRACT_SCALE * 0.048) * (SCALE_TO_SCREEN ** -8.89)))
+  );
 
 const REPEL_SHAPE =
-  Math.pow(REPEL_GRADIENT, Math.max(0.1, REPEL_SCALE)); // unchanged
-
-// Attraction (toward user)
+  Math.pow(
+    REPEL_GRADIENT,
+    Math.max(0.1, (REPEL_SCALE * 0.064))
+  );
+  
+// Attraction
 const ATTRACT =
-  (ATTRACT_STRENGTH * (SCALE_TO_SCREEN ** -8.46)) * USER_SPEED * ATTR_SHAPE;
+  ((ATTRACT_STRENGTH * 0.006) * (SCALE_TO_SCREEN ** -8.46)) *
+  USER_SPEED *
+  ATTR_SHAPE;
 
+// Repulsion
+const REPEL =
+  ((REPEL_STRENGTH * 0.0182) * (SCALE_TO_SCREEN ** -0.89)) *
+  USER_SPEED *
+  REPEL_SHAPE;
+  
 STAR.momentumX += ATTRACT * TO_USER_X;
 STAR.momentumY += ATTRACT * TO_USER_Y;
-
-// Repulsion (away from user)
-const REPEL =
-  (REPEL_STRENGTH * (SCALE_TO_SCREEN ** -0.89)) * USER_SPEED * REPEL_SHAPE;
-
 STAR.momentumX += REPEL * -TO_USER_X;
 STAR.momentumY += REPEL * -TO_USER_Y;
 
