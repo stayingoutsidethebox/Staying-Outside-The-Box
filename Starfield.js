@@ -503,14 +503,11 @@ function moveStars() {
       if (STAR.x < R) {
         STAR.x = 2 * R - STAR.x;
     
-        // True reflection: flip direction (no sign-forcing)
-        STAR.vx = -STAR.vx;
+        // Reflect only the extra force
         STAR.momentumX = -STAR.momentumX;
       } else if (STAR.x > WIDTH - R) {
         STAR.x = 2 * (WIDTH - R) - STAR.x;
     
-        // True reflection
-        STAR.vx = -STAR.vx;
         STAR.momentumX = -STAR.momentumX;
       }
     
@@ -518,14 +515,10 @@ function moveStars() {
       if (STAR.y < R) {
         STAR.y = 2 * R - STAR.y;
     
-        // True reflection
-        STAR.vy = -STAR.vy;
         STAR.momentumY = -STAR.momentumY;
       } else if (STAR.y > HEIGHT - R) {
         STAR.y = 2 * (HEIGHT - R) - STAR.y;
     
-        // True reflection
-        STAR.vy = -STAR.vy;
         STAR.momentumY = -STAR.momentumY;
       }
     }
