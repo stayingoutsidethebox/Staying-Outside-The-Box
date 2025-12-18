@@ -439,7 +439,7 @@ function moveStars() {
       STAR.momentumY -= REPEL * TO_USER_Y;
 
       // Poke: extra kick away (also respects repel radius)
-      const POKE = 1.3 * POKE_TIMER * REPEL_SHAPE;
+      const POKE = 0.8 * POKE_TIMER * REPEL_SHAPE;
       STAR.momentumX -= POKE * TO_USER_X;
       STAR.momentumY -= POKE * TO_USER_Y;
     }
