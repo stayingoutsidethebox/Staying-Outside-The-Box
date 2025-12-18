@@ -435,13 +435,13 @@ function moveStars() {
 
       // Repulsion (away from user)
       const REPEL = REPEL_STRENGTH * USER_SPEED * REPEL_SHAPE;
-      STAR.momentumX -= REPEL * TO_USER_X;
-      STAR.momentumY -= REPEL * TO_USER_Y;
+      STAR.momentumX += REPEL * -TO_USER_X;
+      STAR.momentumY += REPEL * -TO_USER_Y;
 
       // Poke: extra kick away (also respects repel radius)
-      const POKE = 0.8 * POKE_TIMER * REPEL_SHAPE;
-      STAR.momentumX -= POKE * TO_USER_X;
-      STAR.momentumY -= POKE * TO_USER_Y;
+      const POKE = 0.4 * POKE_TIMER * REPEL_SHAPE;
+      STAR.momentumX += POKE * -TO_USER_X;
+      STAR.momentumY += POKE * -TO_USER_Y;
     }
 
     // Global boost: user interaction increases baseline drift speed
