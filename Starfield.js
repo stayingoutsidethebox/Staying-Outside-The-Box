@@ -449,12 +449,12 @@ function moveStars() {
       const REPEL_SHAPE = Math.pow(REPEL_GRADIENT, Math.max(0.1, REPEL_SCALE));
 
       // Attraction (toward user)
-      const ATTRACT = ATTRACT_STRENGTH * USER_SPEED * ATTR_SHAPE;
+      const ATTRACT = (ATTRACT_STRENGTH * (SCALE_TO_SCREEN ** 2)) * USER_SPEED * ATTR_SHAPE;
       STAR.momentumX += ATTRACT * TO_USER_X;
       STAR.momentumY += ATTRACT * TO_USER_Y;
 
       // Repulsion (away from user)
-      const REPEL = REPEL_STRENGTH * USER_SPEED * REPEL_SHAPE;
+      const REPEL = REPEL_STRENGTH * (SCALE_TO_SCREEN ** 2)) * USER_SPEED * REPEL_SHAPE;
       STAR.momentumX += REPEL * -TO_USER_X;
       STAR.momentumY += REPEL * -TO_USER_Y;
 
