@@ -399,6 +399,26 @@ function initGravityControlsIfPresent() {
 
 document.addEventListener('DOMContentLoaded', initGravityControlsIfPresent);
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /*---------- Motion: per-frame star update ----------*/
 
 // Move, fade, and wrap stars around user interaction
@@ -439,7 +459,7 @@ function moveStars() {
       STAR.momentumY += REPEL * -TO_USER_Y;
 
       // Poke: extra kick away (also respects repel radius)
-      const POKE = 0.1 * POKE_TIMER * REPEL_SHAPE;
+      const POKE = 0.05 * POKE_TIMER * REPEL_SHAPE;
       STAR.momentumX += POKE * -TO_USER_X;
       STAR.momentumY += POKE * -TO_USER_Y;
     }
@@ -453,7 +473,7 @@ function moveStars() {
     let FORCE_Y = STAR.momentumY + randomBetween(-0.2, 0.2);
 
     // Clamp momentum magnitude
-    const LIMIT = 9;
+    const LIMIT = 7;
     const HYPOT = Math.hypot(FORCE_X, FORCE_Y);
     if (HYPOT > LIMIT) {
       FORCE_X *= LIMIT / HYPOT;
