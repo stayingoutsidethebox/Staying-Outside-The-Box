@@ -2,313 +2,320 @@
 <html lang="en" class="noJs">
   <head>
     <script>
-      //only allow the body to be hidden if JavaScript can pull it into view
+      // Reveal the page only if JS is running (prevents a hidden body if JS is disabled).
       document.documentElement.classList.remove('noJs');
       document.documentElement.classList.add('otherJs');
     </script>
+
     <title>Menu - I Can't Stop Dying Series</title>
-    <meta name="description" content="I Can't Stop Dying is a horror audiobook series featuring slow-burn terror, psychological dread, and cinematic sound design. Listen on Spotify, Apple Podcasts, YouTube, and more.">
+    <meta
+      name="description"
+      content="I Can't Stop Dying is a horror audiobook series featuring slow-burn terror, psychological dread, and cinematic sound design. Listen on Spotify, Apple Podcasts, YouTube, and more."
+    >
     <meta charset="UTF-8">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="theme-color" content="black">
+
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <link rel="stylesheet" href="/stylesheet.css">
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=New+Rocker&display=swap" rel="stylesheet">
+    <link
+      href="https://fonts.googleapis.com/css2?family=New+Rocker&display=swap"
+      rel="stylesheet"
+    >
+
     <style>
-    /*==============================================================*
-     *                 GRAVITY CONTROLS (FOOTER UI)
-     *==============================================================*
-     *  This block styles the hidden-scroll footer panel + its controls:
-     *   - Footer placement (off-screen reveal space)
-     *   - Two-column attract/repel layout (stacks on narrow screens)
-     *   - Slider styling (black fill, grey empty, red thumb)
-     *   - Number inputs styled like your pill buttons
-     *   - Focus behavior (no default blue ring)
-     *==============================================================*/
-    
-/*==============================================================*
- *                  STEPPER BUTTONS ( + / - )
- *==============================================================*/
+      /*==============================================================*
+       *           GRAVITY CONTROLS (FOOTER DEBUG / TUNING UI)
+       *==============================================================*
+       *  Styles the off-screen footer panel and its controls:
+       *   - Footer lives just below the first viewport for a "scroll-reveal"
+       *   - Two-column layout (Attract / Repel), stacks on small screens
+       *   - Range sliders with filled track + red thumb
+       *   - Number inputs styled like pill buttons
+       *   - Shared hover/focus states without the default blue outline
+       *==============================================================*/
 
-footer .stepper{
-  width: 100%;
-  justify-self: stretch;
-  display: flex;
-  justify-content: space-between;   /* or flex-end */
-}
+      /*==============================================================*
+       *                 STEPPER BUTTONS ( + / - )
+       *==============================================================*/
 
-footer .stepBtn{
-  display: inline-grid;
-  text-align: center;
-
-  margin: auto 0 auto 5%;
-  width: 45%;
-  height: 6dvmin;
-  flex:1;
-
-  background: transparent;
-  color: inherit;
-
-  line-height: 1;
-  font: 3dvmin Arial;
-  font-weight: bold;
-  border: none;
-  border-radius: 9999px;
-  object-fit: cover;
-
-  /* SAME BACKGROUND LOGIC AS NUMBER INPUT */
-  background-image: url("/Resources/Button Border.webp");
-  background-size: 110% 110%;
-  background-position: center;
-  background-repeat: no-repeat;
-
-  box-sizing: border-box;
-  user-select: none;
-  -webkit-user-select: none;
-
-  transition:
-    transform var(--SLOW_TRANSFORM),
-    box-shadow var(--SLOW_SHADOW),
-    border-color var(--SLOW_BORDER);
-}
-
-/*==============================================================*
- *                INTERACTION STATES (SHARED)
- *==============================================================*/
-
-footer .stepBtn:hover,
-footer .stepBtn:active,
-footer input:hover,
-footer input:active{
-  transform: scale(1.05);
-  box-shadow: var(--SHADOW);
-}
-
-footer .stepBtn:focus-visible,
-footer input:focus-visible{
-  outline: none;
-  box-shadow: var(--SHADOW);
-}
-    
-    /*==============================*
-     *  1) FOOTER PANEL POSITIONING
-     *==============================*/
-    
-    footer{
-      position: absolute;
-      width: 100%;
-      max-width: 100%;
-      margin-top: 100dvh;           /* keeps footer below first viewport */
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-end;
-    }
-    
-    
-    /*==============================*
-     *  2) GRID LAYOUT (ATTRACT/REPEL)
-     *==============================*/
-    
-    .gravityGrid{
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-    
-      width: min(900px, 96vw);
-      margin: 50dvw auto 0;
-    
-      box-sizing: border-box;
-    }
-    
-    section {
-      margin: 0 15px;
-    }
-    
-    
-    /*==============================*
-     *  3) CONTROL ROWS (LABEL + INPUTS)
-     *==============================*/
-    
-    footer .ctl{
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 6dvmin 0;
-      align-items: center;
-    }
-    
-    footer label{
-      grid-column: 1 / -1;
-    }
-    
-    
-    /*==============================*
-     *  4) NUMBER INPUTS (PILL BUTTON LOOK)
-     *==============================*/
-    
-    footer input[type="number"]{
-      width: 100%;
-      height: 10dvmin;
-      font-size: 6dvmin;
-      text-align: center;
-      justify-self: stretch;
-    
-      border: none;
-      border-radius: 9999px;
-      background: transparent;
-    
-      font-family: 'New Rocker';
-      color: inherit;
-    
-      background-image: url("/Resources/Button Border.webp");
-      background-size: 110% 110%;
-      background-position: center;
-      background-repeat: no-repeat;
-    
-      box-sizing: border-box;
-      
-      transition:
-        transform var(--SLOW_TRANSFORM),
-        box-shadow var(--SLOW_SHADOW),
-        border-color var(--SLOW_BORDER);
-    }
-    
-    /*==============================*
-     *  5) CREEPY SLIDERS (RANGE INPUTS)
-     *     - Filled track: black
-     *     - Empty track: #bdbdbd
-     *     - Thumb: #ee0000
-     *==============================*/
-    
-    /* Base slider reset + default track (WebKit uses background on the input) */
-    footer input[type="range"]{
-      -webkit-appearance: none;
-      appearance: none;
-    
-      grid-column: 1 / -1;
-      width: 100%;
-      height: 3px;
-      margin: 3dvmin 0;
-      border-radius: 999px;
-    
-      /* Default split (50/50). Optional JS can update this live. */
-      background: black;
-      outline: none;
-      cursor: pointer;
-    }
-    
-    /* WebKit track */
-    footer input[type="range"]::-webkit-slider-runnable-track{
-      height: 10px;
-      border-radius: 999px;
-    }
-    
-    /* WebKit thumb (Chrome/Edge/Safari/iOS) */
-    footer input[type="range"]::-webkit-slider-thumb{
-      -webkit-appearance: none;
-      appearance: none;
-    
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
-    
-      background: #ee0000;
-      border: 2px solid #000;
-    
-      box-shadow:
-        0 0 6px rgba(238, 0, 0, 0.9),
-        inset 0 0 4px rgba(0, 0, 0, 0.8);
-    
-      margin-top: -6px; /* centers thumb on 10px track */
-      transition: transform 0.15s ease, box-shadow 0.15s ease;
-    }
-    
-    /* Thumb feedback */
-    footer input[type="range"]:hover::-webkit-slider-thumb{
-      box-shadow:
-        0 0 10px rgba(238, 0, 0, 1),
-        inset 0 0 4px rgba(0, 0, 0, 0.9);
-    }
-    
-    footer input[type="range"]:active::-webkit-slider-thumb{
-      transform: scale(1.15);
-    }
-    
-    /* Keyboard focus (replace the browser blue ring) */
-    footer input[type="range"]:focus-visible::-webkit-slider-thumb{
-      box-shadow:
-        0 0 0 3px rgba(0, 0, 0, 0.9),
-        0 0 0 6px rgba(238, 0, 0, 0.9);
-    }
-    
-    /* Firefox track + progress */
-    footer input[type="range"]::-moz-range-track{
-      height: 10px;
-      border-radius: 999px;
-      background: #bdbdbd;
-    }
-    
-    footer input[type="range"]::-moz-range-progress{
-      height: 10px;
-      border-radius: 999px;
-      background: #000;
-    }
-    
-    footer input[type="range"]::-moz-range-thumb{
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
-    
-      background: #ee0000;
-      border: 2px solid #000;
-    
-      box-shadow:
-        0 0 6px rgba(238, 0, 0, 0.9),
-        inset 0 0 4px rgba(0, 0, 0, 0.8);
-    
-      transition: transform 0.15s ease, box-shadow 0.15s ease;
-    }
-    
-    footer input[type="range"]:hover::-moz-range-thumb{
-      box-shadow:
-        0 0 10px rgba(238, 0, 0, 1),
-        inset 0 0 4px rgba(0, 0, 0, 0.9);
-    }
-    
-    footer input[type="range"]:active::-moz-range-thumb{
-      transform: scale(1.15);
-    }
-    
-    
-    /*==============================*
-     *  6) FOCUS: DISABLE DEFAULT OUTLINE
-     *==============================*/
-    
-    input:focus{
-      outline: none;
-    }
-    
-    
-    /*==============================*
-     *  7) RESPONSIVE: STACK WHEN NARROW
-     *==============================*/
-    
-    @media (max-width: 500px){
-      .gravityGrid{
-        grid-template-columns: 1fr;
+      footer .stepper{
+        width: 100%;
+        justify-self: stretch;
+        display: flex;
+        justify-content: space-between;
       }
-    }
+
+      footer .stepBtn{
+        display: inline-grid;
+        text-align: center;
+
+        margin: auto 0 auto 5%;
+        width: 45%;
+        height: 6dvmin;
+        flex:1;
+
+        background: transparent;
+        color: inherit;
+
+        line-height: 1;
+        font: 3dvmin Arial;
+        font-weight: bold;
+        border: none;
+        border-radius: 9999px;
+        object-fit: cover;
+
+        /* Matches the number input "pill" styling */
+        background-image: url("/Resources/Button Border.webp");
+        background-size: 110% 110%;
+        background-position: center;
+        background-repeat: no-repeat;
+
+        box-sizing: border-box;
+        user-select: none;
+        -webkit-user-select: none;
+
+        transition:
+          transform var(--SLOW_TRANSFORM),
+          box-shadow var(--SLOW_SHADOW),
+          border-color var(--SLOW_BORDER);
+      }
+
+      /*==============================================================*
+       *           INTERACTION STATES (BUTTONS + INPUTS)
+       *==============================================================*/
+
+      footer .stepBtn:hover,
+      footer .stepBtn:active,
+      footer input:hover,
+      footer input:active{
+        transform: scale(1.05);
+        box-shadow: var(--SHADOW);
+      }
+
+      footer .stepBtn:focus-visible,
+      footer input:focus-visible{
+        outline: none;
+        box-shadow: var(--SHADOW);
+      }
+
+      /*==============================*
+       *  1) FOOTER PANEL POSITIONING
+       *==============================*/
+
+      footer{
+        position: absolute;
+        width: 100%;
+        max-width: 100%;
+        margin-top: 100dvh;     /* parks footer below the first viewport */
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+      }
+
+      /*==============================*
+       *  2) GRID LAYOUT (ATTRACT/REPEL)
+       *==============================*/
+
+      .gravityGrid{
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+
+        width: min(900px, 96vw);
+        margin: 50dvw auto 0;
+
+        box-sizing: border-box;
+      }
+
+      section{
+        margin: 0 15px;
+      }
+
+      /*==============================*
+       *  3) CONTROL ROWS (LABEL + INPUTS)
+       *==============================*/
+
+      footer .ctl{
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 6dvmin 0;
+        align-items: center;
+      }
+
+      footer label{
+        grid-column: 1 / -1;
+      }
+
+      /*==============================*
+       *  4) NUMBER INPUTS (PILL BUTTON LOOK)
+       *==============================*/
+
+      footer input[type="number"]{
+        width: 100%;
+        height: 10dvmin;
+        font-size: 6dvmin;
+        text-align: center;
+        justify-self: stretch;
+
+        border: none;
+        border-radius: 9999px;
+        background: transparent;
+
+        font-family: 'New Rocker';
+        color: inherit;
+
+        background-image: url("/Resources/Button Border.webp");
+        background-size: 110% 110%;
+        background-position: center;
+        background-repeat: no-repeat;
+
+        box-sizing: border-box;
+
+        transition:
+          transform var(--SLOW_TRANSFORM),
+          box-shadow var(--SLOW_SHADOW),
+          border-color var(--SLOW_BORDER);
+      }
+
+      /*==============================*
+       *  5) RANGE SLIDERS (TRACK + THUMB)
+       *==============================*
+       *  Track fill is updated via JS:
+       *   - filled   = black
+       *   - unfilled = #bdbdbd
+       *  Thumb is styled red with a dark border.
+       *==============================*/
+
+      footer input[type="range"]{
+        -webkit-appearance: none;
+        appearance: none;
+
+        grid-column: 1 / -1;
+        width: 100%;
+        height: 3px;
+        margin: 3dvmin 0;
+        border-radius: 999px;
+
+        /* Initial background; JS paints the fill gradient. */
+        background: black;
+        outline: none;
+        cursor: pointer;
+      }
+
+      /* WebKit track */
+      footer input[type="range"]::-webkit-slider-runnable-track{
+        height: 10px;
+        border-radius: 999px;
+      }
+
+      /* WebKit thumb (Chrome/Edge/Safari/iOS) */
+      footer input[type="range"]::-webkit-slider-thumb{
+        -webkit-appearance: none;
+        appearance: none;
+
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+
+        background: #ee0000;
+        border: 2px solid #000;
+
+        box-shadow:
+          0 0 6px rgba(238, 0, 0, 0.9),
+          inset 0 0 4px rgba(0, 0, 0, 0.8);
+
+        margin-top: -6px; /* centers thumb on 10px track */
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+      }
+
+      footer input[type="range"]:hover::-webkit-slider-thumb{
+        box-shadow:
+          0 0 10px rgba(238, 0, 0, 1),
+          inset 0 0 4px rgba(0, 0, 0, 0.9);
+      }
+
+      footer input[type="range"]:active::-webkit-slider-thumb{
+        transform: scale(1.15);
+      }
+
+      footer input[type="range"]:focus-visible::-webkit-slider-thumb{
+        box-shadow:
+          0 0 0 3px rgba(0, 0, 0, 0.9),
+          0 0 0 6px rgba(238, 0, 0, 0.9);
+      }
+
+      /* Firefox track + progress */
+      footer input[type="range"]::-moz-range-track{
+        height: 10px;
+        border-radius: 999px;
+        background: #bdbdbd;
+      }
+
+      footer input[type="range"]::-moz-range-progress{
+        height: 10px;
+        border-radius: 999px;
+        background: #000;
+      }
+
+      footer input[type="range"]::-moz-range-thumb{
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+
+        background: #ee0000;
+        border: 2px solid #000;
+
+        box-shadow:
+          0 0 6px rgba(238, 0, 0, 0.9),
+          inset 0 0 4px rgba(0, 0, 0, 0.8);
+
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+      }
+
+      footer input[type="range"]:hover::-moz-range-thumb{
+        box-shadow:
+          0 0 10px rgba(238, 0, 0, 1),
+          inset 0 0 4px rgba(0, 0, 0, 0.9);
+      }
+
+      footer input[type="range"]:active::-moz-range-thumb{
+        transform: scale(1.15);
+      }
+
+      /*==============================*
+       *  6) GLOBAL FOCUS: DISABLE DEFAULT OUTLINE
+       *==============================*/
+
+      input:focus{
+        outline: none;
+      }
+
+      /*==============================*
+       *  7) RESPONSIVE: STACK WHEN NARROW
+       *==============================*/
+
+      @media (max-width: 500px){
+        .gravityGrid{
+          grid-template-columns: 1fr;
+        }
+      }
     </style>
   </head>
+
   <body>
     <canvas id="constellations"></canvas>
+
     <div id="transitionContainer">
       <header>
         <h1>Continuity</h1>
         <h2>The "I" Collection</h2>
         <hr>
+
         <nav class="navButtons">
           <a onclick="transitionTo(this.href); return false;" href="../">
             <img src="/Resources/Back.png" alt="Back">
@@ -317,119 +324,126 @@ footer input:focus-visible{
             <img src="/Resources/Home.png" alt="Home">
           </a>
         </nav>
+
         <hr>
       </header>
+
       <main>
         <article>
-        <a class="dead">(Redacted)</a>
-        <a onclick="transitionTo(this.href); return false;" href="./Characters">Characters</a>
-        <a onclick="transitionTo(this.href); return false;" href="./Images">Images</a>
+          <a class="dead">(Redacted)</a>
+          <a onclick="transitionTo(this.href); return false;" href="./Characters">Characters</a>
+          <a onclick="transitionTo(this.href); return false;" href="./Images">Images</a>
         </article>
       </main>
-        <footer>
-          <!-- VARIABLES -->
-<p>User Speed: <span id="dbgSpeed">0.000</span></p>
-          <p>Circle Timer: <span id="dbgCircle">0.000</span></p>
-<p>Poke Timer: <span id="dbgPoke">0.0</span></p>
-          <div class="gravityGrid">
-            <!-- =========================
-                 ATTRACT
-            ========================= -->
-            <section>
-              <h3>Attract</h3>
-            
-              <div class="ctl">
-                <label>Strength</label>
-                <input id="ATTRACT_STRENGTH" type="range" min="0" max="3" step="0.01" value="0.35">
-                <input id="ATTRACT_STRENGTH_num" type="number" min="0" max="3" step="0.01" value="0.35">
-                <div class="stepper" role="group" aria-label="ATTRACT_STRENGTH stepper">
-                  <button class="stepBtn" type="button" data-step="-1" aria-label="Decrease ATTRACT_STRENGTH">-</button>
-                  <button class="stepBtn" type="button" data-step="1" aria-label="Increase ATTRACT_STRENGTH">+</button>
-                </div>
+
+      <footer>
+        <!-- Debug readouts (populated by JS elsewhere) -->
+        <p>User Speed: <span id="dbgSpeed">0.000</span></p>
+        <p>Circle Timer: <span id="dbgCircle">0.000</span></p>
+        <p>Poke Timer: <span id="dbgPoke">0.0</span></p>
+
+        <div class="gravityGrid">
+          <!-- =========================
+               ATTRACT CONTROLS
+          ========================= -->
+          <section>
+            <h3>Attract</h3>
+
+            <div class="ctl">
+              <label>Strength</label>
+              <input id="ATTRACT_STRENGTH" type="range" min="0" max="3" step="0.01" value="0.35">
+              <input id="ATTRACT_STRENGTH_num" type="number" min="0" max="3" step="0.01" value="0.35">
+              <div class="stepper" role="group" aria-label="ATTRACT_STRENGTH stepper">
+                <button class="stepBtn" type="button" data-step="-1" aria-label="Decrease ATTRACT_STRENGTH">-</button>
+                <button class="stepBtn" type="button" data-step="1" aria-label="Increase ATTRACT_STRENGTH">+</button>
               </div>
-            
-              <div class="ctl">
-                <label>Radius</label>
-                <input id="ATTRACT_RADIUS" type="range" min="40" max="600" step="5" value="260">
-                <input id="ATTRACT_RADIUS_num" type="number" min="40" max="600" step="5" value="260">
-                <div class="stepper" role="group" aria-label="ATTRACT_RADIUS stepper">
-                  <button class="stepBtn" type="button" data-step="-1" aria-label="Decrease ATTRACT_RADIUS">-</button>
-                  <button class="stepBtn" type="button" data-step="1" aria-label="Increase ATTRACT_RADIUS">+</button>
-                </div>
+            </div>
+
+            <div class="ctl">
+              <label>Radius</label>
+              <input id="ATTRACT_RADIUS" type="range" min="40" max="600" step="5" value="260">
+              <input id="ATTRACT_RADIUS_num" type="number" min="40" max="600" step="5" value="260">
+              <div class="stepper" role="group" aria-label="ATTRACT_RADIUS stepper">
+                <button class="stepBtn" type="button" data-step="-1" aria-label="Decrease ATTRACT_RADIUS">-</button>
+                <button class="stepBtn" type="button" data-step="1" aria-label="Increase ATTRACT_RADIUS">+</button>
               </div>
-            
-              <div class="ctl">
-                <label>Scale</label>
-                <input id="ATTRACT_SCALE" type="range" min="0.2" max="6" step="0.1" value="2.2">
-                <input id="ATTRACT_SCALE_num" type="number" min="0.2" max="6" step="0.1" value="2.2">
-                <div class="stepper" role="group" aria-label="ATTRACT_SCALE stepper">
-                  <button class="stepBtn" type="button" data-step="-1" aria-label="Decrease ATTRACT_SCALE">-</button>
-                  <button class="stepBtn" type="button" data-step="1" aria-label="Increase ATTRACT_SCALE">+</button>
-                </div>
+            </div>
+
+            <div class="ctl">
+              <label>Scale</label>
+              <input id="ATTRACT_SCALE" type="range" min="0.2" max="6" step="0.1" value="2.2">
+              <input id="ATTRACT_SCALE_num" type="number" min="0.2" max="6" step="0.1" value="2.2">
+              <div class="stepper" role="group" aria-label="ATTRACT_SCALE stepper">
+                <button class="stepBtn" type="button" data-step="-1" aria-label="Decrease ATTRACT_SCALE">-</button>
+                <button class="stepBtn" type="button" data-step="1" aria-label="Increase ATTRACT_SCALE">+</button>
               </div>
-            </section>
-            <!-- =========================
-                 REPEL
-            ========================= -->
-            <section>
-              <h3>Repel</h3>
-            
-              <div class="ctl">
-                <label>Strength</label>
-                <input id="REPEL_STRENGTH" type="range" min="0" max="6" step="0.01" value="0.85">
-                <input id="REPEL_STRENGTH_num" type="number" min="0" max="6" step="0.01" value="0.85">
-                <div class="stepper" role="group" aria-label="REPEL_STRENGTH stepper">
-                  <button class="stepBtn" type="button" data-step="-1" aria-label="Decrease REPEL_STRENGTH">-</button>
-                  <button class="stepBtn" type="button" data-step="1" aria-label="Increase REPEL_STRENGTH">+</button>
-                </div>
+            </div>
+          </section>
+
+          <!-- =========================
+               REPEL CONTROLS
+          ========================= -->
+          <section>
+            <h3>Repel</h3>
+
+            <div class="ctl">
+              <label>Strength</label>
+              <input id="REPEL_STRENGTH" type="range" min="0" max="6" step="0.01" value="0.85">
+              <input id="REPEL_STRENGTH_num" type="number" min="0" max="6" step="0.01" value="0.85">
+              <div class="stepper" role="group" aria-label="REPEL_STRENGTH stepper">
+                <button class="stepBtn" type="button" data-step="-1" aria-label="Decrease REPEL_STRENGTH">-</button>
+                <button class="stepBtn" type="button" data-step="1" aria-label="Increase REPEL_STRENGTH">+</button>
               </div>
-            
-              <div class="ctl">
-                <label>Radius</label>
-                <input id="REPEL_RADIUS" type="range" min="20" max="400" step="5" value="160">
-                <input id="REPEL_RADIUS_num" type="number" min="20" max="400" step="5" value="160">
-                <div class="stepper" role="group" aria-label="REPEL_RADIUS stepper">
-                  <button class="stepBtn" type="button" data-step="-1" aria-label="Decrease REPEL_RADIUS">-</button>
-                  <button class="stepBtn" type="button" data-step="1" aria-label="Increase REPEL_RADIUS">+</button>
-                </div>
+            </div>
+
+            <div class="ctl">
+              <label>Radius</label>
+              <input id="REPEL_RADIUS" type="range" min="20" max="400" step="5" value="160">
+              <input id="REPEL_RADIUS_num" type="number" min="20" max="400" step="5" value="160">
+              <div class="stepper" role="group" aria-label="REPEL_RADIUS stepper">
+                <button class="stepBtn" type="button" data-step="-1" aria-label="Decrease REPEL_RADIUS">-</button>
+                <button class="stepBtn" type="button" data-step="1" aria-label="Increase REPEL_RADIUS">+</button>
               </div>
-            
-              <div class="ctl">
-                <label>Scale</label>
-                <input id="REPEL_SCALE" type="range" min="0.2" max="6" step="0.1" value="2.6">
-                <input id="REPEL_SCALE_num" type="number" min="0.2" max="6" step="0.1" value="2.6">
-                <div class="stepper" role="group" aria-label="REPEL_SCALE stepper">
-                  <button class="stepBtn" type="button" data-step="-1" aria-label="Decrease REPEL_SCALE">-</button>
-                  <button class="stepBtn" type="button" data-step="1" aria-label="Increase REPEL_SCALE">+</button>
-                </div>
+            </div>
+
+            <div class="ctl">
+              <label>Scale</label>
+              <input id="REPEL_SCALE" type="range" min="0.2" max="6" step="0.1" value="2.6">
+              <input id="REPEL_SCALE_num" type="number" min="0.2" max="6" step="0.1" value="2.6">
+              <div class="stepper" role="group" aria-label="REPEL_SCALE stepper">
+                <button class="stepBtn" type="button" data-step="-1" aria-label="Decrease REPEL_SCALE">-</button>
+                <button class="stepBtn" type="button" data-step="1" aria-label="Increase REPEL_SCALE">+</button>
               </div>
-            </section>
-          </div>
-        </footer>
-      </div>
+            </div>
+          </section>
+        </div>
+      </footer>
     </div>
+
     <script src="/Starfield.js"></script>
     <script src="/Layout.js"></script>
-        <script>
+
+    <script>
       /*==============================================================*
-       *               RANGE SLIDER FILL SYNC
+       *             RANGE SLIDER "FILLED TRACK" PAINT
        *==============================================================*
-       *  Makes the slider track reflect the current value:
-       *   - Black   = filled portion
-       *   - #bdbdbd = remaining portion
+       *  Paints a value-based gradient on each <input type="range">:
+       *   - black from min → current value
+       *   - #bdbdbd from current value → max
+       *  Runs once on load and updates on every input event.
        *==============================================================*/
-      
+
       (function syncRangeSliders(){
         const sliders = document.querySelectorAll('input[type="range"]');
-      
+
         sliders.forEach(slider => {
           const update = () => {
             const min = Number(slider.min || 0);
             const max = Number(slider.max || 100);
             const val = Number(slider.value);
-      
+
             const pct = ((val - min) / (max - min)) * 100;
-      
+
             slider.style.background = `
               linear-gradient(
                 to right,
@@ -440,14 +454,13 @@ footer input:focus-visible{
               )
             `;
           };
-      
-          // Initial paint
-          update();
-      
-          // Live updates
-          slider.addEventListener('input', update);
+
+          update();                 // initial paint
+          slider.addEventListener('input', update); // live updates
         });
       })();
+      // I asked Chat GPT to clean up my comments and he left this here XD
+      // Joke: This slider code is basically a tiny makeup artist. "Highlight to here, contour after that." 💄
     </script>
   </body>
 </html>
