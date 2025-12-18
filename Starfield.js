@@ -55,6 +55,7 @@ window.REMOVE_CIRCLE = window.REMOVE_CIRCLE ?? false;
 let WIDTH = 0;
 let HEIGHT = 0;
 let SCREEN_SIZE = 0;
+let SCALE_TO_SCREEN = 0;
 let MAX_STAR_COUNT = 0;
 let MAX_LINK_DISTANCE = 0;
 
@@ -590,6 +591,31 @@ function edgeFactor(STAR) {
   return t * t * (3 - 2 * t);
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /*---------- Rendering: lines + stars ----------*/
 
 function drawStarsWithLines() {
@@ -600,9 +626,7 @@ function drawStarsWithLines() {
 
   // Optional ring around pointer
   if (!window.REMOVE_CIRCLE) {
-    const BASE = Math.min(WIDTH, HEIGHT);
-    const SCALE = Math.pow(SCREEN_SIZE / 1200, 0.35);
-    const RING_RADIUS = 0.06 * BASE * SCALE;
+    const RING_RADIUS = SCALE_TO_SCREEN * .03;
     const RING_WIDTH = CIRCLE_TIMER * 0.15 + 1.5;
     const RING_ALPHA = Math.min(CIRCLE_TIMER * 0.07, 1);
 
@@ -690,6 +714,7 @@ function resizeCanvas() {
   CANVAS.height = HEIGHT;
 
   SCREEN_SIZE = WIDTH + HEIGHT;
+  SCALE_TO_SCREEN = Math.pow(SCREEN_SIZE / 1200, 0.35);
   MAX_STAR_COUNT = Math.min(450, SCREEN_SIZE / 10);
   MAX_LINK_DISTANCE = SCREEN_SIZE / 10;
 
