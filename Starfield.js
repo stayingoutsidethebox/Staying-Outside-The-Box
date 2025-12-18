@@ -481,8 +481,8 @@ function moveStars() {
     }
     
     // Apply motion (passive velocity + momentum + tiny jitter)
-    STAR.x += STAR.vx + FORCE_X + BOOST_X;
-    STAR.y += STAR.vy + FORCE_Y + BOOST_Y;
+    STAR.x += STAR.vx + FORCE_X;
+    STAR.y += STAR.vy + FORCE_Y;
     
     // Momentum decay
     STAR.momentumX *= 0.98;
