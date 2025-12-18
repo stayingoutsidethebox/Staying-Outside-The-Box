@@ -38,7 +38,7 @@ let USER_X = 0;
 let USER_Y = 0;
 let USER_TIME = 0;
 let USER_SPEED = 0;
-let REPEL_TIMER = 0;
+let POKE_TIMER = 0;
 let CIRCLE_TIMER = 0;
 window.REMOVE_CIRCLE = window.REMOVE_CIRCLE ?? false;
 
@@ -68,7 +68,7 @@ function saveStarsToStorage() {
       JSON.stringify({
         width: WIDTH,
         height: HEIGHT,
-        repelTimer: REPEL_TIMER,
+        repelTimer: POKE_TIMER,
         userSpeed: USER_SPEED,
         userX: USER_X,
         userY: USER_Y,
@@ -153,7 +153,7 @@ function initStars() {
           }
 
           // Restore motion state and pointer info
-          REPEL_TIMER = META.repelTimer ?? 0;
+          POKE_TIMER = META.repelTimer ?? 0;
           USER_SPEED = META.userSpeed ?? 0;
           ATTRACT_STRENGTH = META.attractStrength ?? ATTRACT_STRENGTH;
           ATTRACT_RADIUS   = META.attractRadius   ?? ATTRACT_RADIUS;
@@ -441,7 +441,7 @@ if (DISTANCE < RANGE) {
   STAR.momentumY -= REPEL * TO_USER_Y;
 
   // poke (extra kick away) also respects repel radius
-  const POKE = 1.3 * REPEL_TIMER * REPEL_SHAPE;
+  const POKE = 1.3 * POKE_TIMER * REPEL_SHAPE;
   STAR.momentumX -= POKE * TO_USER_X;
   STAR.momentumY -= POKE * TO_USER_Y;
 }
@@ -467,7 +467,7 @@ if (DISTANCE < RANGE) {
     STAR.momentumY *= 0.98;
 
     // Screen wrap if passive (wait until full star is off-screen)
-    if (CIRCLE_TIMER == 0 || DISTANCE > 200 || REPEL_TIMER > 1000) {
+    if (CIRCLE_TIMER == 0 || DISTANCE > 200 || POKE_TIMER > 1000) {
       const R = (STAR.whiteValue * 2 + STAR.size) || 0; // same radius you draw with
       if (STAR.x < -R) STAR.x = WIDTH + R;
       else if (STAR.x > WIDTH + R) STAR.x = -R;
@@ -524,21 +524,22 @@ if (DISTANCE < RANGE) {
   if (USER_SPEED < 0.001) USER_SPEED = 0;
   CIRCLE_TIMER *= 0.9;
   if (CIRCLE_TIMER < 0.001) CIRCLE_TIMER = 0;
-  REPEL_TIMER *= 0.85;
-  if (REPEL_TIMER < 0.001) REPEL_TIMER = 0;
+  POKE_TIMER *= 0.85;
+  if (POKE_TIMER < 0.001) POKE_TIMER = 0;
 
 
 
 
 
 
-  const DBG_STAR = STARS[0];
+const DBG_CIRCLE = document.getElementById('dbgCircle');
+if (DBG_CIRCLE) DBG_CIRCLE.textContent = CIRCLE_TIMER.toFixed(3);
 
 const DBG_SPEED = document.getElementById('dbgSpeed');
 if (DBG_SPEED) DBG_SPEED.textContent = USER_SPEED.toFixed(3);
 
-const DBG_REPEL = document.getElementById('dbgRepel');
-if (DBG_REPEL) DBG_REPEL.textContent = REPEL_TIMER.toFixed(1);
+const DBG_POKE = document.getElementById('dbgPoke');
+if (DBG_POKE) DBG_POKE.textContent = POKE_TIMER.toFixed(1);
 }
 
 /*---------- Star rendering ----------*/
@@ -714,7 +715,7 @@ function updateSpeed(X, Y, TIME) {
 
 // Shared start handler for mouse/touch pointer interactions
 function startPointerInteraction(X, Y, TIME) {
-  REPEL_TIMER = 25000; // Repel on click/touch
+  POKE_TIMER = 25000; // Repel on click/touch
   updateSpeed(X, Y, TIME);
 }
 
