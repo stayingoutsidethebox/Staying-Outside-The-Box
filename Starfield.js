@@ -712,7 +712,7 @@ function updateSpeed(X, Y, TIME) {
 
 // Shared start handler (mousedown / touchstart)
 function startPointerInteraction(X, Y, TIME) {
-  POKE_TIMER = 25000; // Repel on click/touch
+  POKE_TIMER = 2500; // Repel on click/touch
   updateSpeed(X, Y, TIME);
 }
 
