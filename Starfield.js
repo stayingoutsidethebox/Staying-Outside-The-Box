@@ -233,7 +233,66 @@ function createStars() {
 
 
 
+/*==============================================================*
+ *            STEPPER HOLD-TO-REPEAT BEHAVIOR
+ *==============================================================*
+ *  - Click: single step
+ *  - Hold: repeated steps
+ *  - Accelerates slightly over time
+ *  - Mouse + touch safe
+ *==============================================================*/
 
+function enableStepperHold(button, onStep) {
+  let holdTimer = null;
+  let repeatTimer = null;
+
+  const INITIAL_DELAY = 350;   // ms before repeat starts
+  const START_INTERVAL = 120;  // initial repeat speed
+  const MIN_INTERVAL = 40;     // max speed cap
+  const ACCELERATION = 0.88;   // interval shrink per tick
+
+  const startHold = () => {
+    let interval = START_INTERVAL;
+
+    // Immediate first step
+    onStep();
+
+    holdTimer = setTimeout(() => {
+      repeatTimer = setInterval(() => {
+        onStep();
+        interval = Math.max(MIN_INTERVAL, interval * ACCELERATION);
+
+        // Restart interval to apply acceleration
+        clearInterval(repeatTimer);
+        repeatTimer = setInterval(onStep, interval);
+      }, interval);
+    }, INITIAL_DELAY);
+  };
+
+  const stopHold = () => {
+    clearTimeout(holdTimer);
+    clearInterval(repeatTimer);
+    holdTimer = null;
+    repeatTimer = null;
+  };
+
+  // Mouse
+  button.addEventListener('mousedown', (e) => {
+    e.preventDefault();
+    startHold();
+  });
+  button.addEventListener('mouseup', stopHold);
+  button.addEventListener('mouseleave', stopHold);
+
+  // Touch
+  button.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    startHold();
+  }, { passive: false });
+
+  button.addEventListener('touchend', stopHold);
+  button.addEventListener('touchcancel', stopHold);
+}
  
 /*==============================================================*
  *                 GRAVITY CONTROL BINDING SYSTEM
@@ -298,12 +357,11 @@ function bindControl(id, setter, initialValue) {
 
   // +/- buttons
   stepBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-      const dir = Number(btn.dataset.step) || 0; // -1 or 1
-      if (!dir) return;
-      nudge(dir);
-    });
-  });
+  const dir = Number(btn.dataset.step) || 0;
+  if (!dir) return;
+
+  enableStepperHold(btn, () => nudge(dir));
+});
 
   return true;
 }
