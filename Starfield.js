@@ -291,8 +291,8 @@ function moveStars() {
     const DIST_GRADIENT = 1 - (DISTANCE / RANGE);
     
     // Increase all star speed (clamped low) with user interaction
-    STAR.momentumX += USER_SPEED * STAR.vx + randomBetween(-0.8, 0.8);
-    STAR.momentumY += USER_SPEED * STAR.vy + randomBetween(-0.8, 0.8);
+    STAR.momentumX += 0.3 * USER_SPEED * STAR.vx;
+    STAR.momentumY += 0.3 * USER_SPEED * STAR.vy;
     STAR.momentumX = Math.max(-3, Math.min(STAR.momentumX, 3));
     STAR.momentumY = Math.max(-3, Math.min(STAR.momentumY, 3));
 
@@ -336,8 +336,8 @@ if (DISTANCE < RANGE) {
     }
 
     // Apply momentum and passive movement
-    STAR.x += STAR.vx + STAR.momentumX;
-    STAR.y += STAR.vy + STAR.momentumY;
+    STAR.x += STAR.vx + STAR.momentumX + randomBetween(-0.8, 0.8);
+    STAR.y += STAR.vy + STAR.momentumY + randomBetween(-0.8, 0.8);
 
     // Decay momentum
     STAR.momentumX *= 0.98;
