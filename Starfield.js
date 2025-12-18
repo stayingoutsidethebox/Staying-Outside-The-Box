@@ -439,14 +439,13 @@ function moveStars() {
       // Linear gradient: 1 at center -> 0 at radius -> stays 0 beyond radius
       const ATTR_GRADIENT = 1 - (DISTANCE / (ATTRACT_RADIUS || 1));
       const REPEL_GRADIENT = 1 - (DISTANCE / (REPEL_RADIUS  || 1));
-
       // Clamp
-      const ATTR_FALLOFF = Math.max(0, ATTR_GRADIENT);
-      const REPEL_FALLOFF = Math.max(0, REPEL_GRADIENT);
+      ATTR_GRADIENT = Math.max(0, ATTR_GRADIENT);
+      REPEL_GRADIENT = Math.max(0, REPEL_GRADIENT);
 
       // Shape curve: higher scale = tighter near center, weaker at edge
-      const ATTR_SHAPE = Math.pow(ATTR_FALLOFF, Math.max(0.1, ATTRACT_SCALE));
-      const REPEL_SHAPE = Math.pow(REPEL_FALLOFF, Math.max(0.1, REPEL_SCALE));
+      const ATTR_SHAPE = Math.pow(ATTR_GRADIENT, Math.max(0.1, ATTRACT_SCALE));
+      const REPEL_SHAPE = Math.pow(REPEL_GRADIENT, Math.max(0.1, REPEL_SCALE));
 
       // Attraction (toward user)
       const ATTRACT = ATTRACT_STRENGTH * USER_SPEED * ATTR_SHAPE;
@@ -472,8 +471,8 @@ function moveStars() {
     let FORCE_X = STAR.momentumX + randomBetween(-0.2, 0.2);
     let FORCE_Y = STAR.momentumY + randomBetween(-0.2, 0.2);
 
-    // Clamp momentum magnitude
-    const LIMIT = 7;
+    // Clamp force magnitude
+    const LIMIT = 3;
     const HYPOT = Math.hypot(FORCE_X, FORCE_Y);
     if (HYPOT > LIMIT) {
       FORCE_X *= LIMIT / HYPOT;
@@ -483,11 +482,13 @@ function moveStars() {
     // Apply motion (passive velocity + momentum + tiny jitter)
     STAR.x += STAR.vx + FORCE_X;
     STAR.y += STAR.vy + FORCE_Y;
-
+    
     // Momentum decay
     STAR.momentumX *= 0.98;
     STAR.momentumY *= 0.98;
-
+    
+    // Momentum clamp
+    
     // Wrap when passive OR far OR heavy poke (radius-aware, fully off-screen)
     if (CIRCLE_TIMER == 0 || DISTANCE > 200 || POKE_TIMER > 1000) {
       const R = (STAR.whiteValue * 2 + STAR.size) || 0; // draw radius
@@ -550,7 +551,11 @@ function moveStars() {
   POKE_TIMER *= 0.85;
   if (POKE_TIMER < 1) POKE_TIMER = 0;
 
-  // Debug readouts (optional; only updates if elements exist)
+  // Debug readouts
+  const MISC_DEBUG = STAR[0].momentumX;
+  const DBG = document.getElementById('miscDbg');
+  if (DBG) DBG.textContent = MISC_DEBUG.toFixed(3);
+
   const DBG_CIRCLE = document.getElementById('dbgCircle');
   if (DBG_CIRCLE) DBG_CIRCLE.textContent = CIRCLE_TIMER.toFixed(3);
 
