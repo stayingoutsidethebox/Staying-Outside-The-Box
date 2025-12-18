@@ -311,10 +311,10 @@ function enableStepperHold(button, onStep) {
  *   - Dispatches 'input' on slider after apply to keep fill sync.
  *==============================================================*/
 
-let ATTRACT_STRENGTH = 1.2;
+let ATTRACT_STRENGTH = 0.23;
 let ATTRACT_RADIUS = 260;
 let ATTRACT_SCALE = 2.4;
-let REPEL_STRENGTH = 2.4;
+let REPEL_STRENGTH = 0.91;
 let REPEL_RADIUS = 140;
 let REPEL_SCALE = 3.2;
 
@@ -439,7 +439,7 @@ function moveStars() {
       STAR.momentumY += REPEL * -TO_USER_Y;
 
       // Poke: extra kick away (also respects repel radius)
-      const POKE = 0.4 * POKE_TIMER * REPEL_SHAPE;
+      const POKE = 0.1 * POKE_TIMER * REPEL_SHAPE;
       STAR.momentumX += POKE * -TO_USER_X;
       STAR.momentumY += POKE * -TO_USER_Y;
     }
@@ -449,7 +449,7 @@ function moveStars() {
     STAR.momentumY += 0.05 * USER_SPEED * STAR.vy;
 
     // Clamp momentum magnitude
-    const LIMIT = 13;
+    const LIMIT = 9;
     const HYPOT = Math.hypot(STAR.momentumX, STAR.momentumY);
     if (HYPOT > LIMIT) {
       STAR.momentumX *= LIMIT / HYPOT;
