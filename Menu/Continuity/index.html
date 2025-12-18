@@ -36,7 +36,6 @@
       }
       footer label {
         grid-column:1 / -1;
-        opacity:0.85;
       }
       footer input[type="range"] {
         grid-column:1 / -1;
@@ -49,7 +48,6 @@
       }
       footer span {
         text-align:right;
-        opacity:0.7;
       }
       .gravityGrid{
   display: grid;
@@ -60,18 +58,11 @@
   padding: 12px;
 }
 
-.gravityCol{
-  border: 1px solid rgba(255,255,255,0.15);
-  border-radius: 10px;
-  padding: 10px;
-  background: rgba(0,0,0,0.35);
-}
-
-.gravityTitle{
-  margin: 0 0 8px;
-  font-size: 14px;
-  letter-spacing: 0.5px;
-  opacity: 0.9;
+/* Force number input arrows */
+input[type="number"] {
+  appearance: auto;
+  -webkit-appearance: number-input;
+  -moz-appearance: number-input;
 }
 
 /* stack columns on small screens */
@@ -109,8 +100,8 @@
         <footer>
           <div class="gravityGrid">
             <!-- Attract -->
-            <section class="gravityCol">
-              <h3 class="gravityTitle">Attract</h3>
+            <section>
+              <h3>Attract</h3>
         
               <div class="ctl">
                 <label>Strength</label>
@@ -134,8 +125,8 @@
               </div>
             </section>
             <!-- Repel -->
-            <section class="gravityCol">
-              <h3 class="gravityTitle">Repel</h3>
+            <section>
+              <h3>Repel</h3>
         
               <div class="ctl">
                 <label>Strength</label>
