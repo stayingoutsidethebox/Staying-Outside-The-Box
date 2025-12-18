@@ -463,6 +463,10 @@ function moveStars() {
       STAR.momentumX += POKE * -TO_USER_X;
       STAR.momentumY += POKE * -TO_USER_Y;
     }
+    
+    // Global boost: user interaction increases baseline drift speed
+    STAR.momentumX += STAR.vx * Math.min(20, 0.05 * USER_SPEED);
+    STAR.momentumY += STAR.vy * Math.min(20, 0.05 * USER_SPEED);
 
     // Make a variable we can clamp without lowering momentum
     let FORCE_X = STAR.momentumX;
@@ -476,10 +480,6 @@ function moveStars() {
       FORCE_Y *= LIMIT / HYPOT;
     }
     
-    // Global boost: user interaction increases baseline drift speed
-const BOOST_X = STAR.vx * Math.min(20, 0.05 * USER_SPEED);
-const BOOST_Y = STAR.vy * Math.min(20, 0.05 * USER_SPEED);
-
     // Apply motion (passive velocity + momentum + tiny jitter)
     STAR.x += STAR.vx + FORCE_X + BOOST_X;
     STAR.y += STAR.vy + FORCE_Y + BOOST_Y;
