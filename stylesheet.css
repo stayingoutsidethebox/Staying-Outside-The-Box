@@ -595,8 +595,15 @@ button span {
 }
 
 /* No-JS fallback: normal scroll, no animations */
+.noJs html,
 .noJs body {
+  height: auto;
   overflow: auto;
+}
+
+.noJs #transitionContainer {
+  height: auto;
+  overflow: visible;
 }
 
 /* #endregion 11 SLIDE-IN PAGE TRANSITION SYSTEM */
