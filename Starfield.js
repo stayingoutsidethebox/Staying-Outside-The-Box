@@ -426,26 +426,6 @@ function initGravityControlsIfPresent() {
 
 document.addEventListener('DOMContentLoaded', initGravityControlsIfPresent);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /*---------- Motion: per-frame star update ----------*/
 
 // Move, fade, and wrap stars around user interaction
@@ -462,14 +442,6 @@ function moveStars() {
 
     // Apply gravity ring forces only within influence range
     if (DISTANCE < RANGE) {
-
-
-
-
-
-
-
-
 
 // Linear gradient
 let ATTR_GRADIENT =
@@ -678,7 +650,7 @@ function drawStarsWithLines() {
 
   // Optional ring around pointer
   if (!window.REMOVE_CIRCLE) {
-    const RING_RADIUS = SCALE_TO_SCREEN * 50;
+    const RING_RADIUS = SCALE_TO_SCREEN * 60 - 50;
     const RING_WIDTH = CIRCLE_TIMER * 0.15 + 1.5;
     const RING_ALPHA = Math.min(CIRCLE_TIMER * 0.07, 1);
 
