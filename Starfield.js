@@ -472,7 +472,7 @@ function moveStars() {
     let FORCE_Y = STAR.momentumY + randomBetween(-0.2, 0.2);
 
     // Clamp force magnitude
-    const LIMIT = 3;
+    const LIMIT = 5;
     const HYPOT = Math.hypot(FORCE_X, FORCE_Y);
     if (HYPOT > LIMIT) {
       FORCE_X *= LIMIT / HYPOT;
@@ -486,8 +486,6 @@ function moveStars() {
     // Momentum decay
     STAR.momentumX *= 0.98;
     STAR.momentumY *= 0.98;
-    
-    // Momentum clamp
     
     // Wrap when passive OR far OR heavy poke (radius-aware, fully off-screen)
     if (CIRCLE_TIMER == 0 || DISTANCE > 200 || POKE_TIMER > 1000) {
