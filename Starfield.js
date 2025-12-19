@@ -227,7 +227,8 @@ function createStars() {
       redValue: randomBetween(0, 200),
       whiteValue: 0,
       momentumX: 0,
-      momentumY: 0
+      momentumY: 0,
+      edge: 0
     });
   }
 }
@@ -428,14 +429,16 @@ function moveStars() {
 
     const X_DISTANCE = USER_X - STAR.x;
     const Y_DISTANCE = USER_Y - STAR.y;
-    const DISTANCE = Math.hypot(X_DISTANCE, Y_DISTANCE) + 0.0001;
-    const TO_USER_X = X_DISTANCE / DISTANCE;
-    const TO_USER_Y = Y_DISTANCE / DISTANCE;
+const DELAG_DISTANCE = X_DISTANCE * X_DISTANCE + Y_DISTANCE * Y_DISTANCE;
     const RANGE = SCREEN_SIZE * 0.2;
+const DELAG_RANGE = RANGE * RANGE;
 
     // Apply gravity ring forces only within influence range
-    if (DISTANCE < RANGE) {
-
+// Weird variables to help lag
+if (DELAG_DISTANCE < DELAG_RANGE) {
+  const DISTANCE = Math.sqrt(d2);
+  const TO_USER_X = X_DISTANCE / DISTANCE;
+    const TO_USER_Y = Y_DISTANCE / DISTANCE;
 // Linear gradient
 let ATTR_GRADIENT =
   1 - (DISTANCE / (((ATTRACT_RADIUS * 5.2) * (SCALE_TO_SCREEN ** 1.11)) || 1));
@@ -569,18 +572,21 @@ STAR.momentumY += REPEL * -TO_USER_Y;
   if (POKE_TIMER < 1) POKE_TIMER = 0;
 
   // Debug readouts
-  const MISC_DEBUG = 0; //<-- Hey there! Change this to a variable to see live updates
-  const DBG = document.getElementById('miscDbg');
-  if (DBG) DBG.textContent = MISC_DEBUG.toFixed(3);
-
-  const DBG_CIRCLE = document.getElementById('dbgCircle');
-  if (DBG_CIRCLE) DBG_CIRCLE.textContent = CIRCLE_TIMER.toFixed(3);
-
-  const DBG_SPEED = document.getElementById('dbgSpeed');
-  if (DBG_SPEED) DBG_SPEED.textContent = USER_SPEED.toFixed(3);
-
-  const DBG_POKE = document.getElementById('dbgPoke');
-  if (DBG_POKE) DBG_POKE.textContent = POKE_TIMER.toFixed(1);
+  let DBG_T = 0;
+  function updateDebug() {
+    const t = nowMs();
+    if (t - DBG_T < 100) return; // 10fps
+    DBG_T = t;
+  
+    const DBG = document.getElementById('miscDbg');
+    if (DBG) DBG.textContent = (0).toFixed(3);
+    const DBG_CIRCLE = document.getElementById('dbgCircle');
+    if (DBG_CIRCLE) DBG_CIRCLE.textContent = CIRCLE_TIMER.toFixed(3);
+    const DBG_SPEED = document.getElementById('dbgSpeed');
+    if (DBG_SPEED) DBG_SPEED.textContent = USER_SPEED.toFixed(3);
+    const DBG_POKE = document.getElementById('dbgPoke');
+    if (DBG_POKE) DBG_POKE.textContent = POKE_TIMER.toFixed(1);
+  }
 }
 
 /*---------- Rendering helpers ----------*/
@@ -640,8 +646,8 @@ function drawStarsWithLines() {
 
   // Clear canvas
   BRUSH.clearRect(0, 0, WIDTH, HEIGHT);
-
-  // Optional ring around pointer
+  
+  // Ring around pointer
   if (!window.REMOVE_CIRCLE) {
     const RING_RADIUS = SCALE_TO_SCREEN * 100 - 40;
     const RING_WIDTH = CIRCLE_TIMER * 0.15 + 1.5;
@@ -663,30 +669,73 @@ function drawStarsWithLines() {
   }
 
   // Lines between nearby stars
+  // This used to be way simpler but that was laggy on slow devices. This is longer but faster
   BRUSH.lineWidth = 1;
+  
   const COUNT = STARS.length;
-
+  
+  // Optional: reduce style churn by bucketing alpha levels
+  const BUCKETS = 18; // higher = smoother fade, lower = faster
+  const PATHS = Array.from({ length: BUCKETS }, () => new Path2D());
+  
+  // Precompute scaling factor so we don't redo it for every pair
+  const DIST_SCALE = SCREEN_SIZE / 1100;
+  
+  // Cache references locally for speed
+  const ST = STARS;
+  const MAXD = MAX_LINK_DISTANCE;
+  
   for (let I = 0; I < COUNT; I++) {
+    const A = ST[I];
+    const Ax = A.x, Ay = A.y;
+    const Aop = A.opacity;
+    const Aedge = A._EDGE;
+  
     for (let J = I + 1; J < COUNT; J++) {
-      const STAR_A = STARS[I];
-      const STAR_B = STARS[J];
-      const X_DISTANCE = STAR_A.x - STAR_B.x;
-      const Y_DISTANCE = STAR_A.y - STAR_B.y;
-      const DISTANCE = Math.hypot(X_DISTANCE, Y_DISTANCE) / 1100 * SCREEN_SIZE;
-
-      if (DISTANCE < MAX_LINK_DISTANCE) {
-        // Fade with distance + star opacity
-        let ALPHA = (1 - DISTANCE / MAX_LINK_DISTANCE) * ((STAR_A.opacity + STAR_B.opacity) / 2);
-        // Additional fade near edges (hides wrap teleport)
-        ALPHA *= Math.min(edgeFactor(STAR_A), edgeFactor(STAR_B));
-
-        BRUSH.strokeStyle = `rgba(0, 0, 0, ${ALPHA})`;
-        BRUSH.beginPath();
-        BRUSH.moveTo(STAR_A.x, STAR_A.y);
-        BRUSH.lineTo(STAR_B.x, STAR_B.y);
-        BRUSH.stroke();
-      }
+      const B = ST[J];
+  
+      const dx = Ax - B.x;
+      const dy = Ay - B.y;
+  
+      // Faster than hypot: compare squared distance first
+      const d2 = dx * dx + dy * dy;
+  
+      // Convert MAX_LINK_DISTANCE to squared-space with same scaling
+      // We need actual distance for alpha, but only after passing cutoff
+      // cutoff in "scaled distance" terms:
+      // DISTANCE = sqrt(d2) * DIST_SCALE
+      // condition: sqrt(d2) * DIST_SCALE < MAXD
+      // => d2 < (MAXD / DIST_SCALE)^2
+      const cutoff = (MAXD / DIST_SCALE);
+      if (d2 > cutoff * cutoff) continue;
+  
+      const dist = Math.sqrt(d2) * DIST_SCALE;
+  
+      // Base alpha
+      let alpha = (1 - dist / MAXD) * ((Aop + B.opacity) * 0.5);
+  
+      // Edge fade
+      alpha *= Math.min(Aedge, B._EDGE);
+  
+      if (alpha <= 0.002) continue;
+  
+      // Bucket alpha so we can stroke in chunks
+      let bi = (alpha * (BUCKETS - 1)) | 0;
+      if (bi < 0) bi = 0;
+      if (bi >= BUCKETS) bi = BUCKETS - 1;
+  
+      PATHS[bi].moveTo(Ax, Ay);
+      PATHS[bi].lineTo(B.x, B.y);
     }
+  }
+  
+  // Stroke buckets from faint to strong (or reverse if you prefer)
+  for (let b = 0; b < BUCKETS; b++) {
+    // Convert bucket index to representative alpha
+    const a = (b + 1) / BUCKETS;
+  
+    BRUSH.strokeStyle = `rgba(0, 0, 0, ${a})`;
+    BRUSH.stroke(PATHS[b]);
   }
 
   // Star bodies
