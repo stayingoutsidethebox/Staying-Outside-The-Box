@@ -180,7 +180,7 @@ requestAnimationFrame(() => window.forceStarfieldRedraw?.());
   if (typeof saveStarsToStorage === "function") saveStarsToStorage();
 
   // Compute slide distance
-  const DIST = window.innerHeight + (PAGE.scrollTop ?? 0);
+  const DIST = (window.innerHeight * 1.1) + (PAGE.scrollTop ?? 0);
   document.documentElement.style.setProperty("--SLIDE_DISTANCE", `${DIST}px`);
 
   freeScrollLayout(PAGE);
