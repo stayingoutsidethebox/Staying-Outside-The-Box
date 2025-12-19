@@ -350,12 +350,15 @@ button:active {
 /* Button text loses image-fill and becomes bright red when active */
 button:hover span,
 button:active span {
-  background-image: none;
-  -webkit-background-clip: border-box;
-  background-clip: border-box;
+  background-image: url("/Resources/Button Text.webp");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 
-  color: var(--BASE_COLOR);
-  -webkit-text-fill-color: var(--BASE_COLOR);
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  -webkit-background-clip: text;
+  background-clip: text;
   text-shadow: var(--SHADOW);
 }
 
@@ -463,16 +466,13 @@ button {
 /* Span text uses image as fill for “metallic ink” look */
 button span {
   display: inline-block;
+  
+  /*background-image: none;*/
+  -webkit-background-clip: border-box;
+  background-clip: border-box;
 
-  background-image: url("/Resources/Button Text.webp");
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-
-  color: transparent;
-  -webkit-text-fill-color: transparent;
-  -webkit-background-clip: text;
-  background-clip: text;
+  color: var(--BASE_COLOR);
+  -webkit-text-fill-color: var(--BASE_COLOR);
 
   transition:
     color 0.3s ease-out,
