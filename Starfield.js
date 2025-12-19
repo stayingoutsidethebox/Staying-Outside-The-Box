@@ -447,10 +447,10 @@ if (DELAG_DISTANCE < DELAG_RANGE) {
     const TO_USER_Y = Y_DISTANCE / DISTANCE;
 // Linear gradient
 let ATTR_GRADIENT =
-  1 - (DISTANCE / (((ATTRACT_RADIUS * 5.2) * (SCALE_TO_SCREEN ** 1.11)) || 1));
+  1 - (DISTANCE / (((ATTRACT_RADIUS * 5.2) * SCALED_ATT_GRA) || 1));
 
 let REPEL_GRADIENT =
-  1 - (DISTANCE / (((REPEL_RADIUS * 2.8) * (SCALE_TO_SCREEN ** 0.66)) || 1));
+  1 - (DISTANCE / (((REPEL_RADIUS * 2.8) * SCALED_REP_GRA) || 1));
 // Clamp
 ATTR_GRADIENT = Math.max(0, ATTR_GRADIENT);
 REPEL_GRADIENT = Math.max(0, REPEL_GRADIENT);
@@ -458,7 +458,7 @@ REPEL_GRADIENT = Math.max(0, REPEL_GRADIENT);
 const ATTR_SHAPE =
   Math.pow(
     ATTR_GRADIENT,
-    Math.max(0.1, ((ATTRACT_SCALE * 0.48) * (SCALE_TO_SCREEN ** -8.89)))
+    Math.max(0.1, ((ATTRACT_SCALE * 0.48) * SCALED_ATT_SHA))
   );
 
 const REPEL_SHAPE =
@@ -469,13 +469,13 @@ const REPEL_SHAPE =
   
 // Attraction
 const ATTRACT =
-  ((ATTRACT_STRENGTH * 0.006) * (SCALE_TO_SCREEN ** -8.46)) *
+  ((ATTRACT_STRENGTH * 0.006) * SCALED_ATT) *
   USER_SPEED *
   ATTR_SHAPE;
 
 // Repulsion
 const REPEL =
-  ((REPEL_STRENGTH * 0.0182) * (SCALE_TO_SCREEN ** -0.89)) *
+  ((REPEL_STRENGTH * 0.0182) * SCALED_REP) *
   USER_SPEED *
   REPEL_SHAPE;
   
