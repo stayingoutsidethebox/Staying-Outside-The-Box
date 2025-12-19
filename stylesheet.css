@@ -287,7 +287,7 @@ img {
   font: 1dvmin Arial;                     /* Fallback text if image fails */
   object-fit: contain;                    /* Show full badge */
   border-radius: 10dvmin;
-  border: 3px solid var(--NO_LINK);
+  border: 3px solid var(--BASE_COLOR);
 
   transition:
     transform var(--SLOW_TRANSFORM),
@@ -370,7 +370,7 @@ button:active span {
 
 /* Light colored homepage links */
 .clean {
-  color: var(--NO_LINK);
+  color: var(--BASE_COLOR);
 }
 
 /* Slightly stronger scale for “clean” links */
@@ -416,7 +416,7 @@ button:active span {
 
   font: 1dvmin Arial;
   border-radius: 50%;
-  border: 3px solid var(--NO_LINK);
+  border: 3px solid var(--BASE_COLOR);
   object-fit: cover;
 
   transition:
