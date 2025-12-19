@@ -442,7 +442,7 @@ const DELAG_RANGE = RANGE * RANGE;
     // Apply gravity ring forces only within influence range
 // Weird variables to help lag
 if (DELAG_DISTANCE < DELAG_RANGE) {
-  const DISTANCE = Math.sqrt(DELAG_DISTANCE);
+  const DISTANCE = Math.sqrt(DELAG_DISTANCE) || 0.0001;
   const TO_USER_X = X_DISTANCE / DISTANCE;
     const TO_USER_Y = Y_DISTANCE / DISTANCE;
 // Linear gradient
@@ -516,40 +516,34 @@ STAR.momentumY += REPEL * -TO_USER_Y;
     
     // Wrap when passive OR far OR heavy poke (radius-aware, fully off-screen)
 const TOO_FAR = 200 * 200;
-if (CIRCLE_TIMER === 0 || DELAG_DISTANCE > TOO_FAR || POKE_TIMER > 1000)
-      const R = (STAR.whiteValue * 2 + STAR.size) || 0; // draw radius
-      if (STAR.x < -R) STAR.x = WIDTH + R;
-      else if (STAR.x > WIDTH + R) STAR.x = -R;
-      if (STAR.y < -R) STAR.y = HEIGHT + R;
-      else if (STAR.y > HEIGHT + R) STAR.y = -R;
-    }
-    // Otherwise bounce (interactive mode, radius-aware reflection)
-    else {
-      const R = (STAR.whiteValue * 2 + STAR.size) || 0;
-    
-      // Left/right walls
-      if (STAR.x < R) {
-        STAR.x = 2 * R - STAR.x;
-    
-        // Reflect only the extra force
-        STAR.momentumX = -STAR.momentumX;
-      } else if (STAR.x > WIDTH - R) {
-        STAR.x = 2 * (WIDTH - R) - STAR.x;
-    
-        STAR.momentumX = -STAR.momentumX;
-      }
-    
-      // Top/bottom walls
-      if (STAR.y < R) {
-        STAR.y = 2 * R - STAR.y;
-    
-        STAR.momentumY = -STAR.momentumY;
-      } else if (STAR.y > HEIGHT - R) {
-        STAR.y = 2 * (HEIGHT - R) - STAR.y;
-    
-        STAR.momentumY = -STAR.momentumY;
-      }
-    }
+
+if (CIRCLE_TIMER === 0 || DELAG_DISTANCE > TOO_FAR || POKE_TIMER > 1000) {
+  const R = (STAR.whiteValue * 2 + STAR.size) || 0; // draw radius
+  if (STAR.x < -R) STAR.x = WIDTH + R;
+  else if (STAR.x > WIDTH + R) STAR.x = -R;
+  if (STAR.y < -R) STAR.y = HEIGHT + R;
+  else if (STAR.y > HEIGHT + R) STAR.y = -R;
+} else {
+  const R = (STAR.whiteValue * 2 + STAR.size) || 0;
+
+  // Left/right walls
+  if (STAR.x < R) {
+    STAR.x = 2 * R - STAR.x;
+    STAR.momentumX = -STAR.momentumX;
+  } else if (STAR.x > WIDTH - R) {
+    STAR.x = 2 * (WIDTH - R) - STAR.x;
+    STAR.momentumX = -STAR.momentumX;
+  }
+
+  // Top/bottom walls
+  if (STAR.y < R) {
+    STAR.y = 2 * R - STAR.y;
+    STAR.momentumY = -STAR.momentumY;
+  } else if (STAR.y > HEIGHT - R) {
+    STAR.y = 2 * (HEIGHT - R) - STAR.y;
+    STAR.momentumY = -STAR.momentumY;
+  }
+}
     
     // White flash decay
     if (STAR.whiteValue > 0) {
@@ -652,7 +646,13 @@ function edgeFactor(STAR) {
 
 
 /*---------- Rendering: lines + stars ----------*/
+// outside drawStarsWithLines (top-level)
+const BUCKETS = 18;
+let PATHS = Array.from({ length: BUCKETS }, () => new Path2D());
 
+function resetPaths() {
+  for (let i = 0; i < BUCKETS; i++) PATHS[i] = new Path2D();
+}
 function drawStarsWithLines() {
   if (!HAS_CANVAS || !BRUSH) return;
 
@@ -686,9 +686,7 @@ function drawStarsWithLines() {
   
   const COUNT = STARS.length;
   
-  // Optional: reduce style churn by bucketing alpha levels
-  const BUCKETS = 18; // higher = smoother fade, lower = faster
-  const PATHS = Array.from({ length: BUCKETS }, () => new Path2D());
+  resetPaths();
   
   // Precompute scaling factor so we don't redo it for every pair
   const DIST_SCALE = SCREEN_SIZE / 1100;
@@ -696,6 +694,10 @@ function drawStarsWithLines() {
   // Cache references locally for speed
   const ST = STARS;
   const MAXD = MAX_LINK_DISTANCE;
+  
+  for (const STAR of STARS) {
+  STAR.edge = edgeFactor(STAR);
+  }
   
   for (let I = 0; I < COUNT; I++) {
     const A = ST[I];
