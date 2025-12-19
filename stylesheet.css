@@ -225,7 +225,6 @@ a {
   display: inline-block;
   margin: 0 auto;
   padding-bottom: 1dvmin;
-  color: var(--LINK_LIGHT);
   
   -webkit-text-fill-color: var(--LINK_LIGHT);
   -webkit-background-clip: border-box;
@@ -408,7 +407,7 @@ button:active span {
 .dead,
 .dead:hover {
   transform: scale(1);
-  color: var(--LINK_DARK);
+  -webkit-text-fill-color: var(--LINK_DARK);
 }
 
 /* Highlighted premium text */
