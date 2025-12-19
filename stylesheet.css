@@ -1,4 +1,3 @@
-magical css
 /*==============================================================*
  *                           CSS MAP
  *==============================================================*
@@ -6,46 +5,43 @@ magical css
  *  1. DESIGN TOKENS / ROOT VARIABLES
  *     - Colors, shadows, animation timing, transitions
  *
- *  2. LAYOUT, BACKGROUND & CANVAS LAYERS
+ *  2. BASE LAYOUT & BACKGROUND
  *     - html + body structure
- *     - fixed background image
- *     - constellations canvas layer
+ *     - fixed background image layer
  *
- *  3. MAIN CONTENT & TYPOGRAPHY
- *     - main, footer
- *     - h2, p
- *     - dividers + hr
+ *  3. CANVAS LAYER
+ *     - #constellations canvas placement
  *
- *  4. ARTICLES & LINK BASICS
+ *  4. MAIN CONTENT & TYPOGRAPHY
+ *     - main, headings, paragraphs, hr/dividers
+ *
+ *  5. CONTENT CONTAINERS
  *     - article layout
- *     - link base styling
- *     - hidden state handling
+ *     - [hidden] handling
  *
- *  5. IMAGE STYLES & IMAGE BUTTONS
- *     - circular avatars
- *     - decorative border wrapper
- *     - homepage “imgButton”s
+ *  6. LINKS (ALL a STYLES)
+ *     - base link styling
+ *     - hover styling
+ *     - utility link variants (.clean, .dead, .premium)
  *
- *  6. INTERACTION STATES (HOVER, FOCUS, TOUCH)
- *     - hoverTogether system
- *     - nav icon hover effects
- *     - button hover + text effects
+ *  7. IMAGES (ALL img STYLES)
+ *     - base circular images
+ *     - .imgBorder + its ::before ring
+ *     - .imgButton (homepage image buttons)
+ *     - .navButtons img (icon sizing + framing)
  *
- *  7. LINK VARIANTS & UTILITIES
- *     - .clean, .dead, .premium
+ *  8. BUTTONS (ALL button STYLES)
+ *     - button base
+ *     - button span text fill
+ *     - hover/active behaviors
  *
- *  8. NAVIGATION ICON BUTTON STRIP
- *     - .navButtons row layout
- *     - per-icon styling
- *
- *  9. GENERIC BUTTONS
- *     - pill-button shape
- *     - background border image
- *     - image-filled text span
+ *  9. GROUP INTERACTIONS
+ *     - .hoverTogether behavior
+ *     - nav icon hover/active behavior
  *
  * 10. CHARACTER NAME COLORS (SCRIPT PAGES)
- *     - base text styling
- *     - per-character color overrides
+ *     - shared name styling
+ *     - per-character colors
  *
  * 11. SLIDE-IN PAGE TRANSITION SYSTEM
  *     - #transitionContainer
@@ -73,12 +69,12 @@ magical css
   --SLIDE_DURATION: 0.6s;
 
   /* Shared glow */
-  --SHADOW: 0 0 20px rgba(150, 0, 255, 1);
+  --SHADOW: 0 0 20px rgba(0, 0, 0, 1);
 
   /* Brand colors */
   --LINK_LIGHT: #ee0000;
-  --LINK_DARK: #880000;
-  --NO_LINK:   #bdbdbd;
+  --LINK_DARK:  #880000;
+  --BASE_COLOR: #bdbdbd;
 
   /* Transition easings */
   --SLOW_TRANSFORM: 0.3s ease-out;
@@ -91,20 +87,20 @@ magical css
 
 
 
-/* #region 2 LAYOUT, BACKGROUND & CANVAS LAYERS */
+/* #region 2 BASE LAYOUT & BACKGROUND */
 /*========================================*
- *  2 LAYOUT, BACKGROUND & CANVAS LAYERS
+ *  2 BASE LAYOUT & BACKGROUND
  *========================================*/
 
 /* Root page structure */
 html {
   margin: 0;
   padding: 0;
-  
+
   /* DONT TOUCH - important for proper scroll transition */
   overflow: auto;                         /* JS swaps body/html scroll control */
-  
-  background-color: black;              /* Edge color */
+
+  background-color: black;                /* Edge color */
 }
 
 body {
@@ -113,11 +109,11 @@ body {
   align-items: stretch;
 
   min-height: 100dvh;
-  
+
   /* DONT TOUCH - important for proper scroll transition */
   height: auto;
   overflow: hidden;                       /* Default: no body scroll */
-  
+
   margin: 0;
   padding: 0;
   background: transparent;
@@ -125,7 +121,7 @@ body {
   text-align: center;
   font-family: 'New Rocker';
   font-size: 7dvmin;
-  color: var(--NO_LINK);
+  color: var(--BASE_COLOR);
 }
 
 /* Fixed background image behind everything */
@@ -143,6 +139,15 @@ body::before {
   pointer-events: none;                   /* Never block clicks */
 }
 
+/* #endregion 2 BASE LAYOUT & BACKGROUND */
+
+
+
+/* #region 3 CANVAS LAYER */
+/*========================================*
+ *  3 CANVAS LAYER
+ *========================================*/
+
 /* Full-screen animated constellations canvas */
 #constellations {
   position: fixed;
@@ -153,26 +158,19 @@ body::before {
   pointer-events: none;
 }
 
-/* #endregion 2 LAYOUT, BACKGROUND & CANVAS LAYERS */
+/* #endregion 3 CANVAS LAYER */
 
 
 
-/* #region 3 MAIN CONTENT & TYPOGRAPHY */
+/* #region 4 MAIN CONTENT & TYPOGRAPHY */
 /*========================================*
- *  3 MAIN CONTENT + TYPOGRAPHY
+ *  4 MAIN CONTENT & TYPOGRAPHY
  *========================================*/
 
-/* Main layout + footer */
 main {
   padding: 2dvmin;
 }
 
-footer p {
-  font-size: 3dvmin;
-  padding: 2dvmin;
-}
-
-/* Headings & text */
 h2 {
   margin-top: -7dvmin;                    /* Stylized “pulled up” heading */
   font-size: 4dvmin;
@@ -183,7 +181,11 @@ p {
   font-size: 6dvmin;
 }
 
-/* Horizontal rules & dividers */
+footer p {
+  font-size: 3dvmin;
+  padding: 2dvmin;
+}
+
 hr {
   width: 75dvw;
   height: 4px;
@@ -198,13 +200,13 @@ hr {
   width: 45dvw;                           /* Smaller version of hr */
 }
 
-/* #endregion 3 MAIN CONTENT & TYPOGRAPHY */
+/* #endregion 4 MAIN CONTENT & TYPOGRAPHY */
 
 
 
-/* #region 4 ARTICLES & LINK BASICS */
+/* #region 5 CONTENT CONTAINERS */
 /*========================================*
- *  4 ARTICLES & LINK BASICS
+ *  5 CONTENT CONTAINERS
  *========================================*/
 
 /* Article blocks used for grouped image/link sections */
@@ -221,26 +223,60 @@ article[hidden] {
   display: none !important;
 }
 
+/* #endregion 5 CONTENT CONTAINERS */
+
+
+
+/* #region 6 LINKS (ALL a STYLES) */
+/*========================================*
+ *  6 LINKS (ALL a STYLES)
+ *========================================*/
+
 /* Base link styling */
 a {
   display: inline-block;
   margin: 0 auto;
   padding-bottom: 1dvmin;
   color: var(--LINK_LIGHT);
-  text-decoration: none;
   transition:
     transform var(--SLOW_TRANSFORM),
     color var(--SLOW_COLOR),
     text-shadow var(--SLOW_SHADOW);
 }
 
-/* #endregion 4 ARTICLES & LINK BASICS */
+/* Base link hover */
+a:hover {
+  transform: scale(1.05);
+  text-shadow: var(--SHADOW);
+  color: var(--LINK_LIGHT);
+}
+
+/* Link variants & utility classes */
+.clean {
+  color: var(--BASE_COLOR);
+}
+
+.clean:hover {
+  transform: scale(1.1);
+}
+
+.dead,
+.dead:hover {
+  transform: scale(1);
+  color: var(--LINK_DARK);
+}
+
+.premium {
+  text-shadow: var(--SHADOW);
+}
+
+/* #endregion 6 LINKS (ALL a STYLES) */
 
 
 
-/* #region 5 IMAGE STYLES & IMAGE BUTTONS */
+/* #region 7 IMAGES (ALL img STYLES) */
 /*========================================*
- *  5 IMAGE STYLES & IMAGE BUTTONS
+ *  7 IMAGES (ALL img STYLES)
  *========================================*/
 
 /* Base circular images */
@@ -278,7 +314,7 @@ img {
 }
 
 /* Homepage circular image buttons */
-.imgButton {
+.imgButton, button {
   display: block;
   width: auto;
   height: 20dvmin;
@@ -289,127 +325,16 @@ img {
   font: 1dvmin Arial;                     /* Fallback text if image fails */
   object-fit: contain;                    /* Show full badge */
   border-radius: 10dvmin;
-  border: 3px solid var(--NO_LINK);
+  border: 3px solid var(--BASE_COLOR);
 
   transition:
     transform var(--SLOW_TRANSFORM),
     box-shadow var(--SLOW_SHADOW),
-    border-color var(--SLOW_BORDER);
+    border-color var(--SLOW_BORDER),
+    color var(--SLOW_COLOR);
 }
 
-/* #endregion 5 IMAGE STYLES & IMAGE BUTTONS */
-
-
-
-/* #region 6 INTERACTION STATES */
-/*========================================*
- *  6 INTERACTION STATES (HOVER, FOCUS, TOUCH)
- *========================================*/
-
-/* Basic link hover scaling */
-a:hover {
-  transform: scale(1.05);
-  text-shadow: var(--SHADOW);
-  color: var(--LINK_DARK);
-}
-
-/* Hover or focus on a group boosts its image button + links */
-.hoverTogether:hover .imgButton,
-.hoverTogether:focus-within .imgButton {
-  box-shadow: var(--SHADOW);
-  border-color: var(--LINK_DARK);
-}
-
-.hoverTogether:hover a,
-.hoverTogether:focus-within a {
-  text-shadow: var(--SHADOW);
-  color: var(--LINK_DARK);
-}
-
-/* Active state on touch still gets glow/color */
-.hoverTogether a:active {
-  text-shadow: var(--SHADOW);
-  color: var(--LINK_DARK);
-}
-
-/* Nav icon glow & scale */
-.navButtons a:hover img,
-.navButtons a:active img {
-  transform: scale(1.05);
-  border-color: var(--LINK_DARK);
-  box-shadow: var(--SHADOW);
-}
-
-/* Button hover/active glow + slight scale */
-button:hover,
-button:active {
-  text-shadow: var(--SHADOW);
-  color: var(--LINK_DARK);
-  box-shadow: var(--SHADOW);
-  transform: scale(1.05);
-}
-
-/* Button text loses image-fill and becomes bright red when active */
-button:hover span,
-button:active span {
-  background-image: none;
-  -webkit-background-clip: border-box;
-  background-clip: border-box;
-
-  color: var(--LINK_LIGHT);
-  -webkit-text-fill-color: var(--LINK_LIGHT);
-  text-shadow: var(--SHADOW);
-}
-
-/* #endregion 6 INTERACTION STATES */
-
-
-
-/* #region 7 LINK VARIANTS & UTILITIES */
-/*========================================*
- *  7 LINK VARIANTS & UTILITY CLASSES
- *========================================*/
-
-/* Light colored homepage links */
-.clean {
-  color: var(--NO_LINK);
-}
-
-/* Slightly stronger scale for “clean” links */
-.clean:hover {
-  transform: scale(1.1);
-}
-
-/* “Dead” or placeholder links: always dim, no scale */
-.dead,
-.dead:hover {
-  transform: scale(1);
-  color: var(--LINK_DARK);
-}
-
-/* Highlighted premium text */
-.premium {
-  text-shadow: var(--SHADOW);
-}
-
-/* #endregion 7 LINK VARIANTS & UTILITIES */
-
-
-
-/* #region 8 NAVIGATION ICON BUTTON STRIP */
-/*========================================*
- *  8 NAVIGATION ICON BUTTON STRIP
- *========================================*/
-
-.navButtons {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  width: fit-content;
-  margin: 0 auto;
-}
-
+/* Navigation icon strip */
 .navButtons img {
   width: 12dvmin;
   height: 12dvmin;
@@ -418,7 +343,7 @@ button:active span {
 
   font: 1dvmin Arial;
   border-radius: 50%;
-  border: 3px solid var(--NO_LINK);
+  border: 3px solid var(--BASE_COLOR);
   object-fit: cover;
 
   transition:
@@ -427,13 +352,13 @@ button:active span {
     border-color var(--SLOW_BORDER);
 }
 
-/* #endregion 8 NAVIGATION ICON BUTTON STRIP */
+/* #endregion 7 IMAGES (ALL img STYLES) */
 
 
 
-/* #region 9 GENERIC BUTTON STYLING */
+/* #region 8 BUTTONS (ALL button STYLES) */
 /*========================================*
- *  9 GENERIC BUTTON STYLING
+ *  8 BUTTONS (ALL button STYLES)
  *========================================*/
 
 button {
@@ -444,45 +369,64 @@ button {
   margin: 1dvmin auto;
   padding: 0.5em 1.5em;
 
-  border: none;
   border-radius: 9999px;
   background: transparent;
 
   font-family: 'New Rocker';
   font-size: 5dvmin;
 
-  /* Outer frame image (pill border) */
-  background-image: url("/Resources/Button Border.webp");
-  background-size: 110% 110%;
-  background-position: center;
-  background-repeat: no-repeat;
+  background: transparent;
 
   transition:
     transform var(--SLOW_TRANSFORM),
     box-shadow var(--SLOW_SHADOW);
 }
 
-/* Span text uses image as fill for “metallic ink” look */
-button span {
-  display: inline-block;
-
-  background-image: url("/Resources/Button Text.webp");
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-
-  color: transparent;
-  -webkit-text-fill-color: transparent;
-  -webkit-background-clip: text;
-  background-clip: text;
-
-  transition:
-    color 0.3s ease-out,
-    text-shadow var(--SLOW_SHADOW),
-    -webkit-text-fill-color 0.9s ease-out;
+button:hover {
+  transform: scale(1.05);
+  text-shadow: var(--SHADOW);
+  color: var(--LINK_LIGHT);
+  box-shadow: var(--SHADOW);
+  border-color: var(--LINK_LIGHT);
 }
 
-/* #endregion 9 GENERIC BUTTON STYLING */
+/* #endregion 8 BUTTONS (ALL button STYLES) */
+
+
+
+/* #region 9 GROUP INTERACTIONS */
+/*========================================*
+ *  9 GROUP INTERACTIONS
+ *========================================*/
+
+/* Hover or focus on a group boosts its image button + links */
+.hoverTogether:hover .imgButton,
+.hoverTogether:focus-within .imgButton {
+  box-shadow: var(--SHADOW);
+  border-color: var(--LINK_LIGHT);
+}
+
+.hoverTogether:hover a,
+.hoverTogether:focus-within a {
+  text-shadow: var(--SHADOW);
+  color: var(--LINK_LIGHT);
+}
+
+/* Active state on touch still gets glow/color 
+.hoverTogether a:active {
+  text-shadow: var(--SHADOW);
+  color: var(--LINK_LIGHT);
+}*/
+
+/* Nav icon glow & scale (targets the icon image inside the link) */
+.navButtons a:hover img,
+.navButtons a:active img {
+  transform: scale(1.05);
+  border-color: var(--LINK_LIGHT);
+  box-shadow: var(--SHADOW);
+}
+
+/* #endregion 9 GROUP INTERACTIONS */
 
 
 
@@ -555,7 +499,7 @@ button span {
   flex: 1;
   min-height: 100dvh;
   width: 100%;
-  
+
   /* DONT TOUCH - important for proper scroll transition */
   overflow: visible;                      /* JS swaps scroll responsibility */
 }
