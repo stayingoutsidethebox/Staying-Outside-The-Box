@@ -101,7 +101,7 @@
 html::before{
   content:"";
   position: fixed;
-  top: calc(-1 * var(--safari-toolbar-height));
+  top: calc(-1 * var(--TOP_MENU_HEIGHT));
 
   left: 0;
   right: 0;
