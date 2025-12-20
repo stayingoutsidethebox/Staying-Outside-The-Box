@@ -93,6 +93,23 @@
  *========================================*/
 
 /* Root page structure */
+
+/* Fixed background image behind everything */
+html::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  width:100dvw;
+  height:auto;
+  overflow: auto;
+  background-image:url("/Resources/Background.webp");
+  background-size:cover;
+  background-position:center;
+  background-repeat:no-repeat;
+  z-index:-2;
+  pointer-events:none;
+}
+
 html {
   margin: 0;
   padding: 0;
@@ -122,21 +139,6 @@ body {
   font-family: 'New Rocker';
   font-size: 7dvmin;
   color: var(--BASE_COLOR);
-}
-
-/* Fixed background image behind everything */
-html::before{
-  content:"";
-  position:fixed;
-  inset:0;
-  width:100dvw;
-  height:100dvh;
-  background-image:url("/Resources/Background.webp");
-  background-size:cover;
-  background-position:center;
-  background-repeat:no-repeat;
-  z-index:-2;
-  pointer-events:none;
 }
 
 /* #endregion 2 BASE LAYOUT & BACKGROUND */
