@@ -59,7 +59,8 @@ function freeScrollLayout(PAGE = getPage()) {
 
 // Lock vertical scrolling to #transitionContainer only
 function lockScrollToContainer(PAGE = getPage()) {
-  const HTML = document.documentElement;
+   if (typeof resizeCanvas === "function") resizeCanvas();
+  /*const HTML = document.documentElement;
   const BODY = document.body;
   if (!HTML || !BODY || !PAGE) return;
 
@@ -74,7 +75,7 @@ function lockScrollToContainer(PAGE = getPage()) {
   PAGE.style.overflowY = "auto";
   PAGE.style.overflowX = "hidden";
   PAGE.style.webkitOverflowScrolling = "touch";
-  PAGE.style.overscrollBehavior = "contain";
+  PAGE.style.overscrollBehavior = "contain";*/
 }
 
 /*---------- PAGE LOAD ----------*/
@@ -106,6 +107,7 @@ window.addEventListener("load", () => {
 
   // Trigger slide-in
   // Trigger slide-in
+freeScrollLayout(PAGE);
 requestAnimationFrame(() => {
   PAGE.classList.add("ready");
 
@@ -180,7 +182,7 @@ requestAnimationFrame(() => window.forceStarfieldRedraw?.());
   if (typeof saveStarsToStorage === "function") saveStarsToStorage();
 
   // Compute slide distance
-  const DIST = (window.innerHeight * 1.1) + (PAGE.scrollTop ?? 0);
+const DIST = (window.innerHeight * 1.1) + (window.scrollY ?? 0);
   document.documentElement.style.setProperty("--SLIDE_DISTANCE", `${DIST}px`);
 
   freeScrollLayout(PAGE);
