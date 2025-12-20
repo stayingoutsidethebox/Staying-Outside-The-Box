@@ -531,7 +531,7 @@ for (const STAR of STARS) {
     let FORCE_X = STAR.momentumX;
     let FORCE_Y = STAR.momentumY;
 
-    const LIMIT = CLAMP * (SCALE_TO_SCREEN ** 2);
+    const LIMIT = 1.3 * CLAMP * (SCALE_TO_SCREEN ** 2);
     const FORCE_MAG = Math.sqrt(FORCE_X * FORCE_X + FORCE_Y * FORCE_Y);
 
     if (FORCE_MAG > LIMIT) {
