@@ -62,8 +62,6 @@
  *========================================*/
 
 :root {
-  /* Height of the top browser bar */
-  --TOP_MENU_HEIGHT: calc(100lvh - 100svh);
   
   /* Slide offset (JS can overwrite this) */
   --SLIDE_DISTANCE: 100vh;
@@ -101,7 +99,7 @@
 html::before{
   content:"";
   position: fixed;
-  top: calc(-1 * var(--TOP_MENU_HEIGHT));
+  top: -5dvh;
 
   left: 0;
   right: 0;
