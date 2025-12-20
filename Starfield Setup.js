@@ -482,9 +482,13 @@ SF.resizeCanvas = SF.resizeCanvas || function resizeCanvas() {
 SF.animate = SF.animate || function animate() {
   if (!SF.HAS_CANVAS) return;
 
-  // Part 2 provides these functions
-  if (!SF.FREEZE && typeof SF.moveStars === 'function') SF.moveStars();
-  if (typeof SF.drawStarsWithLines === 'function') SF.drawStarsWithLines();
+  if (!SF.FREEZE && typeof SF.moveStars === "function") {
+    SF.moveStars();
+  }
+
+  if (typeof SF.drawStarsWithLines === "function") {
+    SF.drawStarsWithLines();
+  }
 
   requestAnimationFrame(SF.animate);
 };
@@ -494,6 +498,8 @@ SF.sizesReady = SF.sizesReady || function sizesReady() {
 };
 
 SF.start = SF.start || function startStarfield() {
+  if (SF._START_CALLED) return;
+  SF._START_CALLED = true;
   SF.resizeCanvas();
 
   if (!SF.sizesReady()) {
