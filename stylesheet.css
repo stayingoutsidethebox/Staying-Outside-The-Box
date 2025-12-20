@@ -106,9 +106,6 @@ html::before{
   left: 0;
   right: 0;
 
-  /* make it taller so it still covers when Safari UI expands */
-  height: calc(110lvh + env(safe-area-inset-top, 0px) + env(safe-area-inset-bottom, 0px));
-
   background-image: url("/Resources/Background.webp");
   background-size: cover;
   background-position: center;
