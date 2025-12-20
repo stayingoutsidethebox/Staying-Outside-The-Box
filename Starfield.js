@@ -462,17 +462,22 @@ function moveStars() {
   if (!HAS_CANVAS || !STARS.length) return;
 
   const RANGE = SCREEN_SIZE * 0.2;
+const DELAG_RANGE = RANGE * RANGE;
 
-  for (const STAR of STARS) {
-    const X_DISTANCE = USER_X - STAR.x;
-    const Y_DISTANCE = USER_Y - STAR.y;
+for (const STAR of STARS) {
+  const X_DISTANCE = USER_X - STAR.x;
+  const Y_DISTANCE = USER_Y - STAR.y;
 
-    const DISTANCE = Math.hypot(X_DISTANCE, Y_DISTANCE) + 0.0001;
+  // De-lag: compare squared distance first (no sqrt yet)
+  const DELAG_DIST = X_DISTANCE * X_DISTANCE + Y_DISTANCE * Y_DISTANCE;
+
+  // Apply ring forces only within influence range
+  if (DELAG_DIST < DELAG_RANGE) {
+    // Only pay for sqrt when we're actually inside range
+    const DISTANCE = Math.sqrt(DELAG_DIST) + 0.0001;
     const TO_USER_X = X_DISTANCE / DISTANCE;
     const TO_USER_Y = Y_DISTANCE / DISTANCE;
 
-    // Apply ring forces only within influence range
-    if (DISTANCE < RANGE) {
       // Linear gradients (0..1)
       let ATTR_GRADIENT =
         1 - (DISTANCE / (((ATTRACT_RADIUS * 5.2) * (SCALE_TO_SCREEN ** 1.11)) || 1));
@@ -527,7 +532,7 @@ function moveStars() {
     let FORCE_Y = STAR.momentumY;
 
     const LIMIT = CLAMP * (SCALE_TO_SCREEN ** 2);
-    const FORCE_MAG = Math.hypot(FORCE_X, FORCE_Y);
+    const FORCE_MAG = Math.sqrt(FORCE_X * FORCE_X + FORCE_Y * FORCE_Y);
 
     if (FORCE_MAG > LIMIT) {
       const SCALE = LIMIT / FORCE_MAG;
@@ -545,7 +550,7 @@ function moveStars() {
 
     // Wrap when passive OR far OR heavy poke
     // (Preserved: same thresholds, just kept readable)
-    if (CIRCLE_TIMER == 0 || DISTANCE > 200 || POKE_TIMER > 1000) {
+    if (CIRCLE_TIMER == 0 || DELAG_DIST > (200 * 200) || POKE_TIMER > 1000) {
       const RADIUS = (STAR.whiteValue * 2 + STAR.size) || 0;
 
       if (STAR.x < -RADIUS) STAR.x = WIDTH + RADIUS;
@@ -817,7 +822,7 @@ function updateSpeed(X, Y, TIME) {
   const DX = X - USER_X;
   const DY = Y - USER_Y;
 
-  const RAW_USER_SPEED = Math.hypot(DX, DY) / DT;
+  const RAW_USER_SPEED = Math.sqrt(DX * DX + DY * DY) / DT;
 
   USER_SPEED = Math.min(RAW_USER_SPEED * 50, 50);
   CIRCLE_TIMER = Math.max(CIRCLE_TIMER, USER_SPEED);
