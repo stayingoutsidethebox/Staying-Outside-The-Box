@@ -12,7 +12,7 @@
  *
  * Works with:
  *  - New split Starfield (window.STARFIELD)
- *  - Old single-file Starfield (global functions/vars)
+ *  - Old single-file Starfield (global functions/lexicals)
  *==============================================================*/
 
 
@@ -23,38 +23,57 @@
 
 let IS_TRANSITIONING = false;
 
-const getPage = () => document.getElementById('transitionContainer');
-const isHomepage = () => !!document.querySelector('#menuButton');
+const getPage = () => document.getElementById("transitionContainer");
+const isHomepage = () => !!document.querySelector("#menuButton");
 const getSlideDurationSeconds = () => (isHomepage() ? 1.2 : 0.6);
 
 /*---------- STARFIELD COMPAT LAYER ----------*/
 
+// New split Starfield (preferred)
 function getSF() {
   return window.STARFIELD || null;
 }
 
+// Old starfield uses top-level `function resizeCanvas(){}` (window property)
+// and top-level `let FREEZE_CONSTELLATION = false;` (NOT a window property).
 function sfResizeCanvas() {
   const SF = getSF();
   if (SF && typeof SF.resizeCanvas === "function") return SF.resizeCanvas();
-  if (typeof window.resizeCanvas === "function") return window.resizeCanvas(); // old
+
+  try {
+    if (typeof resizeCanvas === "function") return resizeCanvas(); // old (lexical/global)
+  } catch {}
+  if (typeof window.resizeCanvas === "function") return window.resizeCanvas(); // old (property)
 }
 
 function sfSaveStars() {
   const SF = getSF();
   if (SF && typeof SF.saveToStorage === "function") return SF.saveToStorage();
-  if (typeof window.saveStarsToStorage === "function") return window.saveStarsToStorage(); // old
+
+  try {
+    if (typeof saveStarsToStorage === "function") return saveStarsToStorage(); // old (lexical/global)
+  } catch {}
+  if (typeof window.saveStarsToStorage === "function") return window.saveStarsToStorage(); // old (property)
 }
 
 function sfFreezeOn() {
   const SF = getSF();
   if (SF) SF.FREEZE = true; // new
-  if (typeof window.FREEZE_CONSTELLATION !== "undefined") window.FREEZE_CONSTELLATION = true; // old
+
+  // old: FREEZE_CONSTELLATION is usually a top-level `let`, so you MUST NOT access via window.
+  try {
+    if (typeof FREEZE_CONSTELLATION !== "undefined") FREEZE_CONSTELLATION = true;
+  } catch {}
 }
 
 function sfForceRedraw() {
   const SF = getSF();
   if (SF && typeof SF.drawStarsWithLines === "function") return SF.drawStarsWithLines(); // new
-  if (typeof window.forceStarfieldRedraw === "function") return window.forceStarfieldRedraw(); // old
+
+  try {
+    if (typeof forceStarfieldRedraw === "function") return forceStarfieldRedraw(); // old (lexical/global)
+  } catch {}
+  if (typeof window.forceStarfieldRedraw === "function") return window.forceStarfieldRedraw(); // old (property)
 }
 //#endregion
 
@@ -69,8 +88,7 @@ function freeScrollLayout(PAGE = getPage()) {
   const HTML = document.documentElement;
   const BODY = document.body;
 
-  const CURRENT_SCROLL =
-    PAGE?.scrollTop ?? window.scrollY ?? 0;
+  const CURRENT_SCROLL = PAGE?.scrollTop ?? window.scrollY ?? 0;
 
   // Document becomes scroller
   HTML.style.overflowY = "auto";
@@ -113,6 +131,11 @@ function lockScrollToContainer(PAGE = getPage()) {
 /*---------- PAGE LOAD ----------*/
 window.addEventListener("load", () => {
   const PAGE = getPage();
+
+  // IMPORTANT: you set REMOVE_CIRCLE=true during transitions.
+  // If you never reset it, the ring can stay permanently off after the first navigation.
+  window.REMOVE_CIRCLE = false;
+  requestAnimationFrame(() => sfForceRedraw());
 
   // Determine referrer
   const REF = document.referrer;
@@ -175,12 +198,19 @@ window.addEventListener("pageshow", (event) => {
   const PAGE = getPage();
   if (!PAGE) return;
 
-  if (event.persisted || performance?.getEntriesByType("navigation")[0]?.type === "back_forward") {
+  const NAV_TYPE = performance?.getEntriesByType?.("navigation")?.[0]?.type;
+  if (event.persisted || NAV_TYPE === "back_forward") {
+    // If we came from bfcache, make sure state is sane.
+    window.REMOVE_CIRCLE = false;
+
     PAGE.classList.remove("slide-out");
     PAGE.classList.add("ready");
     lockScrollToContainer(PAGE);
+
     IS_TRANSITIONING = false;
     PAGE.scrollTop = 0;
+
+    requestAnimationFrame(() => sfForceRedraw());
   }
 });
 
@@ -206,7 +236,7 @@ function transitionTo(URL) {
 
   if (!PAGE) return (location.href = URL);
 
-  // Pause starfield safely
+  // Pause starfield safely + persist positions
   sfFreezeOn();
   sfSaveStars();
 
@@ -313,5 +343,5 @@ function wirePointerEvent(selector = "a") {
 document.addEventListener("DOMContentLoaded", () => wirePointerEvent());
 //#endregion
 
-// Joke: This Layout.js now speaks two dialects: “Old Starfield” and “New Starfield”.
-// It’s basically a translator wearing a hard hat. 🪖🗣️
+// Joke: JavaScript “globals” are like cats. Some come when you call them, some ignore you,
+// and some refuse to live in `window` on principle. 🐈‍⬛
