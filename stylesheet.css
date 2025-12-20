@@ -107,7 +107,7 @@ html::before{
   background-size:cover;
   background-position:center;
   background-repeat:no-repeat;
-  z-index:-2;
+  z-index:1;
   pointer-events:none;
 }
 
@@ -140,6 +140,8 @@ body {
   font-family: 'New Rocker';
   font-size: 7dvmin;
   color: var(--BASE_COLOR);
+  
+    z-index:3;
 }
 
 /* #endregion 2 BASE LAYOUT & BACKGROUND */
