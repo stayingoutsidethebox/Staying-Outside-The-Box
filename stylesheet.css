@@ -129,7 +129,7 @@ body {
 
   /* DONT TOUCH - important for proper scroll transition */
   height: auto;
-  overflow: hidden;                       /* Default: no body scroll */
+  overflow: visible;                       /* Default: no body scroll */
 
   margin: 0;
   padding: 0;
@@ -502,6 +502,7 @@ button:hover {
 #transitionContainer {
   flex: 1;
   min-height: 100dvh;
+  height:auto;
   width: 100%;
 
   /* DONT TOUCH - important for proper scroll transition */
