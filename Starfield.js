@@ -3,25 +3,24 @@
 /*==============================================================*
  *                         STARFIELD SCRIPT
  *==============================================================*
- *  Responsibilities:
- *   - Canvas + drawing context setup
- *   - Star storage (localStorage) + restore
- *   - Star creation + motion + wrap/bounce
- *   - Pointer input (mouse/touch) -> speed + poke + ring timers
- *   - Animation loop + resize handling
+ *  What this file does:
+ *   1) Canvas setup + runtime guards
+ *   2) Star persistence (localStorage) + restore/rescale
+ *   3) Star creation + physics (attract / repel / poke)
+ *   4) Drawing (stars + links + optional pointer ring)
+ *   5) Pointer input (mouse/touch) -> speed + timers
+ *   6) Animation loop + resize handling
+ *
+ *  Perf notes:
+ *   - De-lag distance checks: compare squared distance first
+ *   - Link drawing: squared cutoff + Path2D bucket strokes
+ *   - Edge fade: cached once per star per frame
  *==============================================================*/
 
-//#region STARFIELD GLOBALS
+//#region 1) CANVAS + GLOBAL STATE
 /*========================================*
- *  STARFIELD GLOBAL STATE
- *========================================*
- *  - Canvas + runtime flags
- *  - Pointer state + timers
- *  - Canvas sizing + scaling
- *  - Star array
+ *  CANVAS + RUNTIME FLAGS
  *========================================*/
-
-/*---------- Canvas ----------*/
 
 const CANVAS = document.getElementById('constellations');
 const BRUSH = CANVAS && CANVAS.getContext ? CANVAS.getContext('2d') : null;
@@ -31,18 +30,16 @@ if (!HAS_CANVAS) {
   console.warn('Constellation canvas not found or unsupported; starfield disabled.');
 }
 
-/*---------- Runtime guards (prevent repeats/loops) ----------*/
-
+// Prevent repeats/loops (useful if scripts get reloaded)
 let FREEZE_CONSTELLATION = false;
 let ANIMATION_STARTED = false;
 let RESIZE_WIRED = false;
 let STARS_INITIALIZED = false;
 
-/*---------- Pointer tracking + timers ----------*/
-
+// Pointer state + timers
 let USER_X = 0;
 let USER_Y = 0;
-let USER_TIME = 0;
+let USER_TIME = 0;   // also acts as “pointer exists” flag
 let USER_SPEED = 0;
 let POKE_TIMER = 0;
 let CIRCLE_TIMER = 0;
@@ -50,44 +47,56 @@ let CIRCLE_TIMER = 0;
 // Cross-script flag (preserved across pages if set earlier)
 window.REMOVE_CIRCLE = window.REMOVE_CIRCLE ?? false;
 
-/*---------- Canvas size + scaling ----------*/
-
-let WIDTH = 0;
-let HEIGHT = 0;
-let SCREEN_SIZE = 0;
-let SCALE_TO_SCREEN = 0;
+// Canvas sizing + scaling
+let CANVAS_WIDTH = 0;
+let CANVAS_HEIGHT = 0;
+let SCREEN_SIZE = 0;       // CANVAS_WIDTH + CANVAS_HEIGHT
+let SCALE_TO_SCREEN = 0;   // your main scale factor
 let MAX_STAR_COUNT = 0;
 let MAX_LINK_DISTANCE = 0;
 
-/*---------- Starfield data ----------*/
+// Precomputed scaling powers (kept out of the laggy loop)
+let SCALED_ATT_GRA = 1;
+let SCALED_REP_GRA = 1;
+let SCALED_ATT_SHA = 1;
+let SCALED_ATT = 1;
+let SCALED_REP = 1;
 
+// Starfield data
 let STARS = [];
-//#endregion STARFIELD GLOBALS
+//#endregion
 
-//#region STARFIELD STORAGE
+
+
+//#region 2) STORAGE (localStorage)
 /*========================================*
- *  STORAGE (localStorage)
+ *  STORAGE
  *========================================*
  *  Saves:
- *   - Star array (positions + motion + visual props)
- *   - Meta (canvas size + pointer/timer state + gravity params)
+ *   - constellationStars: full star array
+ *   - constellationMeta: canvas size + pointer/timers + UI params
  *========================================*/
 
-// Save star positions and motion meta into localStorage
 function saveStarsToStorage() {
   if (!HAS_CANVAS) return;
+
   try {
     localStorage.setItem('constellationStars', JSON.stringify(STARS));
+
     localStorage.setItem(
       'constellationMeta',
       JSON.stringify({
-        width: WIDTH,
-        height: HEIGHT,
+        width: CANVAS_WIDTH,
+        height: CANVAS_HEIGHT,
+
+        // pointer + timers
         pokeTimer: POKE_TIMER,
         userSpeed: USER_SPEED,
         userX: USER_X,
         userY: USER_Y,
         userTime: USER_TIME,
+
+        // UI params
         attractStrength: ATTRACT_STRENGTH,
         attractRadius: ATTRACT_RADIUS,
         attractScale: ATTRACT_SCALE,
@@ -103,47 +112,98 @@ function saveStarsToStorage() {
   }
 }
 
-// Save constellation right before the page unloads or reloads
 window.addEventListener('beforeunload', saveStarsToStorage);
-//#endregion STARFIELD STORAGE
+//#endregion
 
-//#region STARFIELD CORE
+
+
+//#region 3) UTILITIES
 /*========================================*
- *  CREATION + MOTION + DRAWING
+ *  UTILITIES
  *========================================*/
 
-/*---------- Utility: random float in [MIN, MAX) ----------*/
+function nowMs() {
+  return (window.performance && performance.now) ? performance.now() : Date.now();
+}
 
-const randomBetween = (MIN, MAX) =>
-  Math.random() * (MAX - MIN) + MIN;
+/**
+ * Mac/Safari timestamp fix:
+ * Some browsers give `event.timeStamp` in epoch ms (Date.now-ish),
+ * others give it relative to page load (performance.now-ish),
+ * and occasionally it can be 0.
+ *
+ * We normalize everything to the same "performance.now()" style clock.
+ */
+function normalizeEventTime(TIME_STAMP) {
+  if (!Number.isFinite(TIME_STAMP) || TIME_STAMP <= 0) return nowMs();
 
-/*---------- Initialization: restore if possible ----------*/
+  // If it looks like epoch time (e.g., 1700000000000), convert to perf-style time.
+  // performance.timeOrigin exists in modern browsers; fallback uses nowMs().
+  if (TIME_STAMP > 1e12) {
+    if (performance && Number.isFinite(performance.timeOrigin)) {
+      return TIME_STAMP - performance.timeOrigin;
+    }
+    return nowMs();
+  }
 
-// Load saved stars if present, otherwise create a new field
+  // Otherwise assume it's already perf-style-ish.
+  return TIME_STAMP;
+}
+
+const RANDOM_BETWEEN = (MIN, MAX) => Math.random() * (MAX - MIN) + MIN;
+
+// 0 at/beyond wrap threshold, 1 when safely away from edges
+function edgeFactor(STAR) {
+  const DRAW_RADIUS = (STAR.whiteValue * 2 + STAR.size) || 0;
+
+  const LEFT = STAR.x + DRAW_RADIUS;                          // 0 when x == -R
+  const RIGHT = CANVAS_WIDTH + DRAW_RADIUS - STAR.x;          // 0 when x == W + R
+  const TOP = STAR.y + DRAW_RADIUS;                           // 0 when y == -R
+  const BOTTOM = CANVAS_HEIGHT + DRAW_RADIUS - STAR.y;        // 0 when y == H + R
+
+  const MIN_EDGE_DIST = Math.min(LEFT, RIGHT, TOP, BOTTOM);
+  const FADE_BAND = Math.min(90, SCREEN_SIZE * 0.03);
+
+  let T = MIN_EDGE_DIST / FADE_BAND;
+  if (T < 0) T = 0;
+  if (T > 1) T = 1;
+
+  return T * T * (3 - 2 * T); // smoothstep
+}
+//#endregion
+
+
+
+//#region 4) INIT: RESTORE OR CREATE STARS
+/*========================================*
+ *  INIT STARS
+ *========================================*/
+
 function initStars() {
   if (!HAS_CANVAS) return;
 
-  let SAVED;
+  let SAVED_STARS_RAW = null;
+
   try {
-    SAVED = localStorage.getItem('constellationStars');
+    SAVED_STARS_RAW = localStorage.getItem('constellationStars');
   } catch (ERR) {
     console.warn('Could not read constellationStars from storage:', ERR);
     createStars();
     return;
   }
 
-  if (!SAVED) {
+  if (!SAVED_STARS_RAW) {
     createStars();
     return;
   }
 
   try {
-    const PARSED = JSON.parse(SAVED);
+    const PARSED_STARS = JSON.parse(SAVED_STARS_RAW);
 
-    if (Array.isArray(PARSED) && PARSED.length) {
-      STARS = PARSED;
+    if (Array.isArray(PARSED_STARS) && PARSED_STARS.length) {
+      STARS = PARSED_STARS;
 
-      let META_RAW;
+      let META_RAW = null;
       try {
         META_RAW = localStorage.getItem('constellationMeta');
       } catch (ERR) {
@@ -154,12 +214,10 @@ function initStars() {
         try {
           const META = JSON.parse(META_RAW);
 
-          // Rescale coordinates from old canvas size to current
           if (META.width > 0 && META.height > 0) {
-            const SCALE_X = WIDTH / META.width;
-            const SCALE_Y = HEIGHT / META.height;
-            const SIZE_SCALE =
-              (WIDTH + HEIGHT) / (META.width + META.height);
+            const SCALE_X = CANVAS_WIDTH / META.width;
+            const SCALE_Y = CANVAS_HEIGHT / META.height;
+            const SIZE_SCALE = (CANVAS_WIDTH + CANVAS_HEIGHT) / (META.width + META.height);
 
             for (const STAR of STARS) {
               STAR.x *= SCALE_X;
@@ -168,9 +226,9 @@ function initStars() {
             }
           }
 
-          // Restore timers + pointer state + gravity control values
           POKE_TIMER = META.pokeTimer ?? 0;
           USER_SPEED = META.userSpeed ?? 0;
+
           ATTRACT_STRENGTH = META.attractStrength ?? ATTRACT_STRENGTH;
           ATTRACT_RADIUS   = META.attractRadius   ?? ATTRACT_RADIUS;
           ATTRACT_SCALE    = META.attractScale    ?? ATTRACT_SCALE;
@@ -179,102 +237,89 @@ function initStars() {
           REPEL_RADIUS     = META.repelRadius     ?? REPEL_RADIUS;
           REPEL_SCALE      = META.repelScale      ?? REPEL_SCALE;
           POKE_STRENGTH    = META.pokeStrength    ?? POKE_STRENGTH;
-          
+
           if (typeof META.userX === 'number') USER_X = META.userX;
           if (typeof META.userY === 'number') USER_Y = META.userY;
 
-          // USER_TIME acts as a “pointer exists” flag in moveStars
           if (typeof META.userTime === 'number' && META.userTime > 0) {
             USER_TIME = META.userTime;
           } else {
-            USER_TIME = (window.performance && performance.now) ?
-              performance.now() :
-              Date.now();
+            USER_TIME = nowMs();
           }
         } catch (ERR) {
-          console.warn(
-            'Could not parse constellationMeta, skipping scale.',
-            ERR
-          );
+          console.warn('Could not parse constellationMeta, skipping meta restore.', ERR);
         }
       }
-    } else {
-      createStars();
+
+      return;
     }
+
+    createStars();
   } catch (ERR) {
     console.error('Could not parse saved stars, recreating.', ERR);
     createStars();
   }
 }
 
-/*---------- Initialization: build new starfield ----------*/
-
-// Build a brand-new starfield for the current canvas size
 function createStars() {
   if (!HAS_CANVAS) return;
 
   STARS = [];
 
-  // Keep size range valid even on very small screens
-  const MIN_SIZE = 3;
-  const MAX_SIZE = SCREEN_SIZE / 400 || 3;
+  const MIN_STAR_SIZE = 3;
+  const MAX_STAR_SIZE = SCREEN_SIZE / 400 || 3;
 
-  for (let I = 0; I < MAX_STAR_COUNT; I++) {
+  for (let STAR_INDEX = 0; STAR_INDEX < MAX_STAR_COUNT; STAR_INDEX++) {
     STARS.push({
-      x: Math.random() * WIDTH,
-      y: Math.random() * HEIGHT,
-      vx: randomBetween(-0.25, 0.25),
-      vy: randomBetween(-0.25, 0.25),
-      size: randomBetween(
-        Math.min(MIN_SIZE, MAX_SIZE),
-        Math.max(MIN_SIZE, MAX_SIZE)
+      x: Math.random() * CANVAS_WIDTH,
+      y: Math.random() * CANVAS_HEIGHT,
+      vx: RANDOM_BETWEEN(-0.25, 0.25),
+      vy: RANDOM_BETWEEN(-0.25, 0.25),
+      size: RANDOM_BETWEEN(
+        Math.min(MIN_STAR_SIZE, MAX_STAR_SIZE),
+        Math.max(MIN_STAR_SIZE, MAX_STAR_SIZE)
       ),
-      opacity: randomBetween(0.005, 1.8),
-      fadeSpeed: randomBetween(1, 2.1),
-      redValue: randomBetween(0, 200),
+      opacity: RANDOM_BETWEEN(0.005, 1.8),
+      fadeSpeed: RANDOM_BETWEEN(1, 2.1),
+      redValue: RANDOM_BETWEEN(0, 200),
       whiteValue: 0,
       momentumX: 0,
-      momentumY: 0
+      momentumY: 0,
+      edge: 1
     });
   }
 }
+//#endregion
 
-/*==============================================================*
- *           STEPPER HOLD-TO-REPEAT (BUTTON ACCELERATION)
- *==============================================================*
- *  Behavior:
- *   - Click: one step
- *   - Hold: repeat steps
- *   - Accelerates by shrinking interval over time
- *  Input:
- *   - Mouse + touch supported (touch uses passive:false)
- *==============================================================*/
 
-function enableStepperHold(button, onStep) {
+
+//#region 5) UI CONTROLS (STEPPERS + BINDINGS)
+/*========================================*
+ *  HOLD-TO-REPEAT STEPPERS
+ *========================================*/
+
+function enableStepperHold(BUTTON, ON_STEP) {
   let HOLD_TIMER = null;
   let REPEAT_TIMER = null;
 
-  const INITIAL_DELAY = 350;   // ms before repeat starts
-  const START_INTERVAL = 120;  // initial repeat speed
-  const MIN_INTERVAL = 40;     // max speed cap
-  const ACCELERATION = 0.88;   // interval shrink per tick
+  const INITIAL_DELAY_MS = 350;
+  const START_INTERVAL_MS = 120;
+  const MIN_INTERVAL_MS = 40;
+  const ACCELERATION = 0.88;
 
   const startHold = () => {
-    let INTERVAL = START_INTERVAL;
-
-    // Immediate first step
-    onStep();
+    let INTERVAL = START_INTERVAL_MS;
+    ON_STEP();
 
     HOLD_TIMER = setTimeout(() => {
       REPEAT_TIMER = setInterval(() => {
-        onStep();
-        INTERVAL = Math.max(MIN_INTERVAL, INTERVAL * ACCELERATION);
+        ON_STEP();
+        INTERVAL = Math.max(MIN_INTERVAL_MS, INTERVAL * ACCELERATION);
 
-        // Restart interval to apply acceleration
         clearInterval(REPEAT_TIMER);
-        REPEAT_TIMER = setInterval(onStep, INTERVAL);
+        REPEAT_TIMER = setInterval(ON_STEP, INTERVAL);
       }, INTERVAL);
-    }, INITIAL_DELAY);
+    }, INITIAL_DELAY_MS);
   };
 
   const stopHold = () => {
@@ -284,36 +329,29 @@ function enableStepperHold(button, onStep) {
     REPEAT_TIMER = null;
   };
 
-  // Mouse
-  button.addEventListener('mousedown', (E) => {
+  BUTTON.addEventListener('mousedown', (E) => {
     E.preventDefault();
     startHold();
   });
-  button.addEventListener('mouseup', stopHold);
-  button.addEventListener('mouseleave', stopHold);
+  BUTTON.addEventListener('mouseup', stopHold);
+  BUTTON.addEventListener('mouseleave', stopHold);
 
-  // Touch
-  button.addEventListener('touchstart', (E) => {
-    E.preventDefault();
-    startHold();
-  }, { passive: false });
+  BUTTON.addEventListener(
+    'touchstart',
+    (E) => {
+      E.preventDefault();
+      startHold();
+    },
+    { passive: false }
+  );
 
-  button.addEventListener('touchend', stopHold);
-  button.addEventListener('touchcancel', stopHold);
+  BUTTON.addEventListener('touchend', stopHold);
+  BUTTON.addEventListener('touchcancel', stopHold);
 }
 
-/*==============================================================*
- *              GRAVITY CONTROL BINDING (UI -> JS)
- *==============================================================*
- *  Binds the 3-part control set per ID:
- *   - Range input:  #ID
- *   - Number input: #ID_num
- *   - Stepper btns: .stepBtn[data-step="-1|1"] in same .ctl
- *
- *  Notes:
- *   - Initializes UI from JS values (restored state wins).
- *   - Dispatches 'input' on slider after apply to keep fill sync.
- *==============================================================*/
+/*========================================*
+ *  GRAVITY PARAMS (bound to UI)
+ *========================================*/
 
 let ATTRACT_STRENGTH = 50;
 let ATTRACT_RADIUS = 50;
@@ -324,76 +362,66 @@ let REPEL_RADIUS = 50;
 let REPEL_SCALE = 5;
 let POKE_STRENGTH = 5;
 
-function bindControl(ID, setter, INITIAL_VALUE) {
+function bindControl(ID, SETTER_FN, INITIAL_VALUE) {
   const SLIDER = document.getElementById(ID);
   if (!SLIDER) return false;
 
-  const HTML_ELEMENT = document.getElementById(ID + '_num');
+  const NUMBER_INPUT = document.getElementById(ID + '_num');
 
-  // Find the nearest .ctl container, then the stepper buttons
   const CONTROL_BLOCK = SLIDER.closest('.controlBlock');
-  const STEP_BUTTONS = CONTROL_BLOCK ? CONTROL_BLOCK.querySelectorAll('.stepBtn[data-step]') : [];
+  const STEP_BUTTONS = CONTROL_BLOCK
+    ? CONTROL_BLOCK.querySelectorAll('.stepBtn[data-step]')
+    : [];
 
-  const MIN = Number(SLIDER.min || (HTML_ELEMENT && HTML_ELEMENT.min) || 0);
-  const MAX = Number(SLIDER.max || (HTML_ELEMENT && HTML_ELEMENT.max) || 10);
+  const MIN = Number(SLIDER.min || (NUMBER_INPUT && NUMBER_INPUT.min) || 0);
+  const MAX = Number(SLIDER.max || (NUMBER_INPUT && NUMBER_INPUT.max) || 10);
 
-  const clamp = (v) => Math.min(MAX, Math.max(MIN, v));
-
-  const snapToStep = (v) => {
-  // If step is "any" or 0, don't snap
-  if (!Number.isFinite(STEP) || STEP <= 0) return v;
-
-  // Snap relative to MIN so 0.1 works properly even if min isn't 0
-  const snapped = MIN + Math.round((v - MIN) / STEP) * STEP;
-
-  // Kill float fuzz based on step decimals (0.1 -> 1 decimal, 0.01 -> 2, etc.)
-  const decimals = (String(STEP).split('.')[1] || '').length;
-  return Number(snapped.toFixed(decimals));
-};
-
-const apply = (v) => {
-  v = Number(v);
-  if (!Number.isFinite(v)) return;
-
-  v = clamp(v);
-  v = snapToStep(v);
-
-  SLIDER.value = String(v);
-  if (HTML_ELEMENT) HTML_ELEMENT.value = String(v);
-
-  setter(v);
-
-  // Keep your SLIDER gradient fill in sync (if you use that)
-  SLIDER.dispatchEvent(new Event('input', { bubbles: true }));
-};
-
-  // Step size: prefer slider.step, else number.step, else 1
-  const RAW_STEP = Number(SLIDER.step || (HTML_ELEMENT && HTML_ELEMENT.step) || 1);
+  const RAW_STEP = Number(SLIDER.step || (NUMBER_INPUT && NUMBER_INPUT.step) || 1);
   const STEP = Number.isFinite(RAW_STEP) && RAW_STEP > 0 ? RAW_STEP : 1;
+
+  const clampValue = (VALUE) => Math.min(MAX, Math.max(MIN, VALUE));
+
+  const snapToStep = (VALUE) => {
+    if (!Number.isFinite(STEP) || STEP <= 0) return VALUE;
+
+    const SNAPPED = MIN + Math.round((VALUE - MIN) / STEP) * STEP;
+    const DECIMALS = (String(STEP).split('.')[1] || '').length;
+
+    return Number(SNAPPED.toFixed(DECIMALS));
+  };
+
+  const applyValue = (VALUE) => {
+    VALUE = Number(VALUE);
+    if (!Number.isFinite(VALUE)) return;
+
+    VALUE = clampValue(VALUE);
+    VALUE = snapToStep(VALUE);
+
+    SLIDER.value = String(VALUE);
+    if (NUMBER_INPUT) NUMBER_INPUT.value = String(VALUE);
+
+    SETTER_FN(VALUE);
+
+    SLIDER.dispatchEvent(new Event('input', { bubbles: true }));
+  };
 
   const nudge = (DIR) => {
     const CURRENT = Number(SLIDER.value);
-    const NEXT = CURRENT + DIR * STEP;
-    apply(NEXT);
+    applyValue(CURRENT + DIR * STEP);
   };
 
-  // Initialize from JS value (NOT HTML)
-  apply(INITIAL_VALUE ?? SLIDER.value);
+  applyValue(INITIAL_VALUE ?? SLIDER.value);
 
-  // Slider drag
-  SLIDER.addEventListener('input', () => apply(SLIDER.value));
+  SLIDER.addEventListener('input', () => applyValue(SLIDER.value));
 
-  // Number typing
-  if (HTML_ELEMENT) {
-    HTML_ELEMENT.addEventListener('input', () => apply(HTML_ELEMENT.value));
-    HTML_ELEMENT.addEventListener('change', () => apply(HTML_ELEMENT.value));
+  if (NUMBER_INPUT) {
+    NUMBER_INPUT.addEventListener('input', () => applyValue(NUMBER_INPUT.value));
+    NUMBER_INPUT.addEventListener('change', () => applyValue(NUMBER_INPUT.value));
   }
 
-  // +/- buttons (hold-to-repeat)
-  STEP_BUTTONS.forEach(BTN => {
+  STEP_BUTTONS.forEach((BTN) => {
     const DIR = Number(BTN.dataset.step) || 0;
     if (!DIR) return;
-
     enableStepperHold(BTN, () => nudge(DIR));
   });
 
@@ -401,160 +429,154 @@ const apply = (v) => {
 }
 
 function initGravityControlsIfPresent() {
-  // Bail quickly if page has none
   if (!document.getElementById('ATTRACT_STRENGTH') &&
       !document.getElementById('REPEL_STRENGTH')) {
     return;
   }
 
-  // ATTRACT
-  bindControl('ATTRACT_STRENGTH', v => ATTRACT_STRENGTH = v, ATTRACT_STRENGTH);
-  bindControl('ATTRACT_RADIUS',   v => ATTRACT_RADIUS   = v, ATTRACT_RADIUS);
-  bindControl('ATTRACT_SCALE',    v => ATTRACT_SCALE    = v, ATTRACT_SCALE);
-  
-  // CLAMP
-  bindControl('CLAMP',            v => CLAMP            = v, CLAMP);
-  
-  // REPEL
-  bindControl('REPEL_STRENGTH',   v => REPEL_STRENGTH   = v, REPEL_STRENGTH);
-  bindControl('REPEL_RADIUS',     v => REPEL_RADIUS     = v, REPEL_RADIUS);
-  bindControl('REPEL_SCALE',      v => REPEL_SCALE      = v, REPEL_SCALE);
-  
-  // POKE
-  bindControl('POKE_STRENGTH',             v => POKE_STRENGTH             = v, POKE_STRENGTH);
+  bindControl('ATTRACT_STRENGTH', (V) => (ATTRACT_STRENGTH = V), ATTRACT_STRENGTH);
+  bindControl('ATTRACT_RADIUS',   (V) => (ATTRACT_RADIUS   = V), ATTRACT_RADIUS);
+  bindControl('ATTRACT_SCALE',    (V) => (ATTRACT_SCALE    = V), ATTRACT_SCALE);
+
+  bindControl('CLAMP',            (V) => (CLAMP            = V), CLAMP);
+
+  bindControl('REPEL_STRENGTH',   (V) => (REPEL_STRENGTH   = V), REPEL_STRENGTH);
+  bindControl('REPEL_RADIUS',     (V) => (REPEL_RADIUS     = V), REPEL_RADIUS);
+  bindControl('REPEL_SCALE',      (V) => (REPEL_SCALE      = V), REPEL_SCALE);
+
+  bindControl('POKE_STRENGTH',    (V) => (POKE_STRENGTH    = V), POKE_STRENGTH);
 }
 
 document.addEventListener('DOMContentLoaded', initGravityControlsIfPresent);
+//#endregion
 
-/*---------- Motion: per-frame star update ----------*/
 
-// Move, fade, and wrap stars around user interaction
+
+//#region 6) PHYSICS (MOVE STARS)
+/*========================================*
+ *  MOVE STARS
+ *========================================*/
+
 function moveStars() {
   if (!HAS_CANVAS || !STARS.length) return;
+
+  const INFLUENCE_RANGE = SCREEN_SIZE * 0.2;
+  const INFLUENCE_RANGE_SQ = INFLUENCE_RANGE * INFLUENCE_RANGE;
+  const WRAP_DISTANCE_SQ = 200 * 200;
+
   for (const STAR of STARS) {
+    const DELTA_X = USER_X - STAR.x;
+    const DELTA_Y = USER_Y - STAR.y;
 
-    const X_DISTANCE = USER_X - STAR.x;
-    const Y_DISTANCE = USER_Y - STAR.y;
-    const DISTANCE = Math.hypot(X_DISTANCE, Y_DISTANCE) + 0.0001;
-    const TO_USER_X = X_DISTANCE / DISTANCE;
-    const TO_USER_Y = Y_DISTANCE / DISTANCE;
-    const RANGE = SCREEN_SIZE * 0.2;
+    // De-lag: squared distance first (no sqrt yet)
+    const DIST_SQ = DELTA_X * DELTA_X + DELTA_Y * DELTA_Y;
 
-    // Apply gravity ring forces only within influence range
-    if (DISTANCE < RANGE) {
+    if (DIST_SQ < INFLUENCE_RANGE_SQ) {
+      const DIST = Math.sqrt(DIST_SQ) + 0.0001;
 
-// Linear gradient
-let ATTR_GRADIENT =
-  1 - (DISTANCE / (((ATTRACT_RADIUS * 5.2) * (SCALE_TO_SCREEN ** 1.11)) || 1));
+      const TO_USER_X = DELTA_X / DIST;
+      const TO_USER_Y = DELTA_Y / DIST;
 
-let REPEL_GRADIENT =
-  1 - (DISTANCE / (((REPEL_RADIUS * 2.8) * (SCALE_TO_SCREEN ** 0.66)) || 1));
-// Clamp
-ATTR_GRADIENT = Math.max(0, ATTR_GRADIENT);
-REPEL_GRADIENT = Math.max(0, REPEL_GRADIENT);
+      // Linear gradients
+      let ATTR_GRADIENT =
+        1 - (DIST / (((ATTRACT_RADIUS * 5.2) * SCALED_ATT_GRA) || 1));
 
-const ATTR_SHAPE =
-  Math.pow(
-    ATTR_GRADIENT,
-    Math.max(0.1, ((ATTRACT_SCALE * 0.48) * (SCALE_TO_SCREEN ** -8.89)))
-  );
+      let REPEL_GRADIENT =
+        1 - (DIST / (((REPEL_RADIUS * 2.8) * SCALED_REP_GRA) || 1));
 
-const REPEL_SHAPE =
-  Math.pow(
-    REPEL_GRADIENT,
-    Math.max(0.1, (REPEL_SCALE * 0.64))
-  );
-  
-// Attraction
-const ATTRACT =
-  ((ATTRACT_STRENGTH * 0.006) * (SCALE_TO_SCREEN ** -8.46)) *
-  USER_SPEED *
-  ATTR_SHAPE;
+      ATTR_GRADIENT = Math.max(0, ATTR_GRADIENT);
+      REPEL_GRADIENT = Math.max(0, REPEL_GRADIENT);
 
-// Repulsion
-const REPEL =
-  ((REPEL_STRENGTH * 0.0182) * (SCALE_TO_SCREEN ** -0.89)) *
-  USER_SPEED *
-  REPEL_SHAPE;
-  
-STAR.momentumX += ATTRACT * TO_USER_X;
-STAR.momentumY += ATTRACT * TO_USER_Y;
-STAR.momentumX += REPEL * -TO_USER_X;
-STAR.momentumY += REPEL * -TO_USER_Y;
+      const ATTR_SHAPE = Math.pow(
+        ATTR_GRADIENT,
+        Math.max(0.1, ((ATTRACT_SCALE * 0.48) * SCALED_ATT_SHA))
+      );
 
-      // Poke: extra kick away (also respects repel radius)
-      POKE = (0.01 * POKE_STRENGTH) * POKE_TIMER * REPEL_SHAPE;
-      STAR.momentumX += POKE * -TO_USER_X;
-      STAR.momentumY += POKE * -TO_USER_Y;
+      const REPEL_SHAPE = Math.pow(
+        REPEL_GRADIENT,
+        Math.max(0.1, (REPEL_SCALE * 0.64))
+      );
+
+      const ATTRACT =
+        ((ATTRACT_STRENGTH * 0.006) * SCALED_ATT) *
+        USER_SPEED *
+        ATTR_SHAPE;
+
+      const REPEL =
+        ((REPEL_STRENGTH * 0.0182) * SCALED_REP) *
+        USER_SPEED *
+        REPEL_SHAPE;
+
+      STAR.momentumX += ATTRACT * TO_USER_X;
+      STAR.momentumY += ATTRACT * TO_USER_Y;
+
+      STAR.momentumX += REPEL * -TO_USER_X;
+      STAR.momentumY += REPEL * -TO_USER_Y;
+
+      const POKE_FORCE = (0.01 * POKE_STRENGTH) * POKE_TIMER * REPEL_SHAPE;
+      STAR.momentumX += POKE_FORCE * -TO_USER_X;
+      STAR.momentumY += POKE_FORCE * -TO_USER_Y;
     }
-    
-    // Global boost: user interaction increases baseline drift speed
+
+    // Baseline drift boosted by interaction
     STAR.momentumX += STAR.vx * Math.min(10, 0.05 * USER_SPEED);
     STAR.momentumY += STAR.vy * Math.min(10, 0.05 * USER_SPEED);
 
-    // Make a variable we can clamp without lowering momentum
+    // Clamp force magnitude (matches original behavior)
     let FORCE_X = STAR.momentumX;
     let FORCE_Y = STAR.momentumY;
 
-    // Clamp force magnitude
     const LIMIT = CLAMP * (SCALE_TO_SCREEN ** 2);
-    const HYPOT = Math.hypot(FORCE_X, FORCE_Y);
-    if (HYPOT > LIMIT) {
-      FORCE_X *= LIMIT / HYPOT;
-      FORCE_Y *= LIMIT / HYPOT;
+    const FORCE_MAG = Math.sqrt(FORCE_X * FORCE_X + FORCE_Y * FORCE_Y);
+
+    if (FORCE_MAG > LIMIT) {
+      const SCALE = LIMIT / FORCE_MAG;
+      FORCE_X *= SCALE;
+      FORCE_Y *= SCALE;
     }
-    
-    // Apply motion (passive velocity + momentum + tiny jitter)
+
     STAR.x += STAR.vx + FORCE_X;
     STAR.y += STAR.vy + FORCE_Y;
-    
-    // Momentum decay
+
     STAR.momentumX *= 0.98;
     STAR.momentumY *= 0.98;
-    
-    // Wrap when passive OR far OR heavy poke (radius-aware, fully off-screen)
-    if (CIRCLE_TIMER == 0 || DISTANCE > 200 || POKE_TIMER > 1000) {
-      const R = (STAR.whiteValue * 2 + STAR.size) || 0; // draw radius
-      if (STAR.x < -R) STAR.x = WIDTH + R;
-      else if (STAR.x > WIDTH + R) STAR.x = -R;
-      if (STAR.y < -R) STAR.y = HEIGHT + R;
-      else if (STAR.y > HEIGHT + R) STAR.y = -R;
-    }
-    // Otherwise bounce (interactive mode, radius-aware reflection)
-    else {
-      const R = (STAR.whiteValue * 2 + STAR.size) || 0;
-    
-      // Left/right walls
-      if (STAR.x < R) {
-        STAR.x = 2 * R - STAR.x;
-    
-        // Reflect only the extra force
+
+    // Wrap vs bounce
+    if (CIRCLE_TIMER == 0 || DIST_SQ > WRAP_DISTANCE_SQ || POKE_TIMER > 1000) {
+      const DRAW_RADIUS = (STAR.whiteValue * 2 + STAR.size) || 0;
+
+      if (STAR.x < -DRAW_RADIUS) STAR.x = CANVAS_WIDTH + DRAW_RADIUS;
+      else if (STAR.x > CANVAS_WIDTH + DRAW_RADIUS) STAR.x = -DRAW_RADIUS;
+
+      if (STAR.y < -DRAW_RADIUS) STAR.y = CANVAS_HEIGHT + DRAW_RADIUS;
+      else if (STAR.y > CANVAS_HEIGHT + DRAW_RADIUS) STAR.y = -DRAW_RADIUS;
+    } else {
+      const DRAW_RADIUS = (STAR.whiteValue * 2 + STAR.size) || 0;
+
+      if (STAR.x < DRAW_RADIUS) {
+        STAR.x = 2 * DRAW_RADIUS - STAR.x;
         STAR.momentumX = -STAR.momentumX;
-      } else if (STAR.x > WIDTH - R) {
-        STAR.x = 2 * (WIDTH - R) - STAR.x;
-    
+      } else if (STAR.x > CANVAS_WIDTH - DRAW_RADIUS) {
+        STAR.x = 2 * (CANVAS_WIDTH - DRAW_RADIUS) - STAR.x;
         STAR.momentumX = -STAR.momentumX;
       }
-    
-      // Top/bottom walls
-      if (STAR.y < R) {
-        STAR.y = 2 * R - STAR.y;
-    
+
+      if (STAR.y < DRAW_RADIUS) {
+        STAR.y = 2 * DRAW_RADIUS - STAR.y;
         STAR.momentumY = -STAR.momentumY;
-      } else if (STAR.y > HEIGHT - R) {
-        STAR.y = 2 * (HEIGHT - R) - STAR.y;
-    
+      } else if (STAR.y > CANVAS_HEIGHT - DRAW_RADIUS) {
+        STAR.y = 2 * (CANVAS_HEIGHT - DRAW_RADIUS) - STAR.y;
         STAR.momentumY = -STAR.momentumY;
       }
     }
-    
-    // White flash decay
+
+    // Flash decay
     if (STAR.whiteValue > 0) {
       STAR.whiteValue *= 0.98;
       if (STAR.whiteValue < 0.001) STAR.whiteValue = 0;
     }
 
-    // Opacity cycle (fade out -> snap back on -> occasional white flicker)
+    // Opacity cycle
     if (STAR.opacity <= 0.005) {
       STAR.opacity = 1;
       if (Math.random() < 0.07) STAR.whiteValue = 1;
@@ -565,7 +587,7 @@ STAR.momentumY += REPEL * -TO_USER_Y;
     }
   }
 
-  // Global decay (timers + interaction energy)
+  // Global decay
   USER_SPEED *= 0.5;
   if (USER_SPEED < 0.001) USER_SPEED = 0;
 
@@ -575,10 +597,10 @@ STAR.momentumY += REPEL * -TO_USER_Y;
   POKE_TIMER *= 0.85;
   if (POKE_TIMER < 1) POKE_TIMER = 0;
 
-  // Debug readouts
-  const MISC_DEBUG = 0; //<-- Hey there! Change this to a variable to see live updates
-  const DBG = document.getElementById('miscDbg');
-  if (DBG) DBG.textContent = MISC_DEBUG.toFixed(3);
+  // Debug readouts (same behavior as original)
+  const MISC_DEBUG = 0; // <-- Change this to any variable to see live updates
+  const DBG_MISC = document.getElementById('miscDbg');
+  if (DBG_MISC) DBG_MISC.textContent = MISC_DEBUG.toFixed(3);
 
   const DBG_CIRCLE = document.getElementById('dbgCircle');
   if (DBG_CIRCLE) DBG_CIRCLE.textContent = CIRCLE_TIMER.toFixed(3);
@@ -589,66 +611,30 @@ STAR.momentumY += REPEL * -TO_USER_Y;
   const DBG_POKE = document.getElementById('dbgPoke');
   if (DBG_POKE) DBG_POKE.textContent = POKE_TIMER.toFixed(1);
 }
+//#endregion
 
-/*---------- Rendering helpers ----------*/
 
-// 0 at/beyond wrap threshold, 1 when safely away from edges
-function edgeFactor(STAR) {
-  const R = (STAR.whiteValue * 2 + STAR.size) || 0;
 
-  // Distance from the “fully off-screen” threshold on each side
-  const left = STAR.x + R;              // 0 when x == -R
-  const right = WIDTH + R - STAR.x;     // 0 when x == WIDTH + R
-  const top = STAR.y + R;               // 0 when y == -R
-  const bottom = HEIGHT + R - STAR.y;   // 0 when y == HEIGHT + R
+//#region 7) RENDERING (STARS + LINKS + RING)
+/*========================================*
+ *  DRAWING
+ *========================================*/
 
-  const d = Math.min(left, right, top, bottom);
+const LINK_BUCKET_COUNT = 18;
+let LINK_PATHS = Array.from({ length: LINK_BUCKET_COUNT }, () => new Path2D());
 
-  // Fade band width (gentle)
-  const FADE_BAND = Math.min(90, SCREEN_SIZE * 0.03);
-
-  let t = d / FADE_BAND;
-  if (t < 0) t = 0;
-  if (t > 1) t = 1;
-
-  // Smoothstep
-  return t * t * (3 - 2 * t);
+function resetLinkPaths() {
+  for (let BUCKET_INDEX = 0; BUCKET_INDEX < LINK_BUCKET_COUNT; BUCKET_INDEX++) {
+    LINK_PATHS[BUCKET_INDEX] = new Path2D();
+  }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*---------- Rendering: lines + stars ----------*/
 
 function drawStarsWithLines() {
   if (!HAS_CANVAS || !BRUSH) return;
 
-  // Clear canvas
-  BRUSH.clearRect(0, 0, WIDTH, HEIGHT);
+  BRUSH.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
-  // Optional ring around pointer
+  // Pointer ring
   if (!window.REMOVE_CIRCLE) {
     const RING_RADIUS = SCALE_TO_SCREEN * 100 - 40;
     const RING_WIDTH = CIRCLE_TIMER * 0.15 + 1.5;
@@ -656,7 +642,6 @@ function drawStarsWithLines() {
 
     if (USER_TIME > 0 && RING_ALPHA > 0.001) {
       BRUSH.save();
-
       BRUSH.lineWidth = RING_WIDTH;
       BRUSH.strokeStyle = 'rgba(0, 0, 0, 1)';
       BRUSH.globalAlpha = RING_ALPHA;
@@ -669,30 +654,56 @@ function drawStarsWithLines() {
     }
   }
 
-  // Lines between nearby stars
+  // Links
   BRUSH.lineWidth = 1;
-  const COUNT = STARS.length;
 
-  for (let I = 0; I < COUNT; I++) {
-    for (let J = I + 1; J < COUNT; J++) {
-      const STAR_A = STARS[I];
-      const STAR_B = STARS[J];
-      const X_DISTANCE = STAR_A.x - STAR_B.x;
-      const Y_DISTANCE = STAR_A.y - STAR_B.y;
-      const DISTANCE = Math.hypot(X_DISTANCE, Y_DISTANCE) / 1100 * SCREEN_SIZE;
+  const STAR_COUNT = STARS.length;
+  if (STAR_COUNT) {
+    for (let STAR_INDEX = 0; STAR_INDEX < STAR_COUNT; STAR_INDEX++) {
+      STARS[STAR_INDEX].edge = edgeFactor(STARS[STAR_INDEX]);
+    }
 
-      if (DISTANCE < MAX_LINK_DISTANCE) {
-        // Fade with distance + star opacity
-        let ALPHA = (1 - DISTANCE / MAX_LINK_DISTANCE) * ((STAR_A.opacity + STAR_B.opacity) / 2);
-        // Additional fade near edges (hides wrap teleport)
-        ALPHA *= Math.min(edgeFactor(STAR_A), edgeFactor(STAR_B));
+    const DIST_SCALE = SCREEN_SIZE / 1100;
+    const CUTOFF_RAW = MAX_LINK_DISTANCE / DIST_SCALE;
+    const CUTOFF2 = CUTOFF_RAW * CUTOFF_RAW;
 
-        BRUSH.strokeStyle = `rgba(0, 0, 0, ${ALPHA})`;
-        BRUSH.beginPath();
-        BRUSH.moveTo(STAR_A.x, STAR_A.y);
-        BRUSH.lineTo(STAR_B.x, STAR_B.y);
-        BRUSH.stroke();
+    resetLinkPaths();
+
+    for (let STAR_A_INDEX = 0; STAR_A_INDEX < STAR_COUNT; STAR_A_INDEX++) {
+      const STAR_A = STARS[STAR_A_INDEX];
+      const AX = STAR_A.x, AY = STAR_A.y;
+      const A_OPACITY = STAR_A.opacity;
+      const A_EDGE = STAR_A.edge;
+
+      for (let STAR_B_INDEX = STAR_A_INDEX + 1; STAR_B_INDEX < STAR_COUNT; STAR_B_INDEX++) {
+        const STAR_B = STARS[STAR_B_INDEX];
+
+        const DELTA_X = AX - STAR_B.x;
+        const DELTA_Y = AY - STAR_B.y;
+        const DIST_SQ = DELTA_X * DELTA_X + DELTA_Y * DELTA_Y;
+
+        if (DIST_SQ > CUTOFF2) continue;
+
+        const DIST = Math.sqrt(DIST_SQ) * DIST_SCALE;
+
+        let ALPHA = (1 - DIST / MAX_LINK_DISTANCE) * ((A_OPACITY + STAR_B.opacity) / 2);
+        ALPHA *= Math.min(A_EDGE, STAR_B.edge);
+
+        if (ALPHA <= 0.002) continue;
+
+        let BUCKET = (ALPHA * (LINK_BUCKET_COUNT - 1)) | 0;
+        if (BUCKET < 0) BUCKET = 0;
+        if (BUCKET >= LINK_BUCKET_COUNT) BUCKET = LINK_BUCKET_COUNT - 1;
+
+        LINK_PATHS[BUCKET].moveTo(AX, AY);
+        LINK_PATHS[BUCKET].lineTo(STAR_B.x, STAR_B.y);
       }
+    }
+
+    for (let BUCKET_INDEX = 0; BUCKET_INDEX < LINK_BUCKET_COUNT; BUCKET_INDEX++) {
+      const BUCKET_ALPHA = (BUCKET_INDEX + 1) / LINK_BUCKET_COUNT;
+      BRUSH.strokeStyle = `rgba(0, 0, 0, ${BUCKET_ALPHA})`;
+      BRUSH.stroke(LINK_PATHS[BUCKET_INDEX]);
     }
   }
 
@@ -703,55 +714,58 @@ function drawStarsWithLines() {
 
     BRUSH.beginPath();
     BRUSH.fillStyle = `rgba(${TEMP_RED}, ${255 * STAR.whiteValue}, ${255 * STAR.whiteValue}, ${STAR.opacity})`;
-    BRUSH.arc(
-      STAR.x,
-      STAR.y,
-      STAR.whiteValue * 2 + STAR.size,
-      0,
-      Math.PI * 2
-    );
+    BRUSH.arc(STAR.x, STAR.y, STAR.whiteValue * 2 + STAR.size, 0, Math.PI * 2);
     BRUSH.fill();
   }
 }
 
-/*---------- External redraw hook (used by other scripts) ----------*/
-
-// Redraw without user circle on page leave
 window.forceStarfieldRedraw = () => {
   if (!BRUSH || !CANVAS) return;
   drawStarsWithLines();
 };
+//#endregion
 
-/*---------- Resize + animation loop ----------*/
+
+
+//#region 8) RESIZE + ANIMATION
+/*========================================*
+ *  RESIZE
+ *========================================*/
 
 function resizeCanvas() {
   if (!HAS_CANVAS) return;
 
-  const OLD_WIDTH = WIDTH;
-  const OLD_HEIGHT = HEIGHT;
+  const OLD_WIDTH = CANVAS_WIDTH;
+  const OLD_HEIGHT = CANVAS_HEIGHT;
   const OLD_SCREEN_SIZE = SCREEN_SIZE || 1;
 
-  WIDTH = window.innerWidth || 0;
-  HEIGHT = window.innerHeight || 0;
+  CANVAS_WIDTH = window.innerWidth || 0;
+  CANVAS_HEIGHT = window.innerHeight || 0;
 
-  CANVAS.width = WIDTH;
-  CANVAS.height = HEIGHT;
+  CANVAS.width = CANVAS_WIDTH;
+  CANVAS.height = CANVAS_HEIGHT;
 
-  SCREEN_SIZE = WIDTH + HEIGHT;
+  SCREEN_SIZE = CANVAS_WIDTH + CANVAS_HEIGHT;
   SCALE_TO_SCREEN = Math.pow(SCREEN_SIZE / 1200, 0.35);
   MAX_STAR_COUNT = Math.min(450, SCREEN_SIZE / 10);
   MAX_LINK_DISTANCE = SCREEN_SIZE / 10;
 
-  // Rescale existing stars to new canvas
+  // ✅ Precompute scaling powers here (keeps moveStars lean)
+  SCALED_ATT_GRA = SCALE_TO_SCREEN ** 1.11;
+  SCALED_REP_GRA = SCALE_TO_SCREEN ** 0.66;
+  SCALED_ATT_SHA = SCALE_TO_SCREEN ** -8.89;
+  SCALED_ATT = SCALE_TO_SCREEN ** -8.46;
+  SCALED_REP = SCALE_TO_SCREEN ** -0.89;
+
   if (OLD_WIDTH !== 0 && OLD_HEIGHT !== 0) {
-    const SCALE_X = WIDTH / OLD_WIDTH;
-    const SCALE_Y = HEIGHT / OLD_HEIGHT;
-    const SCALE_SIZE = SCREEN_SIZE / OLD_SCREEN_SIZE;
+    const SCALE_X = CANVAS_WIDTH / OLD_WIDTH;
+    const SCALE_Y = CANVAS_HEIGHT / OLD_HEIGHT;
+    const SIZE_SCALE = SCREEN_SIZE / OLD_SCREEN_SIZE;
 
     for (const STAR of STARS) {
       STAR.x *= SCALE_X;
       STAR.y *= SCALE_Y;
-      STAR.size *= SCALE_SIZE;
+      STAR.size *= SIZE_SCALE;
     }
   }
 }
@@ -762,87 +776,77 @@ function animate() {
   drawStarsWithLines();
   requestAnimationFrame(animate);
 }
-//#endregion STARFIELD CORE
+//#endregion
 
-//#region POINTER INPUT
+
+
+//#region 9) POINTER INPUT
 /*========================================*
- *  POINTER INPUT (MOUSE / TOUCH)
- *========================================*
- *  Updates:
- *   - USER_SPEED (derived from movement delta / time delta)
- *   - Timers (CIRCLE_TIMER, POKE_TIMER)
- *   - USER position + timestamp
+ *  POINTER INPUT
  *========================================*/
 
-function updateSpeed(X, Y, TIME) {
-  if (!Number.isFinite(TIME)) TIME = performance.now ? performance.now() : Date.now();
+function updateSpeed(POINTER_X, POINTER_Y, EVENT_TIME_STAMP) {
+  const TIME = normalizeEventTime(EVENT_TIME_STAMP);
 
   const DT = Math.max(1, TIME - USER_TIME);
-  const DX = X - USER_X;
-  const DY = Y - USER_Y;
-  const RAW_USER_SPEED = Math.hypot(DX, DY) / DT;
+  const DX = POINTER_X - USER_X;
+  const DY = POINTER_Y - USER_Y;
+
+  const RAW_USER_SPEED = Math.sqrt(DX * DX + DY * DY) / DT;
 
   USER_SPEED = Math.min(RAW_USER_SPEED * 50, 50);
   CIRCLE_TIMER = Math.max(CIRCLE_TIMER, USER_SPEED);
-  USER_X = X;
-  USER_Y = Y;
+
+  USER_X = POINTER_X;
+  USER_Y = POINTER_Y;
   USER_TIME = TIME;
 }
 
-// Shared start handler (mousedown / touchstart)
-function startPointerInteraction(X, Y, TIME) {
-  POKE_TIMER = 2500; // Repel on click/touch
-  updateSpeed(X, Y, TIME);
+function startPointerInteraction(POINTER_X, POINTER_Y, EVENT_TIME_STAMP) {
+  POKE_TIMER = 2500;
+  updateSpeed(POINTER_X, POINTER_Y, EVENT_TIME_STAMP);
 }
 
-// Mouse move updates pointer speed
 window.addEventListener('mousemove', (E) =>
   updateSpeed(E.clientX, E.clientY, E.timeStamp)
 );
 
-// Mouse down triggers repulsion + speed bump
-window.addEventListener('mousedown', (E) => {
-  startPointerInteraction(E.clientX, E.clientY, E.timeStamp);
-});
+window.addEventListener('mousedown', (E) =>
+  startPointerInteraction(E.clientX, E.clientY, E.timeStamp)
+);
 
-// Touch start triggers the same repulsion behavior
 window.addEventListener('touchstart', (E) => {
-  const TOUCH_POINT = E.touches[0];
-  if (!TOUCH_POINT) return;
-  startPointerInteraction(TOUCH_POINT.clientX, TOUCH_POINT.clientY, E.timeStamp);
+  const TOUCH = E.touches[0];
+  if (!TOUCH) return;
+  startPointerInteraction(TOUCH.clientX, TOUCH.clientY, E.timeStamp);
 });
 
-// Touch move updates speed
 window.addEventListener('touchmove', (E) => {
-  const TOUCH_POINT = E.touches[0];
-  if (!TOUCH_POINT) return;
-  updateSpeed(TOUCH_POINT.clientX, TOUCH_POINT.clientY, E.timeStamp);
+  const TOUCH = E.touches[0];
+  if (!TOUCH) return;
+  updateSpeed(TOUCH.clientX, TOUCH.clientY, E.timeStamp);
 });
+//#endregion
 
-//#endregion POINTER INPUT
 
-//#region STARFIELD INITIALIZATION
+
+//#region 10) BOOTSTRAP
 /*========================================*
- *  INITIALIZATION / BOOTSTRAP
- *========================================*
- *  - Resize first (sets WIDTH/HEIGHT/SCREEN_SIZE)
- *  - Guard against 0-size first loads (Chromebook / odd timing)
- *  - Init stars once, start animation once, wire resize once
+ *  STARTUP
  *========================================*/
 
 function sizesReady() {
   return (
-    Number.isFinite(WIDTH) &&
-    Number.isFinite(HEIGHT) &&
-    WIDTH > 50 &&
-    HEIGHT > 50
+    Number.isFinite(CANVAS_WIDTH) &&
+    Number.isFinite(CANVAS_HEIGHT) &&
+    CANVAS_WIDTH > 50 &&
+    CANVAS_HEIGHT > 50
   );
 }
 
 function startStarfield() {
   resizeCanvas();
 
-  // First-load guard: wait for real viewport sizes
   if (!sizesReady()) {
     requestAnimationFrame(startStarfield);
     return;
@@ -869,5 +873,6 @@ try {
 } catch (ERR) {
   console.error('Initialization error in starfield script:', ERR);
 }
+//#endregion
 
-//#endregion STARFIELD INITIALIZATION
+// Joke: Your Mac timestamp was living in 1970 and filing taxes in the future. We escorted it gently back into “now.” 🕰️😄
