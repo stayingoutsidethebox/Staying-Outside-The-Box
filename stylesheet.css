@@ -335,6 +335,15 @@ img {
 }
 
 /* Navigation icon strip */
+.navButtons{
+  display:flex;
+  flex-direction:row;
+  align-items:center;
+  justify-content:center;
+  width:fit-content;
+  margin:0 auto;
+}
+
 .navButtons img {
   width: 12dvmin;
   height: 12dvmin;
@@ -410,12 +419,6 @@ button:hover {
   text-shadow: var(--SHADOW);
   color: var(--LINK_LIGHT);
 }
-
-/* Active state on touch still gets glow/color 
-.hoverTogether a:active {
-  text-shadow: var(--SHADOW);
-  color: var(--LINK_LIGHT);
-}*/
 
 /* Nav icon glow & scale (targets the icon image inside the link) */
 .navButtons a:hover img,
