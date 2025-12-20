@@ -9,6 +9,10 @@
  *  • Back/forward logic
  *  • Back button visibility
  *  • Touch navigation fixes
+ *
+ * Works with:
+ *  - New split Starfield (window.STARFIELD)
+ *  - Old single-file Starfield (global functions/vars)
  *==============================================================*/
 
 
@@ -23,6 +27,8 @@ const getPage = () => document.getElementById('transitionContainer');
 const isHomepage = () => !!document.querySelector('#menuButton');
 const getSlideDurationSeconds = () => (isHomepage() ? 1.2 : 0.6);
 
+/*---------- STARFIELD COMPAT LAYER ----------*/
+
 function getSF() {
   return window.STARFIELD || null;
 }
@@ -30,27 +36,26 @@ function getSF() {
 function sfResizeCanvas() {
   const SF = getSF();
   if (SF && typeof SF.resizeCanvas === "function") return SF.resizeCanvas();
-  if (typeof resizeCanvas === "function") return resizeCanvas(); // old
+  if (typeof window.resizeCanvas === "function") return window.resizeCanvas(); // old
 }
 
 function sfSaveStars() {
   const SF = getSF();
   if (SF && typeof SF.saveToStorage === "function") return SF.saveToStorage();
-  if (typeof saveStarsToStorage === "function") return saveStarsToStorage(); // old
+  if (typeof window.saveStarsToStorage === "function") return window.saveStarsToStorage(); // old
 }
 
 function sfFreezeOn() {
   const SF = getSF();
-  if (SF) SF.FREEZE = true;
-  if (typeof FREEZE_CONSTELLATION !== "undefined") FREEZE_CONSTELLATION = true; // old
+  if (SF) SF.FREEZE = true; // new
+  if (typeof window.FREEZE_CONSTELLATION !== "undefined") window.FREEZE_CONSTELLATION = true; // old
 }
 
 function sfForceRedraw() {
   const SF = getSF();
-  if (SF && typeof SF.drawStarsWithLines === "function") return SF.drawStarsWithLines();
-  if (typeof window.forceStarfieldRedraw === "function") return window.forceStarfieldRedraw();
+  if (SF && typeof SF.drawStarsWithLines === "function") return SF.drawStarsWithLines(); // new
+  if (typeof window.forceStarfieldRedraw === "function") return window.forceStarfieldRedraw(); // old
 }
-
 //#endregion
 
 
@@ -132,24 +137,23 @@ window.addEventListener("load", () => {
     `${getSlideDurationSeconds()}s`
   );
 
-  // Trigger slide-in
-  // Trigger slide-in
-requestAnimationFrame(() => {
-  PAGE.classList.add("ready");
+  // Trigger slide-in (guard PAGE)
+  requestAnimationFrame(() => {
+    if (!PAGE) return;
 
-  const lockOnce = () => lockScrollToContainer(PAGE);
+    PAGE.classList.add("ready");
 
-  // 1) Normal path: lock when the CSS transition finishes
-  PAGE.addEventListener("transitionend", lockOnce, { once: true });
+    const lockOnce = () => lockScrollToContainer(PAGE);
 
-  // 2) Safety net: lock even if transitionend never fires
-  const MS = getSlideDurationSeconds() * 1000;
-  setTimeout(lockOnce, MS + 80);
-});
+    // 1) Normal path: lock when the CSS transition finishes
+    PAGE.addEventListener("transitionend", lockOnce, { once: true });
 
-  // Back button visibility:
-  // • If came from Menu → hide
-  // • If came from any other internal page → show
+    // 2) Safety net: lock even if transitionend never fires
+    const MS = getSlideDurationSeconds() * 1000;
+    setTimeout(lockOnce, MS + 80);
+  });
+
+  // Back button visibility
   const BACK_LINK = document.getElementById("homepageBack");
 
   if (BACK_LINK) {
@@ -164,7 +168,6 @@ requestAnimationFrame(() => {
     }
   }
 });
-
 
 
 /*---------- BACK/FORWARD CACHE ----------*/
@@ -182,15 +185,15 @@ window.addEventListener("pageshow", (event) => {
 });
 
 
-
 /*---------- TRANSITION TO NEW PAGE ----------*/
 function transitionTo(URL) {
   if (IS_TRANSITIONING) return;
   if (!URL) return;
   IS_TRANSITIONING = true;
 
-window.REMOVE_CIRCLE = true;
-requestAnimationFrame(() => sfForceRedraw());
+  // Kill ring immediately before slide (your cross-script flag)
+  window.REMOVE_CIRCLE = true;
+  requestAnimationFrame(() => sfForceRedraw());
 
   const PAGE = getPage();
 
@@ -203,9 +206,9 @@ requestAnimationFrame(() => sfForceRedraw());
 
   if (!PAGE) return (location.href = URL);
 
-  // Pause starfield safely if Starfield.js is loaded
+  // Pause starfield safely
   sfFreezeOn();
-sfSaveStars();
+  sfSaveStars();
 
   // Compute slide distance
   const DIST = (window.innerHeight * 1.1) + (PAGE.scrollTop ?? 0);
@@ -227,9 +230,6 @@ sfSaveStars();
  *  TOUCH NAVIGATION HANDLING
  *========================================*/
 
-
-
-
 // Toggle an element's visibility via the [hidden] attribute
 function toggleElement(ID) {
   if (!ID) return;
@@ -250,7 +250,6 @@ function wirePointerEvent(selector = "a") {
     el.addEventListener(
       "pointerdown",
       (e) => {
-        // Only treat touch like your old touch handlers
         if (e.pointerType !== "touch") return;
 
         pid = e.pointerId;
@@ -258,7 +257,6 @@ function wirePointerEvent(selector = "a") {
         sx = e.clientX;
         sy = e.clientY;
 
-        // Guarantees this element receives pointerup/cancel even if finger drifts
         try { el.setPointerCapture(pid); } catch {}
       },
       { passive: true }
@@ -281,13 +279,11 @@ function wirePointerEvent(selector = "a") {
         try { el.releasePointerCapture(pid); } catch {}
         pid = null;
 
-        // If the finger slid around, do NOT navigate and also unstick styles
         if (moved) {
           try { el.blur(); } catch {}
           return;
         }
 
-        // Take over navigation (like your touchend + preventDefault)
         e.preventDefault();
 
         if (el.id === "homepageBack") {
@@ -316,3 +312,6 @@ function wirePointerEvent(selector = "a") {
 
 document.addEventListener("DOMContentLoaded", () => wirePointerEvent());
 //#endregion
+
+// Joke: This Layout.js now speaks two dialects: “Old Starfield” and “New Starfield”.
+// It’s basically a translator wearing a hard hat. 🪖🗣️
