@@ -99,13 +99,13 @@ html::before{
   content:"";
   position: fixed;
 
-  /* move “up” a bit (safe-area + extra) */
+  /* definitive: safe-area inset */
   top: calc(-1 * env(safe-area-inset-top, 0px));
   left: 0;
   right: 0;
 
-  /* make it taller so it still covers when Safari UI expands */
-  height: calc(110lvh + env(safe-area-inset-top, 0px) + env(safe-area-inset-bottom, 0px));
+  /* keep full coverage */
+  height: calc(100lvh + env(safe-area-inset-top, 0px) + env(safe-area-inset-bottom, 0px));
 
   background-image: url("/Resources/Background.webp");
   background-size: cover;
@@ -114,8 +114,6 @@ html::before{
 
   z-index: -2;
   pointer-events: none;
-
-  /* helps iOS treat it as its own composited layer */
   transform: translateZ(0);
 }
 
@@ -126,7 +124,7 @@ html {
   /* DONT TOUCH - important for proper scroll transition */
   overflow: auto;                         /* JS swaps body/html scroll control */
 
-  background-color: transparent;                /* Edge color */
+  background-color: black;                /* Edge color */
 }
 
 body {
