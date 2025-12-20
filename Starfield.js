@@ -736,13 +736,6 @@ function drawStarsWithLines() {
     }
   }
 
-    for (let BUCKET_INDEX = 0; BUCKET_INDEX < LINK_BUCKET_COUNT; BUCKET_INDEX++) {
-      const BUCKET_ALPHA = (BUCKET_INDEX + 1) / LINK_BUCKET_COUNT;
-      BRUSH.strokeStyle = `rgba(0, 0, 0, ${BUCKET_ALPHA})`;
-      BRUSH.stroke(LINK_PATHS[BUCKET_INDEX]);
-    }
-  }
-
   // Star bodies
   for (const STAR of STARS) {
     let TEMP_RED = 255 * STAR.whiteValue + STAR.redValue;
