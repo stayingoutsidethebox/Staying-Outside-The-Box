@@ -97,10 +97,10 @@
 /* Fixed background image behind everything */
 html::before{
   content:"";
-  position:fixed;
+  position:absolute;
   inset:0;
-  width:100dvw;
-  height:auto;
+  width:100lvw;
+  height:100lvh;
   overflow: auto;
   background-image:url("/Resources/Background.webp");
   background-size:cover;
