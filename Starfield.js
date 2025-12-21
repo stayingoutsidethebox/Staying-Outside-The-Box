@@ -281,7 +281,7 @@ function createStars() {
       ),
       opacity: RANDOM_BETWEEN(0.005, 1.8),
       fadeSpeed: RANDOM_BETWEEN(1, 2.1),
-      redValue: RANDOM_BETWEEN(0, 200),
+      redValue: RANDOM_BETWEEN(100, 200),
       whiteValue: 0,
       momentumX: 0,
       momentumY: 0,
@@ -643,7 +643,7 @@ function drawStarsWithLines() {
     if (USER_TIME > 0 && RING_ALPHA > 0.001) {
       BRUSH.save();
       BRUSH.lineWidth = RING_WIDTH;
-      BRUSH.strokeStyle = 'rgba(0, 0, 0, 1)';
+      BRUSH.strokeStyle = 'rgba(189, 189, 189, 1)';
       BRUSH.globalAlpha = RING_ALPHA;
 
       BRUSH.beginPath();
