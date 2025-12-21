@@ -27,6 +27,20 @@
 let IS_TRANSITIONING = false;
 const SF = window.STARFIELD;
 
+function freezeAndSaveStars() {
+  if (!SF) return;
+  SF.freeze = true;
+  if (typeof SF.saveToStorage === "function") SF.saveToStorage();
+}
+
+// Fires on real navigations + bfcache; best cross-browser “we’re leaving”
+window.addEventListener("pagehide", freezeAndSaveStars);
+
+// Backup for mobile/tab switching
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "hidden") freezeAndSaveStars();
+});
+
 const getTransitionContainer = () => document.getElementById("transitionContainer");
 const isHomepage = () => !!document.querySelector("#menuButton");
 
@@ -227,24 +241,23 @@ function transitionTo(url) {
     location.href = url;
     return;
   }
-
-  // Pause/save starfield safely if Starfield.js is loaded
-  if (SF) {
-    SF.freeze = true;
-    if (typeof SF.saveToStorage === "function") SF.saveToStorage();
-  }
   
   // Compute slide distance (viewport + current scroll)
   const DIST_PX = (window.innerHeight * 1.1) + (window.scrollY ?? 0);
   document.documentElement.style.setProperty("--SLIDE_DISTANCE", `${DIST_PX}px`);
 
-  // Start slide-out
-  CONTAINER.classList.add("slide-out");
+// Start slide-out
+CONTAINER.classList.add("slide-out");
 
-  // Leave after animation time
-  setTimeout(() => {
-    location.href = url;
-  }, getSlideDurationSeconds() * 1000);
+// Leave after animation time
+const MS = getSlideDurationSeconds() * 1000;
+
+// Freeze+save right before navigation (keeps motion during slide, but captures final state)
+setTimeout(freezeAndSaveStars, Math.max(0, MS - 50));
+
+setTimeout(() => {
+  location.href = url;
+}, MS);
 }
 
 /* #endregion 5) TRANSITION NAVIGATION (SLIDE-OUT THEN LEAVE) */
