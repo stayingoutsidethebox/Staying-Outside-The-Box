@@ -423,8 +423,8 @@ button:hover {
 }
 
 /* Nav icon glow & scale (targets the icon image inside the link) */
-.navButtons a:hover img,
-.navButtons a:active img {
+.navButtons a img:hover,
+.navButtons a img:active {
   transform: scale(1.05);
   border-color: var(--LINK_LIGHT);
   box-shadow: var(--SHADOW);
