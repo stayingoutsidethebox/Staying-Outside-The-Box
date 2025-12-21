@@ -303,7 +303,7 @@
   const SF = window.STARFIELD;
 
   SF.updateSpeed = function (x, y) {
-    const time = SF.nowMS();
+    const time = SF.nowMs();
     const dt = Math.max(1, time - SF.pointerTime);
   
     const dx = x - SF.pointerX;
