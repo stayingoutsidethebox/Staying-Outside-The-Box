@@ -96,6 +96,8 @@ function saveStarsToStorage() {
         userX: USER_X,
         userY: USER_Y,
         userTime: USER_TIME,
+        circleTimer: CIRCLE_TIMER,
+        circleSize: CIRCLE_SIZE,
 
         // UI params
         attractStrength: ATTRACT_STRENGTH,
@@ -229,6 +231,8 @@ function initStars() {
 
           POKE_TIMER = META.pokeTimer ?? 0;
           USER_SPEED = META.userSpeed ?? 0;
+          CIRCLE_TIMER = META.circleTimer ?? 0;
+          CIRCLE_SIZE = META.circleSize ?? 0;
 
           ATTRACT_STRENGTH = META.attractStrength ?? ATTRACT_STRENGTH;
           ATTRACT_RADIUS   = META.attractRadius   ?? ATTRACT_RADIUS;
