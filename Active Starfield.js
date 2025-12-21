@@ -302,18 +302,18 @@
 (() => {
   const SF = window.STARFIELD;
 
-  SF.updateSpeed = function updateSpeed(x, y, eventTimeStamp) {
-    const time = SF.normalizeEventTime(eventTimeStamp);
+  SF.now = () => performance.now();
 
+  SF.updateSpeed = function (x, y) {
+    const time = SF.now();
     const dt = Math.max(1, time - SF.pointerTime);
+  
     const dx = x - SF.pointerX;
     const dy = y - SF.pointerY;
-
-    const rawSpeed = Math.sqrt(dx * dx + dy * dy) / dt;
-
+  
+    const rawSpeed = Math.sqrt(dx*dx + dy*dy) / dt;
     SF.pointerSpeed = Math.min(rawSpeed * 50, 50);
-    SF.ringTimer = Math.max(SF.ringTimer, SF.pointerSpeed);
-
+  
     SF.pointerX = x;
     SF.pointerY = y;
     SF.pointerTime = time;
