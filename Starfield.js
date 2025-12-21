@@ -43,6 +43,7 @@ let USER_TIME = 0;   // also acts as “pointer exists” flag
 let USER_SPEED = 0;
 let POKE_TIMER = 0;
 let CIRCLE_TIMER = 0;
+let CIRCLE_SIZE = 0;
 
 // Cross-script flag (preserved across pages if set earlier)
 window.REMOVE_CIRCLE = window.REMOVE_CIRCLE ?? false;
@@ -592,7 +593,13 @@ function moveStars() {
   if (USER_SPEED < 0.001) USER_SPEED = 0;
 
   CIRCLE_TIMER *= 0.9;
-  if (CIRCLE_TIMER < 0.1) CIRCLE_TIMER = 0;
+  if (CIRCLE_TIMER < 0.1) {
+    CIRCLE_TIMER = 0;
+    CIRCLE_SIZE = 0;
+  }
+  else if (CIRCLE_SIZE < 0.98){
+    CIRCLE_SIZE += 0.03
+  }
 
   POKE_TIMER *= 0.85;
   if (POKE_TIMER < 1) POKE_TIMER = 0;
@@ -637,7 +644,8 @@ function drawStarsWithLines() {
   // Pointer ring
   if (!window.REMOVE_CIRCLE) {
     const RING_RADIUS = SCALE_TO_SCREEN * 100 - 40;
-    const RING_WIDTH = CIRCLE_TIMER * 0.15 + 1.5;
+    const GOAL_WIDTH = CIRCLE_TIMER * 0.15 + 1.5;
+    const RING_WIDTH = GOAL_WIDTH * CIRCLE_SIZE;
     const RING_ALPHA = Math.min(CIRCLE_TIMER * 0.07, 1);
 
     if (USER_TIME > 0 && RING_ALPHA > 0.001) {
@@ -750,7 +758,7 @@ function resizeCanvas() {
   MAX_STAR_COUNT = Math.min(450, SCREEN_SIZE / 10);
   MAX_LINK_DISTANCE = SCREEN_SIZE / 10;
 
-  // ✅ Precompute scaling powers here (keeps moveStars lean)
+  // Precompute scaling powers here (keeps moveStars lean)
   SCALED_ATT_GRA = SCALE_TO_SCREEN ** 1.11;
   SCALED_REP_GRA = SCALE_TO_SCREEN ** 0.66;
   SCALED_ATT_SHA = SCALE_TO_SCREEN ** -8.89;
