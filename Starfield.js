@@ -7,72 +7,147 @@
  *   1) Canvas setup + runtime guards
  *   2) Star persistence (localStorage) + restore/rescale
  *   3) Star creation + physics (attract / repel / poke)
- *   4) Drawing (stars + links + optional pointer ring)
+ *   4) Drawing (stars + links + pointer ring)
  *   5) Pointer input (mouse/touch) -> speed + timers
  *   6) Animation loop + resize handling
  *
  *  Perf notes:
- *   - De-lag distance checks: compare squared distance first
- *   - Link drawing: squared cutoff + Path2D bucket strokes
+ *   - Distance checks: compare squared distance first
+ *   - Link drawing: squared cutoff + Path2D alpha buckets
  *   - Edge fade: cached once per star per frame
  *==============================================================*/
 
-//#region 1) CANVAS + GLOBAL STATE
+
+//#region 1) CANVAS + RUNTIME FLAGS
 /*========================================*
- *  CANVAS + RUNTIME FLAGS
+ *  1) CANVAS + RUNTIME FLAGS
  *========================================*/
 
 const CANVAS = document.getElementById('constellations');
-const BRUSH = CANVAS && CANVAS.getContext ? CANVAS.getContext('2d') : null;
-const HAS_CANVAS = !!(CANVAS && BRUSH);
+const CTX = CANVAS && CANVAS.getContext ? CANVAS.getContext('2d') : null;
+const HAS_CANVAS = !!(CANVAS && CTX);
 
 if (!HAS_CANVAS) {
   console.warn('Constellation canvas not found or unsupported; starfield disabled.');
 }
 
-// Prevent repeats/loops (useful if scripts get reloaded)
+// Guard flags (useful if scripts get injected/reloaded)
 let FREEZE_CONSTELLATION = false;
 let ANIMATION_STARTED = false;
 let RESIZE_WIRED = false;
 let STARS_INITIALIZED = false;
+//#endregion
 
-// Pointer state + timers
-let USER_X = 0;
-let USER_Y = 0;
-let USER_TIME = 0;   // also acts as “pointer exists” flag
-let USER_SPEED = 0;
-let POKE_TIMER = 0;
-let CIRCLE_TIMER = 0;
-let CIRCLE_SIZE = 0;
+
+
+//#region 2) GLOBAL STATE (POINTER / CANVAS / STARS)
+/*========================================*
+ *  2) GLOBAL STATE
+ *========================================*/
+
+// Pointer state + interaction timers
+let POINTER_X = 0;
+let POINTER_Y = 0;
+let POINTER_T = 0;            // also acts as “pointer exists” flag
+let POINTER_SPEED = 0;
+
+let POKE_T = 0;               // poke impulse timer
+let RING_T = 0;               // ring visibility timer
+let RING_SIZE = 0;            // ring scale factor 0..1
 
 // Canvas sizing + scaling
-let CANVAS_WIDTH = 0;
-let CANVAS_HEIGHT = 0;
-let SCREEN_SIZE = 0;       // CANVAS_WIDTH + CANVAS_HEIGHT
-let SCALE_TO_SCREEN = 0;   // your main scale factor
-let MAX_STAR_COUNT = 0;
-let MAX_LINK_DISTANCE = 0;
+let W = 0;
+let H = 0;
+let SCREEN_SUM = 0;           // W + H
+let SCREEN_SCALE = 1;         // main feel scale factor (derived from screen)
+let STAR_TARGET_COUNT = 0;
+let LINK_MAX_DIST = 0;
 
-// Precomputed scaling powers (kept out of the laggy loop)
-let SCALED_ATT_GRA = 1;
-let SCALED_REP_GRA = 1;
-let SCALED_ATT_SHA = 1;
-let SCALED_ATT = 1;
-let SCALED_REP = 1;
+// Precomputed scaling powers (kept out of the hot loop)
+let SCALE_POW = {
+  attGrad: 1,
+  repGrad: 1,
+  attShapePow: 1,
+  attStrength: 1,
+  repStrength: 1
+};
 
-// Starfield data
+// Star array
 let STARS = [];
 //#endregion
 
 
 
-//#region 2) STORAGE (localStorage)
+//#region 3) UTILITIES
 /*========================================*
- *  STORAGE
+ *  3) UTILITIES
+ *========================================*/
+
+const randBetween = (min, max) => Math.random() * (max - min) + min;
+
+const clamp = (v, min, max) => Math.min(max, Math.max(min, v));
+const clamp01 = (v) => clamp(v, 0, 1);
+
+const safeNum = (v, fallback = 0) => (Number.isFinite(v) ? v : fallback);
+
+function nowMs() {
+  return (window.performance && performance.now) ? performance.now() : Date.now();
+}
+
+/**
+ * Safari/Mac timestamp fix:
+ * Some browsers give event.timeStamp in epoch ms,
+ * others give it relative to page load, and sometimes it’s 0.
+ * We normalize everything to "performance.now()" style time.
+ */
+function normalizeEventTime(eventTimeStamp) {
+  if (!Number.isFinite(eventTimeStamp) || eventTimeStamp <= 0) return nowMs();
+
+  // If it looks like epoch time, convert to perf-style time if possible.
+  if (eventTimeStamp > 1e12) {
+    if (performance && Number.isFinite(performance.timeOrigin)) {
+      return eventTimeStamp - performance.timeOrigin;
+    }
+    return nowMs();
+  }
+
+  return eventTimeStamp;
+}
+
+/**
+ * Edge fade factor:
+ *  - 0 near/over the wrap boundary
+ *  - 1 when safely away from edges
+ * Uses smoothstep for a soft curve.
+ */
+function edgeFadeFactor(star) {
+  const drawR = (star.whiteValue * 2 + star.size) || 0;
+
+  const left = star.x + drawR;            // 0 when x == -R
+  const right = W + drawR - star.x;       // 0 when x == W + R
+  const top = star.y + drawR;             // 0 when y == -R
+  const bottom = H + drawR - star.y;      // 0 when y == H + R
+
+  const minEdgeDist = Math.min(left, right, top, bottom);
+  const fadeBand = Math.min(90, SCREEN_SUM * 0.03);
+
+  const t = clamp01(minEdgeDist / fadeBand);
+  return t * t * (3 - 2 * t); // smoothstep
+}
+//#endregion
+
+
+
+//#region 4) STORAGE (localStorage)
+/*========================================*
+ *  4) STORAGE
  *========================================*
  *  Saves:
- *   - constellationStars: full star array
+ *   - constellationStars: star array
  *   - constellationMeta: canvas size + pointer/timers + UI params
+ *
+ *  Note:
+ *   - You said transitions handle saving, so no beforeunload here.
  *========================================*/
 
 function saveStarsToStorage() {
@@ -81,182 +156,124 @@ function saveStarsToStorage() {
   try {
     localStorage.setItem('constellationStars', JSON.stringify(STARS));
 
-    localStorage.setItem(
-      'constellationMeta',
-      JSON.stringify({
-        width: CANVAS_WIDTH,
-        height: CANVAS_HEIGHT,
+    localStorage.setItem('constellationMeta', JSON.stringify({
+      width: W,
+      height: H,
 
-        // pointer + timers
-        pokeTimer: POKE_TIMER,
-        userSpeed: USER_SPEED,
-        userX: USER_X,
-        userY: USER_Y,
-        userTime: USER_TIME,
-        circleTimer: CIRCLE_TIMER,
-        circleSize: CIRCLE_SIZE,
+      // pointer + timers
+      pokeT: POKE_T,
+      pointerSpeed: POINTER_SPEED,
+      pointerX: POINTER_X,
+      pointerY: POINTER_Y,
+      pointerT: POINTER_T,
+      ringT: RING_T,
+      ringSize: RING_SIZE,
 
-        // UI params
-        attractStrength: ATTRACT_STRENGTH,
-        attractRadius: ATTRACT_RADIUS,
-        attractScale: ATTRACT_SCALE,
-        clamp: CLAMP,
-        repelStrength: REPEL_STRENGTH,
-        repelRadius: REPEL_RADIUS,
-        repelScale: REPEL_SCALE,
-        pokeStrength: POKE_STRENGTH
-      })
-    );
-  } catch (ERR) {
-    console.warn('Could not save stars:', ERR);
+      // UI params
+      attractStrength: ATTRACT_STRENGTH,
+      attractRadius: ATTRACT_RADIUS,
+      attractScale: ATTRACT_SCALE,
+      clamp: CLAMP,
+      repelStrength: REPEL_STRENGTH,
+      repelRadius: REPEL_RADIUS,
+      repelScale: REPEL_SCALE,
+      pokeStrength: POKE_STRENGTH
+    }));
+  } catch (err) {
+    console.warn('Could not save stars:', err);
   }
 }
 //#endregion
 
 
 
-//#region 3) UTILITIES
+//#region 5) INIT STARS (RESTORE OR CREATE)
 /*========================================*
- *  UTILITIES
- *========================================*/
-
-function nowMs() {
-  return (window.performance && performance.now) ? performance.now() : Date.now();
-}
-
-/**
- * Mac/Safari timestamp fix:
- * Some browsers give `event.timeStamp` in epoch ms (Date.now-ish),
- * others give it relative to page load (performance.now-ish),
- * and occasionally it can be 0.
- *
- * We normalize everything to the same "performance.now()" style clock.
- */
-function normalizeEventTime(TIME_STAMP) {
-  if (!Number.isFinite(TIME_STAMP) || TIME_STAMP <= 0) return nowMs();
-
-  // If it looks like epoch time (e.g., 1700000000000), convert to perf-style time.
-  // performance.timeOrigin exists in modern browsers; fallback uses nowMs().
-  if (TIME_STAMP > 1e12) {
-    if (performance && Number.isFinite(performance.timeOrigin)) {
-      return TIME_STAMP - performance.timeOrigin;
-    }
-    return nowMs();
-  }
-
-  // Otherwise assume it's already perf-style-ish.
-  return TIME_STAMP;
-}
-
-const RANDOM_BETWEEN = (MIN, MAX) => Math.random() * (MAX - MIN) + MIN;
-
-// 0 at/beyond wrap threshold, 1 when safely away from edges
-function edgeFactor(STAR) {
-  const DRAW_RADIUS = (STAR.whiteValue * 2 + STAR.size) || 0;
-
-  const LEFT = STAR.x + DRAW_RADIUS;                          // 0 when x == -R
-  const RIGHT = CANVAS_WIDTH + DRAW_RADIUS - STAR.x;          // 0 when x == W + R
-  const TOP = STAR.y + DRAW_RADIUS;                           // 0 when y == -R
-  const BOTTOM = CANVAS_HEIGHT + DRAW_RADIUS - STAR.y;        // 0 when y == H + R
-
-  const MIN_EDGE_DIST = Math.min(LEFT, RIGHT, TOP, BOTTOM);
-  const FADE_BAND = Math.min(90, SCREEN_SIZE * 0.03);
-
-  let T = MIN_EDGE_DIST / FADE_BAND;
-  if (T < 0) T = 0;
-  if (T > 1) T = 1;
-
-  return T * T * (3 - 2 * T); // smoothstep
-}
-//#endregion
-
-
-
-//#region 4) INIT: RESTORE OR CREATE STARS
-/*========================================*
- *  INIT STARS
+ *  5) INIT STARS
  *========================================*/
 
 function initStars() {
   if (!HAS_CANVAS) return;
 
-  let SAVED_STARS_RAW = null;
-
+  let rawStars = null;
   try {
-    SAVED_STARS_RAW = localStorage.getItem('constellationStars');
-  } catch (ERR) {
-    console.warn('Could not read constellationStars from storage:', ERR);
-    createStars();
-    return;
+    rawStars = localStorage.getItem('constellationStars');
+  } catch (err) {
+    console.warn('Could not read constellationStars:', err);
   }
 
-  if (!SAVED_STARS_RAW) {
+  if (!rawStars) {
     createStars();
     return;
   }
 
   try {
-    const PARSED_STARS = JSON.parse(SAVED_STARS_RAW);
+    const parsed = JSON.parse(rawStars);
 
-    if (Array.isArray(PARSED_STARS) && PARSED_STARS.length) {
-      STARS = PARSED_STARS;
-
-      let META_RAW = null;
-      try {
-        META_RAW = localStorage.getItem('constellationMeta');
-      } catch (ERR) {
-        console.warn('Could not read constellationMeta from storage:', ERR);
-      }
-
-      if (META_RAW) {
-        try {
-          const META = JSON.parse(META_RAW);
-
-          if (META.width > 0 && META.height > 0) {
-            const SCALE_X = CANVAS_WIDTH / META.width;
-            const SCALE_Y = CANVAS_HEIGHT / META.height;
-            const SIZE_SCALE = (CANVAS_WIDTH + CANVAS_HEIGHT) / (META.width + META.height);
-
-            for (const STAR of STARS) {
-              STAR.x *= SCALE_X;
-              STAR.y *= SCALE_Y;
-              STAR.size *= SIZE_SCALE;
-            }
-          }
-
-          POKE_TIMER = META.pokeTimer ?? 0;
-          USER_SPEED = META.userSpeed ?? 0;
-          CIRCLE_TIMER = META.circleTimer ?? 0;
-          CIRCLE_SIZE = META.circleSize ?? 0;
-
-          ATTRACT_STRENGTH = META.attractStrength ?? ATTRACT_STRENGTH;
-          ATTRACT_RADIUS   = META.attractRadius   ?? ATTRACT_RADIUS;
-          ATTRACT_SCALE    = META.attractScale    ?? ATTRACT_SCALE;
-          CLAMP            = META.clamp           ?? CLAMP;
-          REPEL_STRENGTH   = META.repelStrength   ?? REPEL_STRENGTH;
-          REPEL_RADIUS     = META.repelRadius     ?? REPEL_RADIUS;
-          REPEL_SCALE      = META.repelScale      ?? REPEL_SCALE;
-          POKE_STRENGTH    = META.pokeStrength    ?? POKE_STRENGTH;
-
-          if (typeof META.userX === 'number') USER_X = META.userX;
-          if (typeof META.userY === 'number') USER_Y = META.userY;
-
-          if (typeof META.userTime === 'number' && META.userTime > 0) {
-            USER_TIME = META.userTime;
-          } else {
-            USER_TIME = nowMs();
-          }
-        } catch (ERR) {
-          console.warn('Could not parse constellationMeta, skipping meta restore.', ERR);
-        }
-      }
-
+    if (!Array.isArray(parsed) || !parsed.length) {
+      createStars();
       return;
     }
 
-    createStars();
-  } catch (ERR) {
-    console.error('Could not parse saved stars, recreating.', ERR);
+    STARS = parsed;
+
+    // Meta restore (optional)
+    let rawMeta = null;
+    try {
+      rawMeta = localStorage.getItem('constellationMeta');
+    } catch (err) {
+      console.warn('Could not read constellationMeta:', err);
+    }
+
+    if (rawMeta) {
+      try {
+        const meta = JSON.parse(rawMeta);
+
+        // Rescale positions if canvas size changed
+        if (safeNum(meta.width) > 0 && safeNum(meta.height) > 0) {
+          const sx = W / meta.width;
+          const sy = H / meta.height;
+          const sizeScale = (W + H) / (meta.width + meta.height);
+
+          for (const star of STARS) {
+            star.x *= sx;
+            star.y *= sy;
+            star.size *= sizeScale;
+          }
+        }
+
+        // Timers / pointer
+        POKE_T = meta.pokeT ?? 0;
+        POINTER_SPEED = meta.pointerSpeed ?? 0;
+        RING_T = meta.ringT ?? 0;
+        RING_SIZE = meta.ringSize ?? 0;
+
+        POINTER_X = (typeof meta.pointerX === 'number') ? meta.pointerX : POINTER_X;
+        POINTER_Y = (typeof meta.pointerY === 'number') ? meta.pointerY : POINTER_Y;
+
+        // You said you're ok with current behavior:
+        POINTER_T = (typeof meta.pointerT === 'number' && meta.pointerT > 0) ? meta.pointerT : nowMs();
+
+        // UI params
+        ATTRACT_STRENGTH = meta.attractStrength ?? ATTRACT_STRENGTH;
+        ATTRACT_RADIUS   = meta.attractRadius   ?? ATTRACT_RADIUS;
+        ATTRACT_SCALE    = meta.attractScale    ?? ATTRACT_SCALE;
+
+        CLAMP            = meta.clamp           ?? CLAMP;
+
+        REPEL_STRENGTH   = meta.repelStrength   ?? REPEL_STRENGTH;
+        REPEL_RADIUS     = meta.repelRadius     ?? REPEL_RADIUS;
+        REPEL_SCALE      = meta.repelScale      ?? REPEL_SCALE;
+
+        POKE_STRENGTH    = meta.pokeStrength    ?? POKE_STRENGTH;
+
+      } catch (err) {
+        console.warn('Could not parse constellationMeta; skipping meta restore.', err);
+      }
+    }
+
+  } catch (err) {
+    console.error('Could not parse saved stars, recreating.', err);
     createStars();
   }
 }
@@ -266,25 +283,30 @@ function createStars() {
 
   STARS = [];
 
-  const MIN_STAR_SIZE = 3;
-  const MAX_STAR_SIZE = SCREEN_SIZE / 400 || 3;
+  const MIN_SIZE = 3;
+  const MAX_SIZE = SCREEN_SUM / 400 || 3;
 
-  for (let STAR_INDEX = 0; STAR_INDEX < MAX_STAR_COUNT; STAR_INDEX++) {
+  for (let i = 0; i < STAR_TARGET_COUNT; i++) {
     STARS.push({
-      x: Math.random() * CANVAS_WIDTH,
-      y: Math.random() * CANVAS_HEIGHT,
-      vx: RANDOM_BETWEEN(-0.25, 0.25),
-      vy: RANDOM_BETWEEN(-0.25, 0.25),
-      size: RANDOM_BETWEEN(
-        Math.min(MIN_STAR_SIZE, MAX_STAR_SIZE),
-        Math.max(MIN_STAR_SIZE, MAX_STAR_SIZE)
+      x: Math.random() * W,
+      y: Math.random() * H,
+      vx: randBetween(-0.25, 0.25),
+      vy: randBetween(-0.25, 0.25),
+
+      size: randBetween(
+        Math.min(MIN_SIZE, MAX_SIZE),
+        Math.max(MIN_SIZE, MAX_SIZE)
       ),
-      opacity: RANDOM_BETWEEN(0.005, 1.8),
-      fadeSpeed: RANDOM_BETWEEN(1, 2.1),
-      redValue: RANDOM_BETWEEN(100, 200),
+
+      opacity: randBetween(0.005, 1.8),
+      fadeSpeed: randBetween(1, 2.1),
+
+      redValue: randBetween(100, 200),
       whiteValue: 0,
+
       momentumX: 0,
       momentumY: 0,
+
       edge: 1
     });
   }
@@ -293,14 +315,17 @@ function createStars() {
 
 
 
-//#region 5) UI CONTROLS (STEPPERS + BINDINGS)
+//#region 6) UI CONTROLS (STEPPERS + BINDINGS)
 /*========================================*
- *  HOLD-TO-REPEAT STEPPERS
+ *  6) UI CONTROLS
+ *========================================*
+ *  - hold-to-repeat stepper buttons
+ *  - slider + number input binding with snapping
  *========================================*/
 
-function enableStepperHold(BUTTON, ON_STEP) {
-  let HOLD_TIMER = null;
-  let REPEAT_TIMER = null;
+function enableStepperHold(button, onStep) {
+  let holdTimer = null;
+  let repeatTimer = null;
 
   const INITIAL_DELAY_MS = 350;
   const START_INTERVAL_MS = 120;
@@ -308,121 +333,109 @@ function enableStepperHold(BUTTON, ON_STEP) {
   const ACCELERATION = 0.88;
 
   const startHold = () => {
-    let INTERVAL = START_INTERVAL_MS;
-    ON_STEP();
+    let interval = START_INTERVAL_MS;
+    onStep();
 
-    HOLD_TIMER = setTimeout(() => {
-      REPEAT_TIMER = setInterval(() => {
-        ON_STEP();
-        INTERVAL = Math.max(MIN_INTERVAL_MS, INTERVAL * ACCELERATION);
+    holdTimer = setTimeout(() => {
+      repeatTimer = setInterval(() => {
+        onStep();
+        interval = Math.max(MIN_INTERVAL_MS, interval * ACCELERATION);
 
-        clearInterval(REPEAT_TIMER);
-        REPEAT_TIMER = setInterval(ON_STEP, INTERVAL);
-      }, INTERVAL);
+        clearInterval(repeatTimer);
+        repeatTimer = setInterval(onStep, interval);
+      }, interval);
     }, INITIAL_DELAY_MS);
   };
 
   const stopHold = () => {
-    clearTimeout(HOLD_TIMER);
-    clearInterval(REPEAT_TIMER);
-    HOLD_TIMER = null;
-    REPEAT_TIMER = null;
+    clearTimeout(holdTimer);
+    clearInterval(repeatTimer);
+    holdTimer = null;
+    repeatTimer = null;
   };
 
-  BUTTON.addEventListener('mousedown', (E) => {
-    E.preventDefault();
+  button.addEventListener('mousedown', (e) => { e.preventDefault(); startHold(); });
+  button.addEventListener('mouseup', stopHold);
+  button.addEventListener('mouseleave', stopHold);
+
+  button.addEventListener('touchstart', (e) => {
+    e.preventDefault();
     startHold();
-  });
-  BUTTON.addEventListener('mouseup', stopHold);
-  BUTTON.addEventListener('mouseleave', stopHold);
+  }, { passive: false });
 
-  BUTTON.addEventListener(
-    'touchstart',
-    (E) => {
-      E.preventDefault();
-      startHold();
-    },
-    { passive: false }
-  );
-
-  BUTTON.addEventListener('touchend', stopHold);
-  BUTTON.addEventListener('touchcancel', stopHold);
+  button.addEventListener('touchend', stopHold);
+  button.addEventListener('touchcancel', stopHold);
 }
 
-/*========================================*
- *  GRAVITY PARAMS (bound to UI)
- *========================================*/
+/*---------- Gravity params (bound to UI) ----------*/
 
 let ATTRACT_STRENGTH = 50;
 let ATTRACT_RADIUS = 50;
 let ATTRACT_SCALE = 5;
+
 let CLAMP = 5;
+
 let REPEL_STRENGTH = 50;
 let REPEL_RADIUS = 50;
 let REPEL_SCALE = 5;
+
 let POKE_STRENGTH = 5;
 
-function bindControl(ID, SETTER_FN, INITIAL_VALUE) {
-  const SLIDER = document.getElementById(ID);
-  if (!SLIDER) return false;
+function bindControl(id, setter, initialValue) {
+  const slider = document.getElementById(id);
+  if (!slider) return false;
 
-  const NUMBER_INPUT = document.getElementById(ID + '_num');
+  const numberInput = document.getElementById(id + '_num');
 
-  const CONTROL_BLOCK = SLIDER.closest('.controlBlock');
-  const STEP_BUTTONS = CONTROL_BLOCK
-    ? CONTROL_BLOCK.querySelectorAll('.stepBtn[data-step]')
-    : [];
+  const block = slider.closest('.controlBlock');
+  const stepBtns = block ? block.querySelectorAll('.stepBtn[data-step]') : [];
 
-  const MIN = Number(SLIDER.min || (NUMBER_INPUT && NUMBER_INPUT.min) || 0);
-  const MAX = Number(SLIDER.max || (NUMBER_INPUT && NUMBER_INPUT.max) || 10);
+  const MIN = Number(slider.min || (numberInput && numberInput.min) || 0);
+  const MAX = Number(slider.max || (numberInput && numberInput.max) || 10);
 
-  const RAW_STEP = Number(SLIDER.step || (NUMBER_INPUT && NUMBER_INPUT.step) || 1);
-  const STEP = Number.isFinite(RAW_STEP) && RAW_STEP > 0 ? RAW_STEP : 1;
+  const rawStep = Number(slider.step || (numberInput && numberInput.step) || 1);
+  const STEP = (Number.isFinite(rawStep) && rawStep > 0) ? rawStep : 1;
 
-  const clampValue = (VALUE) => Math.min(MAX, Math.max(MIN, VALUE));
-
-  const snapToStep = (VALUE) => {
-    if (!Number.isFinite(STEP) || STEP <= 0) return VALUE;
-
-    const SNAPPED = MIN + Math.round((VALUE - MIN) / STEP) * STEP;
-    const DECIMALS = (String(STEP).split('.')[1] || '').length;
-
-    return Number(SNAPPED.toFixed(DECIMALS));
+  const snapToStep = (value) => {
+    const snapped = MIN + Math.round((value - MIN) / STEP) * STEP;
+    const decimals = (String(STEP).split('.')[1] || '').length;
+    return Number(snapped.toFixed(decimals));
   };
 
-  const applyValue = (VALUE) => {
-    VALUE = Number(VALUE);
-    if (!Number.isFinite(VALUE)) return;
+  const applyValue = (value) => {
+    value = Number(value);
+    if (!Number.isFinite(value)) return;
 
-    VALUE = clampValue(VALUE);
-    VALUE = snapToStep(VALUE);
+    value = clamp(value, MIN, MAX);
+    value = snapToStep(value);
 
-    SLIDER.value = String(VALUE);
-    if (NUMBER_INPUT) NUMBER_INPUT.value = String(VALUE);
+    slider.value = String(value);
+    if (numberInput) numberInput.value = String(value);
 
-    SETTER_FN(VALUE);
+    setter(value);
 
-    SLIDER.dispatchEvent(new Event('input', { bubbles: true }));
+    // Keep any other "input" listeners alive
+    slider.dispatchEvent(new Event('input', { bubbles: true }));
   };
 
-  const nudge = (DIR) => {
-    const CURRENT = Number(SLIDER.value);
-    applyValue(CURRENT + DIR * STEP);
+  const nudge = (dir) => {
+    const current = Number(slider.value);
+    applyValue(current + dir * STEP);
   };
 
-  applyValue(INITIAL_VALUE ?? SLIDER.value);
+  applyValue(initialValue ?? slider.value);
 
-  SLIDER.addEventListener('input', () => applyValue(SLIDER.value));
+  slider.addEventListener('input', () => applyValue(slider.value));
 
-  if (NUMBER_INPUT) {
-    NUMBER_INPUT.addEventListener('input', () => applyValue(NUMBER_INPUT.value));
-    NUMBER_INPUT.addEventListener('change', () => applyValue(NUMBER_INPUT.value));
+  if (numberInput) {
+    numberInput.addEventListener('input', () => applyValue(numberInput.value));
+    numberInput.addEventListener('change', () => applyValue(numberInput.value));
   }
 
-  STEP_BUTTONS.forEach((BTN) => {
-    const DIR = Number(BTN.dataset.step) || 0;
-    if (!DIR) return;
-    enableStepperHold(BTN, () => nudge(DIR));
+  stepBtns.forEach((btn) => {
+    const dir = Number(btn.dataset.step) || 0;
+    if (!dir) return;
+    enableStepperHold(btn, () => nudge(dir));
   });
 
   return true;
@@ -434,17 +447,17 @@ function initGravityControlsIfPresent() {
     return;
   }
 
-  bindControl('ATTRACT_STRENGTH', (V) => (ATTRACT_STRENGTH = V), ATTRACT_STRENGTH);
-  bindControl('ATTRACT_RADIUS',   (V) => (ATTRACT_RADIUS   = V), ATTRACT_RADIUS);
-  bindControl('ATTRACT_SCALE',    (V) => (ATTRACT_SCALE    = V), ATTRACT_SCALE);
+  bindControl('ATTRACT_STRENGTH', (v) => (ATTRACT_STRENGTH = v), ATTRACT_STRENGTH);
+  bindControl('ATTRACT_RADIUS',   (v) => (ATTRACT_RADIUS   = v), ATTRACT_RADIUS);
+  bindControl('ATTRACT_SCALE',    (v) => (ATTRACT_SCALE    = v), ATTRACT_SCALE);
 
-  bindControl('CLAMP',            (V) => (CLAMP            = V), CLAMP);
+  bindControl('CLAMP',            (v) => (CLAMP            = v), CLAMP);
 
-  bindControl('REPEL_STRENGTH',   (V) => (REPEL_STRENGTH   = V), REPEL_STRENGTH);
-  bindControl('REPEL_RADIUS',     (V) => (REPEL_RADIUS     = V), REPEL_RADIUS);
-  bindControl('REPEL_SCALE',      (V) => (REPEL_SCALE      = V), REPEL_SCALE);
+  bindControl('REPEL_STRENGTH',   (v) => (REPEL_STRENGTH   = v), REPEL_STRENGTH);
+  bindControl('REPEL_RADIUS',     (v) => (REPEL_RADIUS     = v), REPEL_RADIUS);
+  bindControl('REPEL_SCALE',      (v) => (REPEL_SCALE      = v), REPEL_SCALE);
 
-  bindControl('POKE_STRENGTH',    (V) => (POKE_STRENGTH    = V), POKE_STRENGTH);
+  bindControl('POKE_STRENGTH',    (v) => (POKE_STRENGTH    = v), POKE_STRENGTH);
 }
 
 document.addEventListener('DOMContentLoaded', initGravityControlsIfPresent);
@@ -452,404 +465,405 @@ document.addEventListener('DOMContentLoaded', initGravityControlsIfPresent);
 
 
 
-//#region 6) PHYSICS (MOVE STARS)
+//#region 7) PHYSICS (MOVE STARS)
 /*========================================*
- *  MOVE STARS
+ *  7) PHYSICS
  *========================================*/
 
 function moveStars() {
   if (!HAS_CANVAS || !STARS.length) return;
 
-  const INFLUENCE_RANGE = SCREEN_SIZE * 0.2;
-  const INFLUENCE_RANGE_SQ = INFLUENCE_RANGE * INFLUENCE_RANGE;
-  const WRAP_DISTANCE_SQ = 200 * 200;
+  const influenceRange = SCREEN_SUM * 0.2;
+  const influenceRangeSq = influenceRange * influenceRange;
 
-  for (const STAR of STARS) {
-    const DELTA_X = USER_X - STAR.x;
-    const DELTA_Y = USER_Y - STAR.y;
+  const wrapDistanceSq = 200 * 200;
 
-    // De-lag: squared distance first (no sqrt yet)
-    const DIST_SQ = DELTA_X * DELTA_X + DELTA_Y * DELTA_Y;
+  for (const star of STARS) {
+    const dx = POINTER_X - star.x;
+    const dy = POINTER_Y - star.y;
 
-    if (DIST_SQ < INFLUENCE_RANGE_SQ) {
-      const DIST = Math.sqrt(DIST_SQ) + 0.0001;
+    // De-lag: squared distance first
+    const distSq = dx * dx + dy * dy;
 
-      const TO_USER_X = DELTA_X / DIST;
-      const TO_USER_Y = DELTA_Y / DIST;
+    if (distSq < influenceRangeSq) {
+      const dist = Math.sqrt(distSq) + 0.0001;
 
-      // Linear gradients
-      let ATTR_GRADIENT =
-        1 - (DIST / (((ATTRACT_RADIUS * 5.2) * SCALED_ATT_GRA) || 1));
+      const toPointerX = dx / dist;
+      const toPointerY = dy / dist;
 
-      let REPEL_GRADIENT =
-        1 - (DIST / (((REPEL_RADIUS * 2.8) * SCALED_REP_GRA) || 1));
+      // Linear gradients (0..1)
+      let attGrad = 1 - (dist / (((ATTRACT_RADIUS * 5.2) * SCALE_POW.attGrad) || 1));
+      let repGrad = 1 - (dist / (((REPEL_RADIUS  * 2.8) * SCALE_POW.repGrad) || 1));
+      attGrad = Math.max(0, attGrad);
+      repGrad = Math.max(0, repGrad);
 
-      ATTR_GRADIENT = Math.max(0, ATTR_GRADIENT);
-      REPEL_GRADIENT = Math.max(0, REPEL_GRADIENT);
-
-      const ATTR_SHAPE = Math.pow(
-        ATTR_GRADIENT,
-        Math.max(0.1, ((ATTRACT_SCALE * 0.48) * SCALED_ATT_SHA))
+      // Shape curves
+      const attShape = Math.pow(
+        attGrad,
+        Math.max(0.1, ((ATTRACT_SCALE * 0.48) * SCALE_POW.attShapePow))
       );
 
-      const REPEL_SHAPE = Math.pow(
-        REPEL_GRADIENT,
+      const repShape = Math.pow(
+        repGrad,
         Math.max(0.1, (REPEL_SCALE * 0.64))
       );
 
-      const ATTRACT =
-        ((ATTRACT_STRENGTH * 0.006) * SCALED_ATT) *
-        USER_SPEED *
-        ATTR_SHAPE;
+      // Final forces (scaled by pointer speed)
+      const attract =
+        ((ATTRACT_STRENGTH * 0.006) * SCALE_POW.attStrength) *
+        POINTER_SPEED *
+        attShape;
 
-      const REPEL =
-        ((REPEL_STRENGTH * 0.0182) * SCALED_REP) *
-        USER_SPEED *
-        REPEL_SHAPE;
+      const repel =
+        ((REPEL_STRENGTH * 0.0182) * SCALE_POW.repStrength) *
+        POINTER_SPEED *
+        repShape;
 
-      STAR.momentumX += ATTRACT * TO_USER_X;
-      STAR.momentumY += ATTRACT * TO_USER_Y;
+      star.momentumX += attract * toPointerX;
+      star.momentumY += attract * toPointerY;
 
-      STAR.momentumX += REPEL * -TO_USER_X;
-      STAR.momentumY += REPEL * -TO_USER_Y;
+      star.momentumX += repel * -toPointerX;
+      star.momentumY += repel * -toPointerY;
 
-      const POKE_FORCE = (0.01 * POKE_STRENGTH) * POKE_TIMER * REPEL_SHAPE;
-      STAR.momentumX += POKE_FORCE * -TO_USER_X;
-      STAR.momentumY += POKE_FORCE * -TO_USER_Y;
+      const pokeForce = (0.01 * POKE_STRENGTH) * POKE_T * repShape;
+      star.momentumX += pokeForce * -toPointerX;
+      star.momentumY += pokeForce * -toPointerY;
     }
 
     // Baseline drift boosted by interaction
-    STAR.momentumX += STAR.vx * Math.min(10, 0.05 * USER_SPEED);
-    STAR.momentumY += STAR.vy * Math.min(10, 0.05 * USER_SPEED);
+    const driftBoost = Math.min(10, 0.05 * POINTER_SPEED);
+    star.momentumX += star.vx * driftBoost;
+    star.momentumY += star.vy * driftBoost;
 
-    // Clamp force magnitude (matches original behavior)
-    let FORCE_X = STAR.momentumX;
-    let FORCE_Y = STAR.momentumY;
+    // Clamp force magnitude
+    let fx = star.momentumX;
+    let fy = star.momentumY;
 
-    const LIMIT = CLAMP * (SCALE_TO_SCREEN ** 2);
-    const FORCE_MAG = Math.sqrt(FORCE_X * FORCE_X + FORCE_Y * FORCE_Y);
+    const limit = CLAMP * (SCREEN_SCALE ** 2);
+    const forceMag = Math.sqrt(fx * fx + fy * fy);
 
-    if (FORCE_MAG > LIMIT) {
-      const SCALE = LIMIT / FORCE_MAG;
-      FORCE_X *= SCALE;
-      FORCE_Y *= SCALE;
+    if (forceMag > limit) {
+      const s = limit / forceMag;
+      fx *= s;
+      fy *= s;
     }
 
-    STAR.x += STAR.vx + FORCE_X;
-    STAR.y += STAR.vy + FORCE_Y;
+    star.x += star.vx + fx;
+    star.y += star.vy + fy;
 
-    STAR.momentumX *= 0.98;
-    STAR.momentumY *= 0.98;
+    star.momentumX *= 0.98;
+    star.momentumY *= 0.98;
 
     // Wrap vs bounce
-    if (CIRCLE_TIMER == 0 || DIST_SQ > WRAP_DISTANCE_SQ || POKE_TIMER > 1000) {
-      const DRAW_RADIUS = (STAR.whiteValue * 2 + STAR.size) || 0;
+    if (RING_T === 0 || distSq > wrapDistanceSq || POKE_T > 1000) {
+      const drawR = (star.whiteValue * 2 + star.size) || 0;
 
-      if (STAR.x < -DRAW_RADIUS) STAR.x = CANVAS_WIDTH + DRAW_RADIUS;
-      else if (STAR.x > CANVAS_WIDTH + DRAW_RADIUS) STAR.x = -DRAW_RADIUS;
+      if (star.x < -drawR) star.x = W + drawR;
+      else if (star.x > W + drawR) star.x = -drawR;
 
-      if (STAR.y < -DRAW_RADIUS) STAR.y = CANVAS_HEIGHT + DRAW_RADIUS;
-      else if (STAR.y > CANVAS_HEIGHT + DRAW_RADIUS) STAR.y = -DRAW_RADIUS;
+      if (star.y < -drawR) star.y = H + drawR;
+      else if (star.y > H + drawR) star.y = -drawR;
     } else {
-      const DRAW_RADIUS = (STAR.whiteValue * 2 + STAR.size) || 0;
+      const drawR = (star.whiteValue * 2 + star.size) || 0;
 
-      if (STAR.x < DRAW_RADIUS) {
-        STAR.x = 2 * DRAW_RADIUS - STAR.x;
-        STAR.momentumX = -STAR.momentumX;
-      } else if (STAR.x > CANVAS_WIDTH - DRAW_RADIUS) {
-        STAR.x = 2 * (CANVAS_WIDTH - DRAW_RADIUS) - STAR.x;
-        STAR.momentumX = -STAR.momentumX;
+      if (star.x < drawR) {
+        star.x = 2 * drawR - star.x;
+        star.momentumX = -star.momentumX;
+      } else if (star.x > W - drawR) {
+        star.x = 2 * (W - drawR) - star.x;
+        star.momentumX = -star.momentumX;
       }
 
-      if (STAR.y < DRAW_RADIUS) {
-        STAR.y = 2 * DRAW_RADIUS - STAR.y;
-        STAR.momentumY = -STAR.momentumY;
-      } else if (STAR.y > CANVAS_HEIGHT - DRAW_RADIUS) {
-        STAR.y = 2 * (CANVAS_HEIGHT - DRAW_RADIUS) - STAR.y;
-        STAR.momentumY = -STAR.momentumY;
+      if (star.y < drawR) {
+        star.y = 2 * drawR - star.y;
+        star.momentumY = -star.momentumY;
+      } else if (star.y > H - drawR) {
+        star.y = 2 * (H - drawR) - star.y;
+        star.momentumY = -star.momentumY;
       }
     }
 
     // Flash decay
-    if (STAR.whiteValue > 0) {
-      STAR.whiteValue *= 0.98;
-      if (STAR.whiteValue < 0.001) STAR.whiteValue = 0;
+    if (star.whiteValue > 0) {
+      star.whiteValue *= 0.98;
+      if (star.whiteValue < 0.001) star.whiteValue = 0;
     }
 
     // Opacity cycle
-    if (STAR.opacity <= 0.005) {
-      STAR.opacity = 1;
-      if (Math.random() < 0.07) STAR.whiteValue = 1;
-    } else if (STAR.opacity > 0.02) {
-      STAR.opacity -= 0.005 * STAR.fadeSpeed;
+    if (star.opacity <= 0.005) {
+      star.opacity = 1;
+      if (Math.random() < 0.07) star.whiteValue = 1;
+    } else if (star.opacity > 0.02) {
+      star.opacity -= 0.005 * star.fadeSpeed;
     } else {
-      STAR.opacity -= 0.0001;
+      star.opacity -= 0.0001;
     }
   }
 
   // Global decay
-  USER_SPEED *= 0.5;
-  if (USER_SPEED < 0.001) USER_SPEED = 0;
+  POINTER_SPEED *= 0.5;
+  if (POINTER_SPEED < 0.001) POINTER_SPEED = 0;
 
-  CIRCLE_TIMER *= 0.9;
-  if (CIRCLE_TIMER < 0.1) {
-    CIRCLE_TIMER = 0;
+  // Ring timing (your behavior preserved)
+  RING_T *= 0.9;
+  if (RING_T < 0.1) RING_T = 0;
+
+  if (RING_T < 1) {
+    RING_SIZE = 0;
+  } else if (RING_SIZE < 1) {
+    RING_SIZE += 0.05;
   }
-  if (CIRCLE_TIMER < 1) {
-    CIRCLE_SIZE = 0;
-  }
-  else if (CIRCLE_SIZE < 1){
-    CIRCLE_SIZE += 0.05
-  }
 
-  POKE_TIMER *= 0.85;
-  if (POKE_TIMER < 1) POKE_TIMER = 0;
+  POKE_T *= 0.85;
+  if (POKE_T < 1) POKE_T = 0;
 
-  // Debug readouts (same behavior as original)
-  const MISC_DEBUG = 0; // <-- Change this to any variable to see live updates
-  const DBG_MISC = document.getElementById('miscDbg');
-  if (DBG_MISC) DBG_MISC.textContent = MISC_DEBUG.toFixed(3);
+  // Debug readouts
+  const MISC_DEBUG = 0;
+  const dbgMisc = document.getElementById('miscDbg');
+  if (dbgMisc) dbgMisc.textContent = MISC_DEBUG.toFixed(3);
 
-  const DBG_CIRCLE = document.getElementById('dbgCircle');
-  if (DBG_CIRCLE) DBG_CIRCLE.textContent = CIRCLE_TIMER.toFixed(3);
+  const dbgRing = document.getElementById('dbgCircle');
+  if (dbgRing) dbgRing.textContent = RING_T.toFixed(3);
 
-  const DBG_SPEED = document.getElementById('dbgSpeed');
-  if (DBG_SPEED) DBG_SPEED.textContent = USER_SPEED.toFixed(3);
+  const dbgSpeed = document.getElementById('dbgSpeed');
+  if (dbgSpeed) dbgSpeed.textContent = POINTER_SPEED.toFixed(3);
 
-  const DBG_POKE = document.getElementById('dbgPoke');
-  if (DBG_POKE) DBG_POKE.textContent = POKE_TIMER.toFixed(1);
+  const dbgPoke = document.getElementById('dbgPoke');
+  if (dbgPoke) dbgPoke.textContent = POKE_T.toFixed(1);
 }
 //#endregion
 
 
 
-//#region 7) RENDERING (STARS + LINKS + RING)
+//#region 8) RENDERING (STARS + LINKS + RING)
 /*========================================*
- *  DRAWING
+ *  8) RENDERING
  *========================================*/
 
-const LINK_BUCKET_COUNT = 18;
-let LINK_PATHS = Array.from({ length: LINK_BUCKET_COUNT }, () => new Path2D());
+const LINK_BUCKETS = 18;
+let LINK_PATHS = Array.from({ length: LINK_BUCKETS }, () => new Path2D());
 
 function resetLinkPaths() {
-  for (let BUCKET_INDEX = 0; BUCKET_INDEX < LINK_BUCKET_COUNT; BUCKET_INDEX++) {
-    LINK_PATHS[BUCKET_INDEX] = new Path2D();
-  }
+  for (let i = 0; i < LINK_BUCKETS; i++) LINK_PATHS[i] = new Path2D();
 }
 
-function drawStarsWithLines() {
-  if (!HAS_CANVAS || !BRUSH) return;
+function drawFrame() {
+  if (!HAS_CANVAS || !CTX) return;
 
-  BRUSH.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+  CTX.clearRect(0, 0, W, H);
 
-  // Pointer ring
+  /*---------- Pointer ring ----------*/
+  // Fix: clamp base radius so arc never gets negative radius on tiny screens
+  const baseRadius = Math.max(0, SCREEN_SCALE * 100 - 40);
+  const ringRadius = baseRadius * RING_SIZE;
+  const ringWidth = RING_T * 0.15 + 1.5;
+  const ringAlpha = Math.min(RING_T * 0.07, 1);
 
-const GOAL_RADIUS = Math.max(0, SCALE_TO_SCREEN * 100 - 40);
-    const RING_RADIUS = GOAL_RADIUS * CIRCLE_SIZE;
-    const RING_WIDTH = CIRCLE_TIMER * 0.15 + 1.5;
-    const RING_ALPHA = Math.min(CIRCLE_TIMER * 0.07, 1);
+  if (POINTER_T > 0 && ringAlpha > 0.001) {
+    CTX.save();
+    CTX.lineWidth = ringWidth;
+    CTX.strokeStyle = 'rgba(189, 189, 189, 1)';
+    CTX.globalAlpha = ringAlpha;
 
-    if (USER_TIME > 0 && RING_ALPHA > 0.001) {
-      BRUSH.save();
-      BRUSH.lineWidth = RING_WIDTH;
-      BRUSH.strokeStyle = 'rgba(189, 189, 189, 1)';
-      BRUSH.globalAlpha = RING_ALPHA;
+    CTX.beginPath();
+    CTX.arc(POINTER_X, POINTER_Y, ringRadius, 0, Math.PI * 2);
+    CTX.stroke();
 
-      BRUSH.beginPath();
-      BRUSH.arc(USER_X, USER_Y, RING_RADIUS, 0, Math.PI * 2);
-      BRUSH.stroke();
+    CTX.restore();
+  }
 
-      BRUSH.restore();
-    }
-  
+  /*---------- Links ----------*/
+  CTX.lineWidth = 1;
 
-  // Links
-  BRUSH.lineWidth = 1;
+  const count = STARS.length;
+  if (count) {
+    // Cache edge fade once per star per frame
+    for (let i = 0; i < count; i++) STARS[i].edge = edgeFadeFactor(STARS[i]);
 
-  const STAR_COUNT = STARS.length;
-  if (STAR_COUNT) {
-    for (let STAR_INDEX = 0; STAR_INDEX < STAR_COUNT; STAR_INDEX++) {
-      STARS[STAR_INDEX].edge = edgeFactor(STARS[STAR_INDEX]);
-    }
-
-    const DIST_SCALE = SCREEN_SIZE / 1100;
-    const CUTOFF_RAW = MAX_LINK_DISTANCE / DIST_SCALE;
-    const CUTOFF2 = CUTOFF_RAW * CUTOFF_RAW;
+    const distScale = SCREEN_SUM / 1100;
+    const cutoffRaw = LINK_MAX_DIST / distScale;
+    const cutoffSq = cutoffRaw * cutoffRaw;
 
     resetLinkPaths();
 
-    for (let STAR_A_INDEX = 0; STAR_A_INDEX < STAR_COUNT; STAR_A_INDEX++) {
-      const STAR_A = STARS[STAR_A_INDEX];
-      const AX = STAR_A.x, AY = STAR_A.y;
-      const A_OPACITY = STAR_A.opacity;
-      const A_EDGE = STAR_A.edge;
+    for (let a = 0; a < count; a++) {
+      const A = STARS[a];
+      const ax = A.x, ay = A.y;
+      const aOpacity = A.opacity;
+      const aEdge = A.edge;
 
-      for (let STAR_B_INDEX = STAR_A_INDEX + 1; STAR_B_INDEX < STAR_COUNT; STAR_B_INDEX++) {
-        const STAR_B = STARS[STAR_B_INDEX];
+      for (let b = a + 1; b < count; b++) {
+        const B = STARS[b];
 
-        const DELTA_X = AX - STAR_B.x;
-        const DELTA_Y = AY - STAR_B.y;
-        const DIST_SQ = DELTA_X * DELTA_X + DELTA_Y * DELTA_Y;
+        const dx = ax - B.x;
+        const dy = ay - B.y;
+        const dSq = dx * dx + dy * dy;
 
-        if (DIST_SQ > CUTOFF2) continue;
+        if (dSq > cutoffSq) continue;
 
-        const DIST = Math.sqrt(DIST_SQ) * DIST_SCALE;
+        const d = Math.sqrt(dSq) * distScale;
 
-        let ALPHA = (1 - DIST / MAX_LINK_DISTANCE) * ((A_OPACITY + STAR_B.opacity) / 2);
-        ALPHA *= Math.min(A_EDGE, STAR_B.edge);
+        let alpha = (1 - d / LINK_MAX_DIST) * ((aOpacity + B.opacity) / 2);
+        alpha *= Math.min(aEdge, B.edge);
 
-        if (ALPHA <= 0.002) continue;
+        if (alpha <= 0.002) continue;
 
-        let BUCKET = (ALPHA * (LINK_BUCKET_COUNT - 1)) | 0;
-        if (BUCKET < 0) BUCKET = 0;
-        if (BUCKET >= LINK_BUCKET_COUNT) BUCKET = LINK_BUCKET_COUNT - 1;
+        let bucket = (alpha * (LINK_BUCKETS - 1)) | 0;
+        bucket = clamp(bucket, 0, LINK_BUCKETS - 1);
 
-        LINK_PATHS[BUCKET].moveTo(AX, AY);
-        LINK_PATHS[BUCKET].lineTo(STAR_B.x, STAR_B.y);
+        LINK_PATHS[bucket].moveTo(ax, ay);
+        LINK_PATHS[bucket].lineTo(B.x, B.y);
       }
     }
 
-    for (let BUCKET_INDEX = 0; BUCKET_INDEX < LINK_BUCKET_COUNT; BUCKET_INDEX++) {
-      const BUCKET_ALPHA = (BUCKET_INDEX + 1) / LINK_BUCKET_COUNT;
-      BRUSH.strokeStyle = `rgba(100, 100, 100, ${BUCKET_ALPHA})`;
-      BRUSH.stroke(LINK_PATHS[BUCKET_INDEX]);
+    for (let i = 0; i < LINK_BUCKETS; i++) {
+      const a = (i + 1) / LINK_BUCKETS;
+      CTX.strokeStyle = `rgba(100, 100, 100, ${a})`;
+      CTX.stroke(LINK_PATHS[i]);
     }
   }
 
-  // Star bodies
-  for (const STAR of STARS) {
-    let TEMP_RED = 255 * STAR.whiteValue + STAR.redValue;
-    if (TEMP_RED > 255) TEMP_RED = 255;
+  /*---------- Stars ----------*/
+  for (const star of STARS) {
+    let r = 255 * star.whiteValue + star.redValue;
+    if (r > 255) r = 255;
 
-    BRUSH.beginPath();
-    BRUSH.fillStyle = `rgba(${TEMP_RED}, ${255 * STAR.whiteValue}, ${255 * STAR.whiteValue}, ${STAR.opacity})`;
-    BRUSH.arc(STAR.x, STAR.y, STAR.whiteValue * 2 + STAR.size, 0, Math.PI * 2);
-    BRUSH.fill();
+    CTX.beginPath();
+    CTX.fillStyle = `rgba(${r}, ${255 * star.whiteValue}, ${255 * star.whiteValue}, ${star.opacity})`;
+    CTX.arc(star.x, star.y, star.whiteValue * 2 + star.size, 0, Math.PI * 2);
+    CTX.fill();
   }
 }
 
+// External helper (used by your transition script if you need it)
 window.forceStarfieldRedraw = () => {
-  if (!BRUSH || !CANVAS) return;
-  drawStarsWithLines();
+  if (!HAS_CANVAS) return;
+  drawFrame();
 };
 //#endregion
 
 
 
-//#region 8) RESIZE + ANIMATION
+//#region 9) RESIZE + ANIMATION LOOP
 /*========================================*
- *  RESIZE
+ *  9) RESIZE + ANIMATION LOOP
  *========================================*/
 
 function resizeCanvas() {
   if (!HAS_CANVAS) return;
 
-  const OLD_WIDTH = CANVAS_WIDTH;
-  const OLD_HEIGHT = CANVAS_HEIGHT;
-  const OLD_SCREEN_SIZE = SCREEN_SIZE || 1;
+  const oldW = W;
+  const oldH = H;
+  const oldSum = SCREEN_SUM || 1;
 
-  CANVAS_WIDTH = window.innerWidth || 0;
-  CANVAS_HEIGHT = window.innerHeight || 0;
+  W = window.innerWidth || 0;
+  H = window.innerHeight || 0;
 
-  CANVAS.width = CANVAS_WIDTH;
-  CANVAS.height = CANVAS_HEIGHT;
+  CANVAS.width = W;
+  CANVAS.height = H;
 
-  SCREEN_SIZE = CANVAS_WIDTH + CANVAS_HEIGHT;
-  SCALE_TO_SCREEN = Math.pow(SCREEN_SIZE / 1200, 0.35);
-  MAX_STAR_COUNT = Math.min(450, SCREEN_SIZE / 10);
-  MAX_LINK_DISTANCE = SCREEN_SIZE / 10;
+  SCREEN_SUM = W + H;
 
-  // Precompute scaling powers here (keeps moveStars lean)
-  SCALED_ATT_GRA = SCALE_TO_SCREEN ** 1.11;
-  SCALED_REP_GRA = SCALE_TO_SCREEN ** 0.66;
-  SCALED_ATT_SHA = SCALE_TO_SCREEN ** -8.89;
-  SCALED_ATT = SCALE_TO_SCREEN ** -8.46;
-  SCALED_REP = SCALE_TO_SCREEN ** -0.89;
+  SCREEN_SCALE = Math.pow(SCREEN_SUM / 1200, 0.35);
+  STAR_TARGET_COUNT = Math.min(450, SCREEN_SUM / 10);
+  LINK_MAX_DIST = SCREEN_SUM / 10;
 
-  if (OLD_WIDTH !== 0 && OLD_HEIGHT !== 0) {
-    const SCALE_X = CANVAS_WIDTH / OLD_WIDTH;
-    const SCALE_Y = CANVAS_HEIGHT / OLD_HEIGHT;
-    const SIZE_SCALE = SCREEN_SIZE / OLD_SCREEN_SIZE;
+  // Precompute scaling powers (keeps moveStars lean)
+  SCALE_POW = {
+    attGrad: SCREEN_SCALE ** 1.11,
+    repGrad: SCREEN_SCALE ** 0.66,
+    attShapePow: SCREEN_SCALE ** -8.89,
+    attStrength: SCREEN_SCALE ** -8.46,
+    repStrength: SCREEN_SCALE ** -0.89
+  };
 
-    for (const STAR of STARS) {
-      STAR.x *= SCALE_X;
-      STAR.y *= SCALE_Y;
-      STAR.size *= SIZE_SCALE;
+  // If we already have stars, rescale positions/sizes to the new canvas
+  if (oldW !== 0 && oldH !== 0 && STARS.length) {
+    const sx = W / oldW;
+    const sy = H / oldH;
+    const sizeScale = SCREEN_SUM / oldSum;
+
+    for (const star of STARS) {
+      star.x *= sx;
+      star.y *= sy;
+      star.size *= sizeScale;
     }
   }
 }
 
 function animate() {
   if (!HAS_CANVAS) return;
+
   if (!FREEZE_CONSTELLATION) moveStars();
-  drawStarsWithLines();
+  drawFrame();
+
   requestAnimationFrame(animate);
 }
 //#endregion
 
 
 
-//#region 9) POINTER INPUT
+//#region 10) POINTER INPUT
 /*========================================*
- *  POINTER INPUT
+ *  10) POINTER INPUT
  *========================================*/
 
-function updateSpeed(POINTER_X, POINTER_Y, EVENT_TIME_STAMP) {
-  const TIME = normalizeEventTime(EVENT_TIME_STAMP);
+function updatePointerSpeed(px, py, eventTimeStamp) {
+  const t = normalizeEventTime(eventTimeStamp);
 
-  const DT = Math.max(1, TIME - USER_TIME);
-  const DX = POINTER_X - USER_X;
-  const DY = POINTER_Y - USER_Y;
+  const dt = Math.max(1, t - POINTER_T);
+  const dx = px - POINTER_X;
+  const dy = py - POINTER_Y;
 
-  const RAW_USER_SPEED = Math.sqrt(DX * DX + DY * DY) / DT;
+  const rawSpeed = Math.sqrt(dx * dx + dy * dy) / dt;
 
-  USER_SPEED = Math.min(RAW_USER_SPEED * 50, 50);
-  CIRCLE_TIMER = Math.max(CIRCLE_TIMER, USER_SPEED);
+  POINTER_SPEED = Math.min(rawSpeed * 50, 50);
+  RING_T = Math.max(RING_T, POINTER_SPEED);
 
-  USER_X = POINTER_X;
-  USER_Y = POINTER_Y;
-  USER_TIME = TIME;
+  POINTER_X = px;
+  POINTER_Y = py;
+  POINTER_T = t;
 }
 
-function startPointerInteraction(POINTER_X, POINTER_Y, EVENT_TIME_STAMP) {
-  POKE_TIMER = 500;
-  updateSpeed(POINTER_X, POINTER_Y, EVENT_TIME_STAMP);
+function startPointerInteraction(px, py, eventTimeStamp) {
+  POKE_T = 500;
+  updatePointerSpeed(px, py, eventTimeStamp);
 }
 
-window.addEventListener('mousemove', (E) =>
-  updateSpeed(E.clientX, E.clientY, E.timeStamp)
-);
-
-window.addEventListener('mousedown', (E) =>
-  startPointerInteraction(E.clientX, E.clientY, E.timeStamp)
-);
-
-window.addEventListener('touchstart', (E) => {
-  const TOUCH = E.touches[0];
-  if (!TOUCH) return;
-  startPointerInteraction(TOUCH.clientX, TOUCH.clientY, E.timeStamp);
+window.addEventListener('mousemove', (e) => {
+  updatePointerSpeed(e.clientX, e.clientY, e.timeStamp);
 });
 
-window.addEventListener('touchmove', (E) => {
-  const TOUCH = E.touches[0];
-  if (!TOUCH) return;
-  updateSpeed(TOUCH.clientX, TOUCH.clientY, E.timeStamp);
+window.addEventListener('mousedown', (e) => {
+  startPointerInteraction(e.clientX, e.clientY, e.timeStamp);
+});
+
+window.addEventListener('touchstart', (e) => {
+  const touch = e.touches[0];
+  if (!touch) return;
+  startPointerInteraction(touch.clientX, touch.clientY, e.timeStamp);
+});
+
+window.addEventListener('touchmove', (e) => {
+  const touch = e.touches[0];
+  if (!touch) return;
+  updatePointerSpeed(touch.clientX, touch.clientY, e.timeStamp);
 });
 //#endregion
 
 
 
-//#region 10) BOOTSTRAP
+//#region 11) BOOTSTRAP
 /*========================================*
- *  STARTUP
+ *  11) BOOTSTRAP
  *========================================*/
 
 function sizesReady() {
   return (
-    Number.isFinite(CANVAS_WIDTH) &&
-    Number.isFinite(CANVAS_HEIGHT) &&
-    CANVAS_WIDTH > 50 &&
-    CANVAS_HEIGHT > 50
+    Number.isFinite(W) &&
+    Number.isFinite(H) &&
+    W > 50 &&
+    H > 50
   );
 }
 
@@ -879,9 +893,7 @@ function startStarfield() {
 
 try {
   startStarfield();
-} catch (ERR) {
-  console.error('Initialization error in starfield script:', ERR);
+} catch (err) {
+  console.error('Initialization error in starfield script:', err);
 }
 //#endregion
-
-// Joke: Your Mac timestamp was living in 1970 and filing taxes in the future. We escorted it gently back into “now.” 🕰️😄
