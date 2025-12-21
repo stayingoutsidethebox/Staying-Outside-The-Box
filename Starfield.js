@@ -595,7 +595,7 @@ function moveStars() {
   if (CIRCLE_TIMER < 0.1) {
     CIRCLE_TIMER = 0;
   }
-  if (CIRCLE_TIMER < 10) {
+  if (CIRCLE_TIMER < 1) {
     CIRCLE_SIZE = 0;
   }
   else if (CIRCLE_SIZE < 1){
@@ -644,7 +644,7 @@ function drawStarsWithLines() {
 
   // Pointer ring
 
-    const GOAL_RADIUS = SCALE_TO_SCREEN * 100 - 40;
+const GOAL_RADIUS = Math.max(0, SCALE_TO_SCREEN * 100 - 40);
     const RING_RADIUS = GOAL_RADIUS * CIRCLE_SIZE;
     const RING_WIDTH = CIRCLE_TIMER * 0.15 + 1.5;
     const RING_ALPHA = Math.min(CIRCLE_TIMER * 0.07, 1);
