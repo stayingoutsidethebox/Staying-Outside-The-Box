@@ -57,27 +57,6 @@ function freeScrollLayout(PAGE = getPage()) {
   });
 }
 
-// Lock vertical scrolling to #transitionContainer only
-function lockScrollToContainer(PAGE = getPage()) {
-   if (typeof resizeCanvas === "function") resizeCanvas();
-  /*const HTML = document.documentElement;
-  const BODY = document.body;
-  if (!HTML || !BODY || !PAGE) return;
-
-  // Kill document scroll
-  HTML.style.overflow = "hidden";
-  BODY.style.overflow = "hidden";
-  HTML.style.height = "100%";
-  BODY.style.height = "100%";
-
-  // Single scroll surface
-  PAGE.style.height = "100dvh";
-  PAGE.style.overflowY = "auto";
-  PAGE.style.overflowX = "hidden";
-  PAGE.style.webkitOverflowScrolling = "touch";
-  PAGE.style.overscrollBehavior = "contain";*/
-}
-
 /*---------- PAGE LOAD ----------*/
 window.addEventListener("load", () => {
   const PAGE = getPage();
@@ -109,14 +88,6 @@ window.addEventListener("load", () => {
   // Trigger slide-in
 requestAnimationFrame(() => {
   PAGE.classList.add("ready");
-
-
-  // 1) Normal path: lock when the CSS transition finishes
-  PAGE.addEventListener("transitionend", lockOnce, { once: true });
-
-  // 2) Safety net: lock even if transitionend never fires
-  const MS = getSlideDurationSeconds() * 1000;
-  setTimeout(lockOnce, MS + 80);
 });
 
   // Back button visibility:
@@ -149,7 +120,7 @@ window.addEventListener("pageshow", (event) => {
     PAGE.classList.add("ready");
     
     IS_TRANSITIONING = false;
-    PAGE.scrollTop = 0;
+    PAGE.scrollTop = 0; //keep this, glitches happen when its gone
   }
 });
 
@@ -287,6 +258,4 @@ function wirePointerEvent(selector = "a") {
 }
 
 document.addEventListener("DOMContentLoaded", () => wirePointerEvent());
-
-document.addEventListener("DOMContentLoaded", () => wireTouchEvent());
 //#endregion
