@@ -9,13 +9,13 @@
  *   3) Utilities (time normalization, edge fade, random)
  *   4) Init/create stars
  *   5) UI controls (sliders + steppers)
- *   9) Resize + animation loop
- *  11) Bootstrap
+ *   6) Resize + animation loop
+ *   7) Bootstrap
  *
  *  Active Starfield.js owns:
- *   7) Physics (moveStars)
- *   8) Rendering (drawStarsWithLines)
- *  10) Pointer input (updateSpeed + listeners)
+ *    Physics (moveStars)
+ *    Rendering (drawStarsWithLines)
+ *    Pointer input (updateSpeed + listeners)
  *==============================================================*/
 
 
@@ -447,9 +447,9 @@ window.STARFIELD = window.STARFIELD || {};
 
 
 
-//#region 9) RESIZE + ANIMATION
+//#region 6) RESIZE + ANIMATION
 /*========================================*
- *  9) RESIZE + ANIMATION
+ *  6) RESIZE + ANIMATION
  *========================================*/
 
 (() => {
@@ -506,13 +506,13 @@ window.STARFIELD = window.STARFIELD || {};
   SF._animate = animate; // for debugging if needed
 })();
 
-/* #endregion 9) RESIZE + ANIMATION */
+/* #endregion 6) RESIZE + ANIMATION */
 
 
 
-//#region 11) BOOTSTRAP
+//#region 7) BOOTSTRAP
 /*========================================*
- *  11) BOOTSTRAP
+ *  7) BOOTSTRAP
  *========================================*/
 
 (() => {
@@ -558,6 +558,4 @@ window.STARFIELD = window.STARFIELD || {};
   }
 })();
 
-/* #endregion 11) BOOTSTRAP */
-
-// Joke: We put everything into one STARFIELD box. Now it’s organized enough to impress a librarian. 📚✨
+/* #endregion 7) BOOTSTRAP */
