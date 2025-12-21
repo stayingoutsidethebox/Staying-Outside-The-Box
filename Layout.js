@@ -25,6 +25,7 @@
  *========================================*/
 
 let IS_TRANSITIONING = false;
+const SF = window.STARFIELD;
 
 const getTransitionContainer = () => document.getElementById("transitionContainer");
 const isHomepage = () => !!document.querySelector("#menuButton");
@@ -104,7 +105,7 @@ function enableDocumentScroll(container = getTransitionContainer()) {
   }
 
   // If starfield exposes resizeCanvas(), keep it in sync
-  if (typeof resizeCanvas === "function") resizeCanvas();
+  if (SF && typeof SF.resizeCanvas === "function") SF.resizeCanvas();
 
   // Restore scroll next frame
   requestAnimationFrame(() => {
@@ -176,7 +177,8 @@ window.addEventListener("load", () => {
 window.addEventListener("pageshow", (event) => {
   const CONTAINER = getTransitionContainer();
   if (!CONTAINER) return;
-
+  if (SF) SF.freeze = false;
+  
   if (!isBackForwardNavigation(event)) return;
 
   CONTAINER.classList.remove("slide-out");
@@ -227,9 +229,11 @@ function transitionTo(url) {
   }
 
   // Pause/save starfield safely if Starfield.js is loaded
-  if (typeof FREEZE_CONSTELLATION !== "undefined") FREEZE_CONSTELLATION = true;
-  if (typeof saveStarsToStorage === "function") saveStarsToStorage();
-
+  if (SF) {
+    SF.freeze = true;
+    if (typeof SF.saveToStorage === "function") SF.saveToStorage();
+  }
+  
   // Compute slide distance (viewport + current scroll)
   const DIST_PX = (window.innerHeight * 1.1) + (window.scrollY ?? 0);
   document.documentElement.style.setProperty("--SLIDE_DISTANCE", `${DIST_PX}px`);
