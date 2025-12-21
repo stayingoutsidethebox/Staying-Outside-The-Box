@@ -6,15 +6,15 @@
  *  Requires Starfield Setup.js loaded first.
  *
  *  Contains:
- *   7) Physics (moveStars)
- *   8) Rendering (drawStarsWithLines)
- *  10) Pointer input (updateSpeed + listeners)
+ *   1) Physics (moveStars)
+ *   2) Rendering (drawStarsWithLines)
+ *   3) Pointer input (updateSpeed + listeners)
  *==============================================================*/
 
 
-//#region 7) PHYSICS
+//#region 1) PHYSICS
 /*========================================*
- *  7) PHYSICS (MOVE STARS)
+ *  1) PHYSICS (MOVE STARS)
  *========================================*/
 
 (() => {
@@ -178,13 +178,13 @@
   };
 })();
 
-/* #endregion 7) PHYSICS */
+/* #endregion 1) PHYSICS */
 
 
 
-//#region 8) RENDERING
+//#region 2) RENDERING
 /*========================================*
- *  8) RENDERING (STARS + LINKS + RING)
+ *  2) RENDERING (STARS + LINKS + RING)
  *========================================*/
 
 (() => {
@@ -290,13 +290,13 @@
   };
 })();
 
-/* #endregion 8) RENDERING */
+/* #endregion 2) RENDERING */
 
 
 
-//#region 10) POINTER INPUT
+//#region 3) POINTER INPUT
 /*========================================*
- *  10) POINTER INPUT
+ *  3) POINTER INPUT
  *========================================*/
 
 (() => {
@@ -342,6 +342,4 @@
   }, { passive: true });
 })();
 
-/* #endregion 10) POINTER INPUT */
-
-// Joke: We replaced 40 globals with one STARFIELD object. It’s basically decluttering, but for photons. ✨🧹
+/* #endregion 3) POINTER INPUT */
