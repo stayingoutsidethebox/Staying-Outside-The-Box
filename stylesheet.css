@@ -343,14 +343,13 @@ img {
   align-items:center;
   justify-content:center;
   width:12dvmin;
-  margin:0 auto;
+  margin:0 10dvw;
 }
 
 .navButtons img {
   width: 12dvmin;
   height: 12dvmin;
   padding: 1dvmin;
-  margin: 0 10dvw;
 
   font: 1dvmin Arial;
   border-radius: 50%;
