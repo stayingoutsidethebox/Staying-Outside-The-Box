@@ -342,7 +342,7 @@ img {
   flex-direction:row;
   align-items:center;
   justify-content:center;
-  width:fit-content;
+  width:12dvmin;
   margin:0 auto;
 }
 
