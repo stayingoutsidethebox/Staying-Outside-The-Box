@@ -19,9 +19,9 @@
  *==============================================================*/
 
 
-//#region 1) STARFIELD NAMESPACE + CANVAS
+
 /*========================================*
- *  1) STARFIELD NAMESPACE + CANVAS
+//#region 1) STARFIELD NAMESPACE + CANVAS
  *========================================*/
 
 window.STARFIELD = window.STARFIELD || {};
@@ -94,9 +94,8 @@ window.STARFIELD = window.STARFIELD || {};
 
 
 
-//#region 2) STORAGE (localStorage)
 /*========================================*
- *  2) STORAGE
+//#region 2) STORAGE (localStorage)
  *========================================*/
 
 (() => {
@@ -146,9 +145,8 @@ window.STARFIELD = window.STARFIELD || {};
 
 
 
-//#region 3) UTILITIES
 /*========================================*
- *  3) UTILITIES
+//#region 3) UTILITIES
  *========================================*/
 
 (() => {
@@ -214,9 +212,8 @@ window.STARFIELD = window.STARFIELD || {};
 
 
 
-//#region 4) INIT: RESTORE OR CREATE STARS
 /*========================================*
- *  4) INIT STARS
+//#region 4) INIT: RESTORE OR CREATE STARS
  *========================================*/
 
 (() => {
@@ -339,9 +336,8 @@ window.STARFIELD = window.STARFIELD || {};
 
 
 
-//#region 5) UI CONTROLS (STEPPERS + BINDINGS)
 /*========================================*
- *  5) UI CONTROLS
+//#region 5) UI CONTROLS (STEPPERS + BINDINGS)
  *========================================*/
 
 (() => {
@@ -505,9 +501,8 @@ window.STARFIELD = window.STARFIELD || {};
 
 
 
-//#region 6) RESIZE + ANIMATION
 /*========================================*
- *  6) RESIZE + ANIMATION
+//#region 6) RESIZE + ANIMATION
  *========================================*/
 
 (() => {
@@ -584,9 +579,8 @@ window.STARFIELD = window.STARFIELD || {};
 
 
 
-//#region 7) BOOTSTRAP
 /*========================================*
- *  7) BOOTSTRAP
+//#region 7) BOOTSTRAP
  *========================================*/
 
 (() => {
