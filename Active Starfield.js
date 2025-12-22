@@ -213,7 +213,7 @@
       ringAlpha = normPoke;
     }
     
-    if (SF.pointerTime > 0 && ringAlpha > 0.001) {
+    if (ringAlpha > 0.001) {
       BR.save();
       BR.lineWidth = ringWidth;
       BR.strokeStyle = "rgba(189, 189, 189, 1)";
