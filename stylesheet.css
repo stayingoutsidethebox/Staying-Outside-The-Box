@@ -86,7 +86,7 @@
  */
 
 /*---------- Fixed background image layer (behind everything) ----------*/
-#transitionContainer::before {
+html::before {
   content: "";
   position: fixed;
   inset: 0;
@@ -103,7 +103,7 @@
   /* Behind canvas + content */
   z-index: -2;
   pointer-events: none;
-  overflow: auto;
+  overflow: visible;
 }
 
 /*---------- Root document ----------*/
