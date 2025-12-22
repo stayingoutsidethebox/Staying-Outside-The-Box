@@ -306,6 +306,15 @@ if (SF.ringTimer < 1) {
 
   SF.updateSpeed = function (x, y) {
   const now = SF.nowMs();
+  
+  if (!SF.pointerTime) {
+    SF.pointerX = x;
+    SF.pointerY = y;
+    SF.pointerTime = now;
+    SF.pointerSpeed = 0;
+    return;
+  }
+  
   const dt = Math.max(1, now - SF.pointerTime);
   const dx = x - SF.pointerX;
   const dy = y - SF.pointerY;
