@@ -261,7 +261,7 @@ function transitionTo(URL) {
  *  6) TOUCH NAV FIXES
  *========================================*/
 
-function toggleElementHiddenById(ELEMENT_ID) {
+function toggleElement(ELEMENT_ID) {
   if (!ELEMENT_ID) return;
   const ELEMENT = document.getElementById(ELEMENT_ID);
   if (ELEMENT) ELEMENT.hidden = !ELEMENT.hidden;
