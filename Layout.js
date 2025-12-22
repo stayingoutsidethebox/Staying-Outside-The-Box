@@ -21,7 +21,7 @@
 let IS_TRANSITION_ACTIVE = false;
 const STARFIELD = window.STARFIELD;
 
-const CRUNCH_SOUND = new Audio("/Resources/Crunch.wav");
+const CRUNCH_SOUND = new Audio("/Resources/Crunch.mp3");
 CRUNCH_SOUND.preload = "auto";
 CRUNCH_SOUND.load();
 
