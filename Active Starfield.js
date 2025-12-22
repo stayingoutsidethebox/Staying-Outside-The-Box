@@ -31,8 +31,6 @@
 
     const SETTINGS = STARFIELD.interactionSettings;
     const SCALE = STARFIELD.screenScalePowers;
-    
-    window.updateKeyboardForces?.();
 
     // Step 2: update each star
     for (const STAR of STARFIELD.starList) {
