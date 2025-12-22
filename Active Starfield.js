@@ -203,14 +203,14 @@ if (SF.ringTimer < 1) {
     let ringRadius = goalRadius * (SF.ringTimer / 50);
     let ringWidth = SF.ringTimer * 0.15;
     let ringAlpha = Math.min(SF.ringTimer * 0.07, 1);
-    // Pointer ring expand instead with poke
+    /* Pointer ring expand instead with poke
     if (SF.ringTimer < 5) {
       const normPoke = Math.min(1, Math.max(0, SF.pokeTimer / 200));
       const invPoke   = 1 - normPoke;
       ringRadius = goalRadius * invPoke;
       ringWidth = normPoke * 7;
       ringAlpha = normPoke;
-    }
+    }*/
     
     if (ringAlpha > 0.001) {
       BR.save();
