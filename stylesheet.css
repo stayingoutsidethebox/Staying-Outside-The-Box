@@ -87,7 +87,6 @@
 
 /*---------- Fixed background image layer (behind everything) ----------*/
 .background {
-  content: "";
   position: fixed;
 
   /* Background coverage (lv* helps iOS toolbars) */
