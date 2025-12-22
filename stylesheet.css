@@ -134,12 +134,12 @@ body {
 
   width: 100%;
   height: 100%;
-  /*
+  
   background-image: url("/Resources/Background.webp");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-*/
+
   z-index: -1;
   pointer-events: none;
 }
