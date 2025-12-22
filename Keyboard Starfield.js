@@ -20,7 +20,7 @@ const STARFIELD = window.STARFIELD;
 
   // Apply per-star (can customize later)
   for (const STAR of STARFIELD.starList) {
-    const FORCES = KEY_ACTIONS[USER_INPUT]?.(STAR);
+    const FORCES = KEY_FUNCTIONS[USER_INPUT]?.(STAR);
     STAR.keyboardForceX = FORCES[0];
     STAR.keyboardForceY = FORCES[1];
   }
