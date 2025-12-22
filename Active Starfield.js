@@ -96,8 +96,8 @@
       }
 
       // Step 11: baseline drift boosted by interaction
-      STAR.momentumX += STAR.vx * Math.min(10, 0.05 * STARFIELD.pointerSpeedUnits);
-      STAR.momentumY += STAR.vy * Math.min(10, 0.05 * STARFIELD.pointerSpeedUnits);
+      STAR.momentumX += STAR.vx * Math.min(10, 0.05 * STARFIELD.pointerSpeedUnits) + STAR.keyboardForceX;
+      STAR.momentumY += STAR.vy * Math.min(10, 0.05 * STARFIELD.pointerSpeedUnits) + STAR.keyboardForceY;
 
       // Step 12: clamp force magnitude (prevents runaway)
       let FORCE_X = STAR.momentumX;
@@ -113,8 +113,8 @@
       }
 
       // Step 13: integrate
-      STAR.x += STAR.vx + FORCE_X + STAR.keyboardForceX;
-      STAR.y += STAR.vy + FORCE_Y + STAR.keyboardForceY;
+      STAR.x += STAR.vx + FORCE_X;
+      STAR.y += STAR.vy + FORCE_Y;
 
       // Step 14: friction
       STAR.momentumX *= 0.98;
