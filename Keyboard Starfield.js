@@ -46,14 +46,11 @@ const KEY_FUNCTIONS = {
 
 const EFFECT_MULTIPLIER = 1;
 const EFFECT_CONSTANT = 5;
+const FORCE_INCREASE = (window.CIRCLE_TIMER + EFFECT_CONSTANT) * EFFECT_MULTIPLIER;
 
 // W = Up
 function runW(STAR) {
-  return [
-    0,
-    (window.CIRCLE_TIMER + EFFECT_CONSTANT)
-    * EFFECT_MULTIPLIER
-  ];
+  return [0, FORCE_INCREASE];
 }
 
 // A = Left
