@@ -303,7 +303,7 @@
  *  3) POINTER INPUT
  *========================================*/
 
-const newTime = 0;
+let newTime = 0;
 
 (() => {
   const SF = window.STARFIELD;
