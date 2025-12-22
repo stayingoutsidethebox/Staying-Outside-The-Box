@@ -152,11 +152,13 @@
 
     // Ring behavior (grow then fade with ringTimer, no extra kill-switch logic)
     SF.ringTimer *= 0.95;
-    if (SF.ringTimer < 0.1) {
-      SF.ringTimer = 0;
-      SF.pointerTime = 0;
-      newTime = 0;
-    }
+if (SF.ringTimer < 0.1) {
+  SF.ringTimer = 0;
+
+  // kill all pointer momentum/history
+  SF.pointerSpeed = 0;
+  SF.pointerTime = 0;
+}
 
     SF.pokeTimer *= 0.85;
     if (SF.pokeTimer < 1) SF.pokeTimer = 0;
@@ -303,26 +305,34 @@
  *  3) POINTER INPUT
  *========================================*/
 
-let newTime = 0;
-
 (() => {
   const SF = window.STARFIELD;
 
   SF.updateSpeed = function (x, y) {
-    newTime = SF.nowMs();
-    const dt = Math.max(1, newTime - SF.pointerTime);
-  
-    const dx = x - SF.pointerX;
-    const dy = y - SF.pointerY;
-  
-    const rawSpeed = Math.sqrt(dx*dx + dy*dy) / dt;
-    SF.pointerSpeed = Math.min(rawSpeed * 50, 50);
-    SF.ringTimer = Math.max(SF.ringTimer, SF.pointerSpeed);
-    
+  const now = SF.nowMs();
+
+  // Cold start: no previous timestamp, so don't compute speed yet
+  if (!SF.pointerTime) {
     SF.pointerX = x;
     SF.pointerY = y;
-    SF.pointerTime = newTime;
-  };
+    SF.pointerTime = now;
+    SF.pointerSpeed = 0;
+    return;
+  }
+
+  const dt = Math.max(1, now - SF.pointerTime);
+  const dx = x - SF.pointerX;
+  const dy = y - SF.pointerY;
+
+  const rawSpeed = Math.sqrt(dx*dx + dy*dy) / dt;
+  SF.pointerSpeed = Math.min(rawSpeed * 50, 50);
+
+  SF.ringTimer = Math.max(SF.ringTimer, SF.pointerSpeed);
+
+  SF.pointerX = x;
+  SF.pointerY = y;
+  SF.pointerTime = now;
+};
 
   SF.startPointerInteraction = function startPointerInteraction(x, y) {
     SF.pokeTimer = 200;
