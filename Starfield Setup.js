@@ -327,7 +327,9 @@ window.STARFIELD = window.STARFIELD || {};
         whiteValue: 0,
         momentumX: 0,
         momentumY: 0,
-        edge: 1
+        edge: 1,
+        keyboardForceX: 0,
+        keyboardForceY: 0
       });
     }
   };
