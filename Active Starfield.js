@@ -155,6 +155,7 @@
     if (SF.ringTimer < 0.1) {
       SF.ringTimer = 0;
       SF.pointerTime = 0;
+      newTime = 0;
     }
 
     SF.pokeTimer *= 0.85;
@@ -302,12 +303,14 @@
  *  3) POINTER INPUT
  *========================================*/
 
+const newTime = 0;
+
 (() => {
   const SF = window.STARFIELD;
 
   SF.updateSpeed = function (x, y) {
-    const time = SF.nowMs();
-    const dt = Math.max(1, time - SF.pointerTime);
+    newTime = SF.nowMs();
+    const dt = Math.max(1, newTime - SF.pointerTime);
   
     const dx = x - SF.pointerX;
     const dy = y - SF.pointerY;
@@ -318,7 +321,7 @@
     
     SF.pointerX = x;
     SF.pointerY = y;
-    SF.pointerTime = time;
+    SF.pointerTime = newTime;
   };
 
   SF.startPointerInteraction = function startPointerInteraction(x, y) {
