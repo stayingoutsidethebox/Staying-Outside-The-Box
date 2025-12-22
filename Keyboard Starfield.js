@@ -18,11 +18,11 @@ function processKeyPress(KEY) {
   if (!STARFIELD?.starList?.length) return;
 
   // Step 1: normalize key into a lookup value
-  const USER_INPUT = String(KEY).toLowerCase();
+  const KEYBOARD_INPUT = String(KEY).toLowerCase();
 
   // Step 2: apply per-star
   for (const STAR of STARFIELD.starList) {
-    const FORCES = KEY_FUNCTIONS[KEY]?.(STAR) ?? [0, 0];
+    const FORCES = KEY_FUNCTIONS[KEYBOARD_INPUT]?.(STAR) ?? [0, 0];
     STAR.keyboardForceX = FORCES[0];
     STAR.keyboardForceY = FORCES[1];
   }
