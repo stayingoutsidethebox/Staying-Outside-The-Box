@@ -17,6 +17,9 @@
  *  1) PHYSICS (MOVE STARS)
  *========================================*/
 
+window.keyboardPullX = 0;
+window.keyboardPullY = 0;
+
 (() => {
   const STARFIELD = window.STARFIELD;
 
@@ -111,8 +114,8 @@
       }
 
       // Step 13: integrate
-      STAR.x += STAR.vx + FORCE_X;
-      STAR.y += STAR.vy + FORCE_Y;
+      STAR.x += STAR.vx + FORCE_X + window.keyboardPullX;
+      STAR.y += STAR.vy + FORCE_Y + window.keyboardPullY;
 
       // Step 14: friction
       STAR.momentumX *= 0.98;
