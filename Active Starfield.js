@@ -252,9 +252,12 @@
 
           const dist = Math.sqrt(dSq) * distScale;
 
-          let alpha = Math.min((1 - dist / SF.maxLinkDist), ((aOp + B.opacity) / 2));
-          alpha *= Math.min(aEdge, B.edge);
-
+          const opMin = Math.min(aOp, B.opacity);
+          const edgeMin = Math.min(aEdge, B.edge);
+          const distFade = 1 - (dist / SF.maxLinkDist);
+          
+          let alpha = Math.max(0, distFade) * opMin * edgeMin;
+          
           if (alpha <= 0.002) continue;
 
           let bucket = (alpha * (LINK_BUCKETS - 1)) | 0;
