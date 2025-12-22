@@ -58,22 +58,39 @@ function runW(STAR) {
 
 // A = Left
 function runA(STAR) {
-
+  return [
+    (window.CIRCLE_TIMER + EFFECT_CONSTANT)
+    * -EFFECT_MULTIPLIER,
+    0
+  ];
 }
 
 // S = Down
 function runS(STAR) {
-
+  return [
+    0,
+    (window.CIRCLE_TIMER + EFFECT_CONSTANT)
+    * -EFFECT_MULTIPLIER
+  ];
 }
 
 // D = Right
 function runD(STAR) {
-
+  return [
+    (window.CIRCLE_TIMER + EFFECT_CONSTANT)
+    * EFFECT_MULTIPLIER,
+    0
+  ];
 }
 
 // Q = Up left
 function runQ(STAR) {
-
+  return [
+    (window.CIRCLE_TIMER + EFFECT_CONSTANT)
+    * -EFFECT_MULTIPLIER / 2,
+    (window.CIRCLE_TIMER + EFFECT_CONSTANT)
+    * EFFECT_MULTIPLIER / 2
+  ];
 }
 
 // E = Up right
