@@ -202,7 +202,7 @@
     let ringWidth = SF.ringTimer * 0.15 + 1.5;
     let ringAlpha = Math.min(SF.ringTimer * 0.07, 1);
     // Pointer ring expand instead with poke
-    if (SF.pointerSpeed < 1) {
+    if (SF.ringTimer < 5) {
       const normPoke = Math.min(1, Math.max(0, SF.pokeTimer / 200));
       const invPoke   = 1 - normPoke;
       ringRadius = goalRadius * invPoke;
