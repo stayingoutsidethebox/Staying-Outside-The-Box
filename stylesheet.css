@@ -85,20 +85,6 @@
  *  These “DONT TOUCH” lines are the fragile bones holding it together.
  */
 
-/*---------- Fixed background image layer (behind everything) ----------*/
-.background {
-  position: fixed;
-
-  /* Background coverage (lv* helps iOS toolbars) */
-  width: 100lvw;
-  height: 110lvh;
-
-  /* Behind canvas + content */
-  z-index: -2;
-  pointer-events: none;
-  overflow: visible;
-}
-
 /*---------- Root document ----------*/
 html {
   margin: 0;
