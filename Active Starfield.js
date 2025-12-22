@@ -199,7 +199,7 @@
     // Pointer ring grow and shrink
     const goalRadius = Math.max(0, SF.scaleToScreen * 100 - 40);
     let ringRadius = goalRadius * (SF.ringTimer / 50);
-    let ringWidth = SF.ringTimer * 0.15 + 1.5;
+    let ringWidth = SF.ringTimer * 0.15;
     let ringAlpha = Math.min(SF.ringTimer * 0.07, 1);
     // Pointer ring expand instead with poke
     if (SF.ringTimer < 5) {
