@@ -93,7 +93,7 @@
         STAR.momentumY += POKE_FORCE * -UNIT_TO_POINTER_Y;
       }
 
-      // Step 11: baseline drift boosted by interaction
+      // Step 11: baseline drift boosted by user interaction
       STAR.momentumX += STAR.vx * Math.min(10, 0.05 * STARFIELD.pointerSpeedUnits) + STAR.keyboardForceX;
       STAR.momentumY += STAR.vy * Math.min(10, 0.05 * STARFIELD.pointerSpeedUnits) + STAR.keyboardForceY;
 
@@ -153,22 +153,26 @@
         STAR.opacity -= 0.0001;
       }
     }
+    
+    // Step 18: get ready for next keyboard input
+    STAR.keyboardForceX = 0;
+    STAR.keyboardForceY = 0;
 
-    // Step 18: global decay for pointer speed
+    // Step 19: global decay for pointer speed
     STARFIELD.pointerSpeedUnits *= 0.5;
     if (STARFIELD.pointerSpeedUnits < 0.001) STARFIELD.pointerSpeedUnits = 0;
 
-    // Step 19: ring behavior (grow then fade with pointerRingTimer)
+    // Step 20: ring behavior (grow then fade with pointerRingTimer)
     STARFIELD.pointerRingTimer *= 0.95;
     if (STARFIELD.pointerRingTimer < 1) {
       STARFIELD.pointerRingTimer = 0;
     }
 
-    // Step 20: poke timer decay
+    // Step 21: poke timer decay
     STARFIELD.pokeImpulseTimer *= 0.85;
     if (STARFIELD.pokeImpulseTimer < 1) STARFIELD.pokeImpulseTimer = 0;
 
-    // Step 21: debug readouts
+    // Step 22: debug readouts
     if (STARFIELD.debug.enabled) {
       const DEBUG_RING = document.getElementById("dbgCircle");
       if (DEBUG_RING) DEBUG_RING.textContent = STARFIELD.pointerRingTimer.toFixed(3);
