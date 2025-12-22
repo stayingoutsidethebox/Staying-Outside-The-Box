@@ -270,10 +270,11 @@
       }
 
       for (let i = 0; i < LINK_BUCKETS; i++) {
-        const bucketAlpha = (i + 1) / LINK_BUCKETS;
-        BR.strokeStyle = `rgba(100, 100, 100, ${bucketAlpha})`;
-        BR.stroke(linkPaths[i]);
-      }
+  const bucketAlpha = i / (LINK_BUCKETS - 1); // 0..1
+  if (bucketAlpha <= 0) continue;             // skip invisible bucket 0
+  BR.strokeStyle = `rgba(100, 100, 100, ${bucketAlpha})`;
+  BR.stroke(linkPaths[i]);
+}
     }
 
     // Star bodies
