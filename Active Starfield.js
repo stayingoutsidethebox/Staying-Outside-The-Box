@@ -197,10 +197,12 @@
     BR.clearRect(0, 0, SF.w, SF.h);
 
     // Pointer ring
-    const ringRadius = SF.ringTimer / 50 * Math.max(0, SF.scaleToScreen * 100 - 40) + (SF.poketimer / 2);
+    const poke = Math.max(0.0001, SF.pokeTimer || 0) / 2;
+    const goalRadius = Math.max(0, SF.scaleToScreen * 100 - 40);
+    const ringRadius = (SF.ringTimer / 50) * goalRadius + poke;
     const ringWidth = SF.ringTimer * 0.15 + 1.5;
-    const ringAlpha = Math.min(((SF.ringTimer * 0.07) + (1 / SF.poketimer)), 1);
-
+    const ringAlpha = Math.min((SF.ringTimer * 0.07) + (1 / (poke + 1)), 1);
+    
     if (SF.pointerTime > 0 && ringAlpha > 0.001) {
       BR.save();
       BR.lineWidth = ringWidth;
