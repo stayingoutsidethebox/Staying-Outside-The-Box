@@ -331,11 +331,11 @@ if (SF.ringTimer < 1) {
 
   SF.startPointerInteraction = function startPointerInteraction(x, y) {
     SF.pokeTimer = 200;
+    SF.pointerTime = 0;
     SF.updateSpeed(x, y);
   };
 
   // Mouse
-  window.addEventListener("mousemove", (e) => SF.updateSpeed(e.clientX, e.clientY));
   window.addEventListener("mousedown", (e) => SF.startPointerInteraction(e.clientX, e.clientY));
 
   // Touch
