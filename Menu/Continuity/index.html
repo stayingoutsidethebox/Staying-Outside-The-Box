@@ -511,6 +511,12 @@
           slider.addEventListener('input', update); // live updates
         });
       })();
+
+// Clear the controller textbox
+document.getElementById('controller').addEventListener('input', () => {
+  document.getElementById('controller').value = '';
+});
+
       // I asked Chat GPT to clean up my comments and he left this here XD
       // Joke: This slider code is basically a tiny makeup artist. "Highlight to here, contour after that." 💄
     </script>
