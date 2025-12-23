@@ -95,6 +95,11 @@ function runX(STAR) {
   return [0, 0];
 }
 
+// Y = BLANK
+function runY(STAR) {
+  return [0, 0];
+}
+
 /* 
 
 O orbit around pointer
