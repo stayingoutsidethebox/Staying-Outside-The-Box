@@ -94,3 +94,19 @@ function runX(STAR) {
   STAR.vy = -STAR.vy;
   return [0, 0];
 }
+
+/* 
+
+O orbit around pointer
+
+P Poke burst
+All stars flash white once, but only the nearest 20 stay bright longer. Feels like a pulse wave.
+
+F rumble rumble 
+
+L link shatter
+Links fade out from center to edges like shattering glass.
+
+YUI, HJK, BNM screen quadrant magnet
+
+RTGV pong up and down AND left right. when bouncing a star, the star turns white and stay lit until wrapped (missed the pong paddle)*/
