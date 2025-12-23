@@ -35,15 +35,69 @@ function processKeyPress(KEY) {
 
 /* Assign keys to functions */
 const KEY_FUNCTIONS = {
+
+  /* 2) GLOBAL MOVEMENT */
+  // Up
   w: (STAR) => runW(STAR),
+  // Left
   a: (STAR) => runA(STAR),
+  // Down
   s: (STAR) => runS(STAR),
+  // Right
   d: (STAR) => runD(STAR),
+
+  // Up-left
   q: (STAR) => runQ(STAR),
+  // Up-right
   e: (STAR) => runE(STAR),
+  // Down-left
   z: (STAR) => runZ(STAR),
+  // Down-right
+  x: (STAR) => runX(STAR),
+
+  /* 3) QUADRANT MAGNETISM */
+  // Top-left
+  y: (STAR) => runY(STAR),
+  // Top-center
+  u: (STAR) => runU(STAR),
+  // Top-right
+  i: (STAR) => runI(STAR),
+
+  // Middle-left
+  h: (STAR) => runH(STAR),
+  // Middle-center
+  j: (STAR) => runJ(STAR),
+  // Middle-right
+  k: (STAR) => runK(STAR),
+
+  // Bottom-left
+  b: (STAR) => runB(STAR),
+  // Bottom-center
+  n: (STAR) => runN(STAR),
+  // Bottom-right
+  m: (STAR) => runM(STAR),
+
+  /* 4) PONG */
+  // Paddle left
+  r: (STAR) => runR(STAR),
+  // Paddle right
+  t: (STAR) => runT(STAR),
+  // Paddle up
+  f: (STAR) => runF(STAR),
+  // Paddle down
   c: (STAR) => runC(STAR),
-  x: (STAR) => runX(STAR)
+
+  /* 5) OTHERS */
+  // Velocity invert
+  v: (STAR) => runV(STAR),
+  // Grumble
+  g: (STAR) => runG(STAR),
+  // Orbit
+  o: (STAR) => runO(STAR),
+  // Poke burst
+  p: (STAR) => runP(STAR),
+  // Link shatter
+  l: (STAR) => runL(STAR)
 };
 
 /* Function constants */
@@ -149,22 +203,22 @@ function runM(STAR) {
 /*========================================*
 //#region 4) PONG
  *========================================*/
-// R = Left
+// R = Paddles left
 function runR(STAR) {
   return [0, 0];
 }
 
-// T = Right
+// T = Paddles right
 function runT(STAR) {
   return [0, 0];
 }
 
-// F = Up
+// F = Paddles up
 function runF(STAR) {
   return [0, 0];
 }
 
-// C = Down
+// C = Paddles down
 function runC(STAR) {
   return [0, 0];
 }
@@ -176,6 +230,8 @@ function runC(STAR) {
 
 // V = Velocity invert
 function runV(STAR) {
+  STAR.vx = -STAR.vx;
+  STAR.vy = -STAR.vy;
   return [0, 0];
 }
 
@@ -186,8 +242,6 @@ function runG(STAR) {
 
 // O = Orbit
 function runO(STAR) {
-  STAR.vx = -STAR.vx;
-  STAR.vy = -STAR.vy;
   return [0, 0];
 }
 
