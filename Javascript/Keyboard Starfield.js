@@ -91,8 +91,8 @@ function runZ(STAR) {
   return [-FORCE_INCREASE / 2, -FORCE_INCREASE / 2];
 }
 
-// C = Right down
-function runC(STAR) {
+// X = Right down
+function runX(STAR) {
   return [FORCE_INCREASE / 2, -FORCE_INCREASE / 2];
 }
 /* #endregion 2) GLOBAL MOVEMENT */
@@ -130,35 +130,74 @@ function runK(STAR) {
   return [0, 0];
 }
 
-// Y = Bottom left
-function runB(STAR) { return [0, 0]; }
-function runN(STAR) { return [0, 0]; }
-function runM(STAR) { return [0, 0]; }
+// B = Bottom left
+function runB(STAR) {
+  return [0, 0];
+}
+
+// N = Bottom center
+function runN(STAR) {
+  return [0, 0];
+}
+
+// M = Bottom right
+function runM(STAR) {
+  return [0, 0];
+}
 /* #endregion 3) QUADRANT MAGNETISM */
 
 /*========================================*
 //#region 4) PONG
  *========================================*/
-// R T G V
-function runR(STAR) { return [0, 0]; }
-function runT(STAR) { return [0, 0]; }
-function runG(STAR) { return [0, 0]; }
-function runV(STAR) { return [0, 0]; }
+// R = Left
+function runR(STAR) {
+  return [0, 0];
+}
+
+// T = Right
+function runT(STAR) {
+  return [0, 0];
+}
+
+// F = Up
+function runF(STAR) {
+  return [0, 0];
+}
+
+// C = Down
+function runC(STAR) {
+  return [0, 0];
+}
 /* #endregion 4) PONG */
 
 /*========================================*
 //#region 5) OTHERS
  *========================================*/
 
-// X = Invert
-function runX(STAR) {
+// C = Clockwise orbit
+function runC(STAR) {
+  return [0, 0];
+}
+
+// G = Grumble
+function runG(STAR) {
+  return [0, 0];
+}
+
+// O = Opposite directions
+function runO(STAR) {
   STAR.vx = -STAR.vx;
   STAR.vy = -STAR.vy;
   return [0, 0];
 }
 
-function runF(STAR) { return [0, 0]; }
-function runO(STAR) { return [0, 0]; }
-function runP(STAR) { return [0, 0]; }
-function runL(STAR) { return [0, 0]; }
+// P = Poke burst
+function runP(STAR) {
+  return [0, 0];
+}
+
+// L = Link shatter
+function runL(STAR) {
+  return [0, 0];
+}
 /* #endregion 5) OTHERS */
