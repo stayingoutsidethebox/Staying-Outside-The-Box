@@ -102,7 +102,7 @@ const KEY_FUNCTIONS = {
 };
 
 /* Function constants */
-const EFFECT_MULTIPLIER = 1;
+const EFFECT_MULTIPLIER = 5;
 const EFFECT_CONSTANT = 5;
 const FORCE_INCREASE = (STARFIELD.pointerRingTimer + EFFECT_CONSTANT) * EFFECT_MULTIPLIER;
 /* #endregion 1) SETUP */
