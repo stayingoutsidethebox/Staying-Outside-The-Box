@@ -88,10 +88,16 @@ const KEY_FUNCTIONS = {
 };
 
 /* Function constants */
-const FROM_ZERO = 1.2;
-const FROM_ZERO_HALF = 1.1;
-const TO_ZERO = 0.8;
-const TO_ZERO_HALF = 0.9;
+const STRENGTH = .2;
+const MULT_FULL = 1 + STRENGTH;
+const DIV_FULL = 1 - STRENGTH;
+const ADD_FULL = STRENGTH;
+const SUB_FULL = -STRENGTH;
+
+const MULT_HALF = 1 + (STRENGTH / 2);
+const DIV_HALF = 1 - (STRENGTH / 2);
+const ADD_HALF = STRENGTH / 2;
+const SUB_HALF = -STRENGTH / 2;
 }
 /* #endregion 1) SETUP */
 
@@ -131,20 +137,20 @@ function runQ() {
 
 // E = Right up
 function runE() {
-  window.KEYBOARD_FORCE_X = FROM_ZERO_HALF;
+  window.KEYBOARD_FORCE_X = HALF_FORCE;
   window.KEYBOARD_FORCE_Y = TO_ZERO_HALF;
 }
 
 // Z = Left down
 function runZ() {
   window.KEYBOARD_FORCE_X = TO_ZERO_HALF;
-  window.KEYBOARD_FORCE_Y = FROM_ZERO_HALF;
+  window.KEYBOARD_FORCE_Y = HALF_FORCE;
 }
 
 // X = Right down
 function runX() {
-  window.KEYBOARD_FORCE_X = FROM_ZERO_HALF;
-  window.KEYBOARD_FORCE_Y = FROM_ZERO_HALF;
+  window.KEYBOARD_FORCE_X = HALF_FORCE;
+  window.KEYBOARD_FORCE_Y = HALF_FORCE;
 }
 /* #endregion 2) GLOBAL MOVEMENT */
 
