@@ -25,8 +25,10 @@
  *========================================*/
 
 window.STARFIELD = window.STARFIELD || {};
-window.KEYBOARD_FORCE_X = Number.isFinite(window.KEYBOARD_FORCE_X) ? window.KEYBOARD_FORCE_X : 1;
-window.KEYBOARD_FORCE_Y = Number.isFinite(window.KEYBOARD_FORCE_Y) ? window.KEYBOARD_FORCE_Y : 1;
+window.KEYBOARD_MULT_X = Number.isFinite(window.KEYBOARD_MULT_X) ? window.KEYBOARD_MULT_X : 1;
+window.KEYBOARD_MULT_Y = Number.isFinite(window.KEYBOARD_MULT_Y) ? window.KEYBOARD_MULT_Y : 1;
+window.KEYBOARD_ADD_X = Number.isFinite(window.KEYBOARD_ADD_X) ? window.KEYBOARD_ADD_X : 0;
+window.KEYBOARD_ADD_Y = Number.isFinite(window.KEYBOARD_ADD_Y) ? window.KEYBOARD_ADD_Y : 0;
 var STARFIELD = window.STARFIELD;
 
   // Step 1: Find the canvas element
