@@ -89,7 +89,7 @@ const KEY_FUNCTIONS = {
 
 /* Function constants */
 const EFFECT_MULTIPLIER = 1.2;
-const EFFECT_CONSTANT = .7;
+const EFFECT_CONSTANT = .5;
 function getForceIncrease() {
   return ((window.STARFIELD?.pointerRingTimer ?? 0) + EFFECT_CONSTANT) * EFFECT_MULTIPLIER;
 }
@@ -238,15 +238,13 @@ function runC() {
 //#region 5) OTHERS
  *========================================*/
 
-// V = Velocity invert
+// V = Less (v) speed
 function runV() {
-  for (const STAR of window.STARFIELD.starList) {
-    STAR.vx = -STAR.vx;
-    STAR.vy = -STAR.vy;
-  }
+  window.KEYBOARD_FORCE_X = 0;
+  window.KEYBOARD_FORCE_Y = 0;
 }
 
-// G = Grumble
+// G = Greater (^) speed
 function runG() {
   window.KEYBOARD_FORCE_X = 0;
   window.KEYBOARD_FORCE_Y = 0;
@@ -258,10 +256,12 @@ function runO() {
   window.KEYBOARD_FORCE_Y = 0;
 }
 
-// P = Poke burst
+// P = Passive movement inversion
 function runP() {
-  window.KEYBOARD_FORCE_X = 0;
-  window.KEYBOARD_FORCE_Y = 0;
+  for (const STAR of window.STARFIELD.starList) {
+    STAR.vx = -STAR.vx;
+    STAR.vy = -STAR.vy;
+  }
 }
 
 // L = Link shatter
