@@ -19,7 +19,7 @@
  *========================================*/
 
 let IS_TRANSITION_ACTIVE = false;
-const STARFIELD = window.STARFIELD;
+var STARFIELD = window.STARFIELD;
 
 /*
 const CRUNCH_SOUND = new Audio("/Resources/Crunch.mp3");
