@@ -11,7 +11,7 @@
  *   3) User input (updatePointerSpeed + listeners)
  *==============================================================*/
 
-
+alert("Debug HAT");
 
 /*========================================*
 //#region 1) PHYSICS
