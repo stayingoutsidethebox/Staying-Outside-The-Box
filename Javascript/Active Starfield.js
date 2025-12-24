@@ -18,7 +18,6 @@
  *========================================*/
 
   var STARFIELD = window.STARFIELD;
-  alert("Keyboard file ran");
 
   STARFIELD.updateStarPhysics = function updateStarPhysics() {
     // Step 1: bail if nothing to simulate, otherwise get set up
@@ -173,9 +172,9 @@
     if (STARFIELD.pokeImpulseTimer < 1) STARFIELD.pokeImpulseTimer = 0;
 
     // Step 22: debug readouts
-    /*const MISC_READER = document.getElementById("dbgMisc");
-    if (MISC_READER) MISC_READER.textContent = 0;
-    */
+    const MISC_READER = document.getElementById("dbgMisc");
+    if (MISC_READER) MISC_READER.textContent = "NAN";
+    
     const DEBUG_RING = document.getElementById("dbgCircle");
     if (DEBUG_RING) DEBUG_RING.textContent = STARFIELD.pointerRingTimer.toFixed(3);
 
