@@ -5,18 +5,14 @@
  *========================================*/
 
 // Debug version
-document.addEventListener("DOMContentLoaded", () => {
-  document.getElementById("dbgMisc")?.textContent = "L";
-});
-
-const STARFIELD = window.STARFIELD;
+document.getElementById("dbgMisc")?.textContent = "L";
 
 /* Event listener */
 window.addEventListener("keydown", (event) => {
   
     document.getElementById("dbgMisc")?.textContent = "K";
   // Wait until webpage is ready
-  if (!STARFIELD?.starList?.length) return;
+  if (!window.STARFIELD?.starList?.length) return;
   
   // Ignore held-down repeats
   if (event.repeat) return;
@@ -36,7 +32,7 @@ function processKeyPress(KEY) {
   const KEYBOARD_INPUT = String(KEY).toLowerCase();
 
   // Step 2: apply per-star
-  for (const STAR of STARFIELD.starList) {
+  for (const STAR of window.STARFIELD.starList) {
     const FORCES = KEY_FUNCTIONS[KEYBOARD_INPUT]?.(STAR) ?? [0, 0];
     STAR.keyboardForceX = FORCES[0];
     STAR.keyboardForceY = FORCES[1];
@@ -116,7 +112,7 @@ const KEY_FUNCTIONS = {
 const EFFECT_MULTIPLIER = 5;
 const EFFECT_CONSTANT = 5;
 function getForceIncrease() {
-  return ((STARFIELD?.pointerRingTimer ?? 0) + EFFECT_CONSTANT) * EFFECT_MULTIPLIER;
+  return ((window.STARFIELD?.pointerRingTimer ?? 0) + EFFECT_CONSTANT) * EFFECT_MULTIPLIER;
 }
 /* #endregion 1) SETUP */
 
