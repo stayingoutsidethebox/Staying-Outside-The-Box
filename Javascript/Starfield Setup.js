@@ -25,9 +25,7 @@
  *========================================*/
 
 window.STARFIELD = window.STARFIELD || {};
-
-(() => {
-  const STARFIELD = window.STARFIELD;
+const STARFIELD = window.STARFIELD;
 
   // Step 1: Find the canvas element
   STARFIELD.constellationCanvas = document.getElementById("constellations");
@@ -83,7 +81,6 @@ window.STARFIELD = window.STARFIELD || {};
   STARFIELD.hasAnimationLoopStarted = false;
   STARFIELD.hasResizeListenerWired = false;
   STARFIELD.hasStarsInitialized = false;
-})();
 
 /* #endregion 1) STARFIELD NAMESPACE + CANVAS */
 
@@ -92,9 +89,6 @@ window.STARFIELD = window.STARFIELD || {};
 /*========================================*
 //#region 2) STORAGE (localStorage)
  *========================================*/
-
-(() => {
-  const STARFIELD = window.STARFIELD;
 
   STARFIELD.saveStarfieldToStorage = function saveStarfieldToStorage() {
     // Step 1: If canvas isn't active, do nothing
@@ -134,7 +128,6 @@ window.STARFIELD = window.STARFIELD || {};
       console.warn("Could not save stars:", ERROR);
     }
   };
-})();
 
 /* #endregion 2) STORAGE */
 
@@ -143,9 +136,6 @@ window.STARFIELD = window.STARFIELD || {};
 /*========================================*
 //#region 3) UTILITIES
  *========================================*/
-
-(() => {
-  const STARFIELD = window.STARFIELD;
 
   STARFIELD.getNowMs = function getNowMs() {
     // Step 1: Prefer performance.now() when available
@@ -201,7 +191,6 @@ window.STARFIELD = window.STARFIELD || {};
     // Step 6: Smoothstep (eases fade)
     return T * T * (3 - 2 * T);
   };
-})();
 
 /* #endregion 3) UTILITIES */
 
@@ -210,9 +199,6 @@ window.STARFIELD = window.STARFIELD || {};
 /*========================================*
 //#region 4) INIT: RESTORE OR CREATE STARS
  *========================================*/
-
-(() => {
-  const STARFIELD = window.STARFIELD;
 
   STARFIELD.restoreOrCreateStars = function restoreOrCreateStars() {
     // Step 1: If canvas isn't active, do nothing
@@ -325,7 +311,6 @@ window.STARFIELD = window.STARFIELD || {};
       });
     }
   };
-})();
 
 /* #endregion 4) INIT */
 
@@ -334,9 +319,6 @@ window.STARFIELD = window.STARFIELD || {};
 /*========================================*
 //#region 5) UI CONTROLS (STEPPERS + BINDINGS)
  *========================================*/
-
-(() => {
-  const STARFIELD = window.STARFIELD;
 
   STARFIELD.interactionSettings = {
     attractStrength: 50,
@@ -490,7 +472,6 @@ window.STARFIELD = window.STARFIELD || {};
   };
 
   document.addEventListener("DOMContentLoaded", STARFIELD.initializeGravityControlsIfPresent);
-})();
 
 /* #endregion 5) UI CONTROLS */
 
@@ -499,9 +480,6 @@ window.STARFIELD = window.STARFIELD || {};
 /*========================================*
 //#region 6) RESIZE + ANIMATION
  *========================================*/
-
-(() => {
-  const STARFIELD = window.STARFIELD;
 
   STARFIELD.resizeStarfieldCanvas = function resizeStarfieldCanvas() {
     if (!STARFIELD.isCanvasReady) return;
@@ -568,7 +546,6 @@ window.STARFIELD = window.STARFIELD || {};
 
   // Expose for debugging (same idea as before)
   STARFIELD._runAnimationLoop = runAnimationLoop;
-})();
 
 /* #endregion 6) RESIZE + ANIMATION */
 
@@ -577,9 +554,6 @@ window.STARFIELD = window.STARFIELD || {};
 /*========================================*
 //#region 7) BOOTSTRAP
  *========================================*/
-
-(() => {
-  const STARFIELD = window.STARFIELD;
 
   function isCanvasSizeUsable() {
     return (
@@ -624,6 +598,5 @@ window.STARFIELD = window.STARFIELD || {};
   } catch (ERROR) {
     console.error("Initialization error in Starfield Setup:", ERROR);
   }
-})();
 
 /* #endregion 7) BOOTSTRAP */
