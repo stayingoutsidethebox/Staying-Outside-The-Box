@@ -118,7 +118,7 @@ function getForceIncrease() {
 
 // W = Up
 function runW(STAR) {
-  return [0, getForceIncrease()];
+  return [0, -getForceIncrease()];
 }
 
 // A = Left
@@ -128,7 +128,7 @@ function runA(STAR) {
 
 // S = Down
 function runS(STAR) {
-  return [0, -getForceIncrease()];
+  return [0, getForceIncrease()];
 }
 
 // D = Right
@@ -138,22 +138,22 @@ function runD(STAR) {
 
 // Q = Left up
 function runQ(STAR) {
-  return [-getForceIncrease() / 2, getForceIncrease() / 2];
+  return [-getForceIncrease() / 2, -getForceIncrease() / 2];
 }
 
 // E = Right up
 function runE(STAR) {
-  return [getForceIncrease() / 2, getForceIncrease() / 2];
+  return [getForceIncrease() / 2, -getForceIncrease() / 2];
 }
 
 // Z = Left down
 function runZ(STAR) {
-  return [-getForceIncrease() / 2, -getForceIncrease() / 2];
+  return [-getForceIncrease() / 2, getForceIncrease() / 2];
 }
 
 // X = Right down
 function runX(STAR) {
-  return [getForceIncrease() / 2, -getForceIncrease() / 2];
+  return [getForceIncrease() / 2, getForceIncrease() / 2];
 }
 /* #endregion 2) GLOBAL MOVEMENT */
 
