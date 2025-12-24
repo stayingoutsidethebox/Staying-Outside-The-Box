@@ -6,7 +6,7 @@
 
 // Debug version
 document.addEventListener("DOMContentLoaded", () => {
-  document.getElementById("dbgMisc").textContent = 5;
+  document.getElementById("dbgMisc").textContent = "5";
 });
 
 const STARFIELD = window.STARFIELD;
