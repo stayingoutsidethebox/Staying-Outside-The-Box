@@ -1,8 +1,6 @@
-alert("KeyboardStarfield: top of file ran");
-window.addEventListener("error", (e) => {
-  alert("JS error: " + (e.message || "unknown"));
-});
 // thank heavens for chatGPT <3
+
+alert("Debug car");
 
 /*========================================*
 //#region 1) SETUP
