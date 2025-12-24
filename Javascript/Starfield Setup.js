@@ -18,7 +18,7 @@
  *    Pointer input (updatePointerSpeed + listeners)
  *==============================================================*/
 
-
+//alert("Debug can");
 
 /*========================================*
 //#region 1) STARFIELD NAMESPACE + CANVAS
