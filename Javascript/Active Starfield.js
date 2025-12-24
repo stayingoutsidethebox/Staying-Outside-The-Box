@@ -17,6 +17,8 @@
 //#region 1) PHYSICS
  *========================================*/
 
+window.MISC_VARIABLE = 0;
+
 (() => {
   const STARFIELD = window.STARFIELD;
 
@@ -174,6 +176,9 @@
 
     // Step 22: debug readouts
     if (STARFIELD.debug.enabled) {
+      const MISC_READER = document.getElementById("dbgMisc");
+      if (MISC_READER) MISC_READER.textContent = window.MISC_VARIABLE;
+      
       const DEBUG_RING = document.getElementById("dbgCircle");
       if (DEBUG_RING) DEBUG_RING.textContent = STARFIELD.pointerRingTimer.toFixed(3);
 
