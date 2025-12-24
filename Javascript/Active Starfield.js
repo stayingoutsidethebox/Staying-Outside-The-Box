@@ -18,6 +18,7 @@
  *========================================*/
 
   var STARFIELD = window.STARFIELD;
+  alert("Keyboard file ran");
 
   STARFIELD.updateStarPhysics = function updateStarPhysics() {
     // Step 1: bail if nothing to simulate, otherwise get set up
