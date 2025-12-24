@@ -89,7 +89,7 @@ const KEY_FUNCTIONS = {
 
 /* Function constants */
 const EFFECT_MULTIPLIER = 2;
-const EFFECT_CONSTANT = 5;
+const EFFECT_CONSTANT = 1;
 function getForceIncrease() {
   return ((window.STARFIELD?.pointerRingTimer ?? 0) + EFFECT_CONSTANT) * EFFECT_MULTIPLIER;
 }
