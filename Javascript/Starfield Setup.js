@@ -25,7 +25,7 @@
  *========================================*/
 
 window.STARFIELD = window.STARFIELD || {};
-let STARFIELD = window.STARFIELD;
+var STARFIELD = window.STARFIELD;
 
   // Step 1: Find the canvas element
   STARFIELD.constellationCanvas = document.getElementById("constellations");
