@@ -3,17 +3,18 @@
 /*========================================*
 //#region 1) SETUP
  *========================================*/
-window.addEventListener("load", () => {
-  window.MISC_VARIABLE = 5; 
-});
 
 const STARFIELD = window.STARFIELD;
 if (!STARFIELD?.starList?.length) return;
 
 /* Event listener */
 window.addEventListener("keydown", (event) => {
+  // Debug version
+  window.MISC_VARIABLE = 5; 
+  
   // Ignore held-down repeats
   if (event.repeat) return;
+
 
   // Ignore IME composition
   if (event.isComposing) return;
