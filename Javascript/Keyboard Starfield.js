@@ -1,6 +1,8 @@
+alert("KeyboardStarfield: top of file ran");
+window.addEventListener("error", (e) => {
+  alert("JS error: " + (e.message || "unknown"));
+});
 // thank heavens for chatGPT <3
-
-alert("Debug punt");
 
 /*========================================*
 //#region 1) SETUP
@@ -8,13 +10,9 @@ alert("Debug punt");
 
 var STARFIELD = window.STARFIELD;
 
-// Debug version
-document.getElementById("dbgMisc")?.textContent = "L";
-
 /* Event listener */
 window.addEventListener("keydown", (event) => {
   
-  document.getElementById("dbgMisc")?.textContent = "K";
   
   // Ignore held-down repeats
   if (event.repeat) return;
@@ -27,8 +25,6 @@ window.addEventListener("keydown", (event) => {
 
 /* Key proccessing */
 function processKeyPress(KEY) {
-  
-    document.getElementById("dbgMisc")?.textContent = "P";
   
   // Step 1: normalize key into a lookup value
   const KEYBOARD_INPUT = String(KEY).toLowerCase();
@@ -124,7 +120,6 @@ function getForceIncrease() {
 
 // W = Up
 function runW(STAR) {
-    document.getElementById("dbgMisc")?.textContent = "W";
   return [0, getForceIncrease()];
 }
 
