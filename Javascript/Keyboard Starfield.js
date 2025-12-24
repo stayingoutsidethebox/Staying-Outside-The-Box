@@ -91,8 +91,8 @@ const KEY_FUNCTIONS = {
 const STRENGTH = .2;
 const MULTIPLY = 1 + STRENGTH;
 const DIVIDE = 1 - STRENGTH;
-const ADD = STRENGTH;
-const SUBTRACT = -STRENGTH;
+const POSITIVE = STRENGTH;
+const NEGATIVE = -STRENGTH;
 }
 /* #endregion 1) SETUP */
 
@@ -102,50 +102,50 @@ const SUBTRACT = -STRENGTH;
 
 // W = Up
 function runW() {
-  window.KEYBOARD_FORCE_X = 1;
-  window.KEYBOARD_FORCE_Y = SUBTRACT;
+  // X
+  window.KEYBOARD_MULT_Y = NEGATIVE;
 }
 
 // A = Left
 function runA() {
-  window.KEYBOARD_FORCE_X = SUBTRACT;
-  window.KEYBOARD_FORCE_Y = 1;
+  window.KEYBOARD_MULT_X = NEGATIVE;
+  // Y
 }
 
 // S = Down
 function runS() {
-  window.KEYBOARD_FORCE_X = 1;
-  window.KEYBOARD_FORCE_Y = ADD;
+  // X
+  window.KEYBOARD_MULT_Y = POSITIVE;
 }
 
 // D = Right
 function runD() {
-  window.KEYBOARD_FORCE_X = ADD;
-  window.KEYBOARD_FORCE_Y = 1;
+  window.KEYBOARD_MULT_X = POSITIVE;
+  // Y
 }
 
 // Q = Left up
 function runQ() {
-  window.KEYBOARD_FORCE_X = SUBTRACT / 2;
-  window.KEYBOARD_FORCE_Y = SUBTRACT / 2;
+  window.KEYBOARD_MULT_X = NEGATIVE / 2;
+  window.KEYBOARD_MULT_Y = NEGATIVE / 2;
 }
 
 // E = Right up
 function runE() {
-  window.KEYBOARD_FORCE_X = ADD / 2;
-  window.KEYBOARD_FORCE_Y = SUBTRACT / 2;
+  window.KEYBOARD_MULT_X = POSITIVE / 2;
+  window.KEYBOARD_MULT_Y = NEGATIVE / 2;
 }
 
 // Z = Left down
 function runZ() {
-  window.KEYBOARD_FORCE_X = SUBTRACT / 2;
-  window.KEYBOARD_FORCE_Y = ADD / 2;
+  window.KEYBOARD_MULT_X = NEGATIVE / 2;
+  window.KEYBOARD_MULT_Y = POSITIVE / 2;
 }
 
 // X = Right down
 function runX() {
-  window.KEYBOARD_FORCE_X = ADD / 2;
-  window.KEYBOARD_FORCE_Y = ADD / 2;
+  window.KEYBOARD_MULT_X = POSITIVE / 2;
+  window.KEYBOARD_MULT_Y = POSITIVE / 2;
 }
 /* #endregion 2) GLOBAL MOVEMENT */
 
@@ -154,56 +154,47 @@ function runX() {
  *========================================*/
 // Y = Top left
 function runY() {
-  window.KEYBOARD_FORCE_X = 1;
-  window.KEYBOARD_FORCE_Y = 1;
+  
 }
 
 // U = Top center
 function runU() {
-  window.KEYBOARD_FORCE_X = 1;
-  window.KEYBOARD_FORCE_Y = 1;
+  
 }
 
 // I = Top right
 function runI() {
-  window.KEYBOARD_FORCE_X = 1;
-  window.KEYBOARD_FORCE_Y = 1;
+  
 }
 
 // H = Middle left
 function runH() {
-  window.KEYBOARD_FORCE_X = 1;
-  window.KEYBOARD_FORCE_Y = 1;
+  
 }
 
 // J = Middle center
 function runJ() {
-  window.KEYBOARD_FORCE_X = 1;
-  window.KEYBOARD_FORCE_Y = 1;
+  
 }
 
 // K = Middle right
 function runK() {
-  window.KEYBOARD_FORCE_X = 1;
-  window.KEYBOARD_FORCE_Y = 1;
+  
 }
 
 // B = Bottom left
 function runB() {
-  window.KEYBOARD_FORCE_X = 1;
-  window.KEYBOARD_FORCE_Y = 1;
+  
 }
 
 // N = Bottom center
 function runN() {
-  window.KEYBOARD_FORCE_X = 1;
-  window.KEYBOARD_FORCE_Y = 1;
+  
 }
 
 // M = Bottom right
 function runM() {
-  window.KEYBOARD_FORCE_X = 1;
-  window.KEYBOARD_FORCE_Y = 1;
+  
 }
 /* #endregion 3) QUADRANT MAGNETISM */
 
@@ -212,26 +203,22 @@ function runM() {
  *========================================*/
 // R = Paddles left
 function runR() {
-  window.KEYBOARD_FORCE_X = 1;
-  window.KEYBOARD_FORCE_Y = 1;
+  
 }
 
 // T = Paddles right
 function runT() {
-  window.KEYBOARD_FORCE_X = 1;
-  window.KEYBOARD_FORCE_Y = 1;
+  
 }
 
 // F = Paddles up
 function runF() {
-  window.KEYBOARD_FORCE_X = 1;
-  window.KEYBOARD_FORCE_Y = 1;
+  
 }
 
 // C = Paddles down
 function runC() {
-  window.KEYBOARD_FORCE_X = 1;
-  window.KEYBOARD_FORCE_Y = 1;
+  
 }
 /* #endregion 4) PONG */
 
@@ -241,20 +228,19 @@ function runC() {
 
 // V = Less (v) speed
 function runV() {
-  window.KEYBOARD_FORCE_X = DIVIDE;
-  window.KEYBOARD_FORCE_Y = DIVIDE;
+  window.KEYBOARD_ADD_X = DIVIDE;
+  window.KEYBOARD_ADD_Y = DIVIDE;
 }
 
 // G = Greater (^) speed
 function runG() {
-  window.KEYBOARD_FORCE_X = MULTIPLY;
-  window.KEYBOARD_FORCE_Y = MULTIPLY;
+  window.KEYBOARD_ADD_X = MULTIPLY;
+  window.KEYBOARD_ADD_Y = MULTIPLY;
 }
 
 // O = Orbit
 function runO() {
-  window.KEYBOARD_FORCE_X = 1;
-  window.KEYBOARD_FORCE_Y = 1;
+  
 }
 
 // P = Passive movement inversion
@@ -267,7 +253,6 @@ function runP() {
 
 // L = Link shatter
 function runL() {
-  window.KEYBOARD_FORCE_X = 1;
-  window.KEYBOARD_FORCE_Y = 1;
+  
 }
 /* #endregion 5) OTHERS */
