@@ -93,8 +93,8 @@
       }
 
       // Step 11: baseline drift boosted by user interaction
-      STAR.momentumX += STAR.vx * Math.min(10, 0.05 * STARFIELD.pointerSpeedUnits) * window.KEYBOARD_FORCE_X;
-      STAR.momentumY += STAR.vy * Math.min(10, 0.05 * STARFIELD.pointerSpeedUnits) * window.KEYBOARD_FORCE_Y;
+      STAR.momentumX += STAR.vx * Math.min(10, 0.05 * STARFIELD.pointerSpeedUnits) * window.KEYBOARD_MULT_X + window.KEYBOARD_ADD_X;
+      STAR.momentumY += STAR.vy * Math.min(10, 0.05 * STARFIELD.pointerSpeedUnits) * window.KEYBOARD_MULT_Y + window.KEYBOARD_ADD_Y;
 
       // Step 12: clamp force magnitude (prevents runaway)
       let FORCE_X = STAR.momentumX;
@@ -153,9 +153,11 @@
       }
     }
     
-    // Step 18: reset keybiard forces
-    window.KEYBOARD_FORCE_X = 1;
-    window.KEYBOARD_FORCE_Y = 1;
+    // Step 18: reset keyboard forces
+    window.KEYBOARD_MULT_X = 1;
+    window.KEYBOARD_MULT_Y = 1;
+    window.KEYBOARD_ADD_X = 0;
+    window.KEYBOARD_ADD_Y = 0;
 
     // Step 19: global decay for pointer speed
     STARFIELD.pointerSpeedUnits *= 0.5;
