@@ -89,15 +89,10 @@ const KEY_FUNCTIONS = {
 
 /* Function constants */
 const STRENGTH = .2;
-const MULT_FULL = 1 + STRENGTH;
-const DIV_FULL = 1 - STRENGTH;
-const ADD_FULL = STRENGTH;
-const SUB_FULL = -STRENGTH;
-
-const MULT_HALF = 1 + (STRENGTH / 2);
-const DIV_HALF = 1 - (STRENGTH / 2);
-const ADD_HALF = STRENGTH / 2;
-const SUB_HALF = -STRENGTH / 2;
+const MULTIPLY = 1 + STRENGTH;
+const DIVIDE = 1 - STRENGTH;
+const ADD = STRENGTH;
+const SUBTRACT = -STRENGTH;
 }
 /* #endregion 1) SETUP */
 
@@ -108,49 +103,49 @@ const SUB_HALF = -STRENGTH / 2;
 // W = Up
 function runW() {
   window.KEYBOARD_FORCE_X = 1;
-  window.KEYBOARD_FORCE_Y = TO_ZERO;
+  window.KEYBOARD_FORCE_Y = SUBTRACT;
 }
 
 // A = Left
 function runA() {
-  window.KEYBOARD_FORCE_X = TO_ZERO;
+  window.KEYBOARD_FORCE_X = SUBTRACT;
   window.KEYBOARD_FORCE_Y = 1;
 }
 
 // S = Down
 function runS() {
   window.KEYBOARD_FORCE_X = 1;
-  window.KEYBOARD_FORCE_Y = FROM_ZERO;
+  window.KEYBOARD_FORCE_Y = ADD;
 }
 
 // D = Right
 function runD() {
-  window.KEYBOARD_FORCE_X = FROM_ZERO;
+  window.KEYBOARD_FORCE_X = ADD;
   window.KEYBOARD_FORCE_Y = 1;
 }
 
 // Q = Left up
 function runQ() {
-  window.KEYBOARD_FORCE_X = TO_ZERO_HALF;
-  window.KEYBOARD_FORCE_Y = TO_ZERO_HALF;
+  window.KEYBOARD_FORCE_X = SUBTRACT / 2;
+  window.KEYBOARD_FORCE_Y = SUBTRACT / 2;
 }
 
 // E = Right up
 function runE() {
-  window.KEYBOARD_FORCE_X = HALF_FORCE;
-  window.KEYBOARD_FORCE_Y = TO_ZERO_HALF;
+  window.KEYBOARD_FORCE_X = ADD / 2;
+  window.KEYBOARD_FORCE_Y = SUBTRACT / 2;
 }
 
 // Z = Left down
 function runZ() {
-  window.KEYBOARD_FORCE_X = TO_ZERO_HALF;
-  window.KEYBOARD_FORCE_Y = HALF_FORCE;
+  window.KEYBOARD_FORCE_X = SUBTRACT / 2;
+  window.KEYBOARD_FORCE_Y = ADD / 2;
 }
 
 // X = Right down
 function runX() {
-  window.KEYBOARD_FORCE_X = HALF_FORCE;
-  window.KEYBOARD_FORCE_Y = HALF_FORCE;
+  window.KEYBOARD_FORCE_X = ADD / 2;
+  window.KEYBOARD_FORCE_Y = ADD / 2;
 }
 /* #endregion 2) GLOBAL MOVEMENT */
 
@@ -246,14 +241,14 @@ function runC() {
 
 // V = Less (v) speed
 function runV() {
-  window.KEYBOARD_FORCE_X = TO_ZERO;
-  window.KEYBOARD_FORCE_Y = TO_ZERO;
+  window.KEYBOARD_FORCE_X = DIVIDE;
+  window.KEYBOARD_FORCE_Y = DIVIDE;
 }
 
 // G = Greater (^) speed
 function runG() {
-  window.KEYBOARD_FORCE_X = FROM_ZERO;
-  window.KEYBOARD_FORCE_Y = FROM_ZERO;
+  window.KEYBOARD_FORCE_X = MULTIPLY;
+  window.KEYBOARD_FORCE_Y = MULTIPLY;
 }
 
 // O = Orbit
