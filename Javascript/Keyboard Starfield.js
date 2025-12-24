@@ -6,9 +6,6 @@
 //#region 1) SETUP
  *========================================*/
 
-const KEYBOARD_FORCE_X = window.KEYBOARD_FORCE_X;
-const KEYBOARD_FORCE_Y = window.KEYBOARD_FORCE_Y;
-
 /* Event listener */
 window.addEventListener("keydown", (event) => {
   
@@ -104,57 +101,50 @@ function getForceIncrease() {
 
 // W = Up
 function runW() {
-  KEYBOARD_FORCE_X = 0;
-  KEYBOARD_FORCE_Y = -getForceIncrease();
+  window.KEYBOARD_FORCE_X = 0;
+  window.KEYBOARD_FORCE_Y = -getForceIncrease();
 }
 
 // A = Left
 function runA() {
-  KEYBOARD_FORCE_X = 0;
-  KEYBOARD_FORCE_Y = 0;
-  return [-getForceIncrease(), 0];
+  window.KEYBOARD_FORCE_X = -getForceIncrease();
+  window.KEYBOARD_FORCE_Y = 0;
 }
 
 // S = Down
 function runS() {
-  KEYBOARD_FORCE_X = 0;
-  KEYBOARD_FORCE_Y = 0;
-  return [0, getForceIncrease()];
+  window.KEYBOARD_FORCE_X = 0;
+  window.KEYBOARD_FORCE_Y = getForceIncrease();
 }
 
 // D = Right
 function runD() {
-  KEYBOARD_FORCE_X = 0;
-  KEYBOARD_FORCE_Y = 0;
-  return [getForceIncrease(), 0];
+  window.KEYBOARD_FORCE_X = getForceIncrease();
+  window.KEYBOARD_FORCE_Y = 0;
 }
 
 // Q = Left up
 function runQ() {
-  KEYBOARD_FORCE_X = 0;
-  KEYBOARD_FORCE_Y = 0;
-  return [-getForceIncrease() / 2, -getForceIncrease() / 2];
+  window.KEYBOARD_FORCE_X = -getForceIncrease() / 2;
+  window.KEYBOARD_FORCE_Y = -getForceIncrease() / 2;
 }
 
 // E = Right up
 function runE() {
-  KEYBOARD_FORCE_X = 0;
-  KEYBOARD_FORCE_Y = 0;
-  return [getForceIncrease() / 2, -getForceIncrease() / 2];
+  window.KEYBOARD_FORCE_X = getForceIncrease() / 2;
+  window.KEYBOARD_FORCE_Y = -getForceIncrease() / 2;
 }
 
 // Z = Left down
 function runZ() {
-  KEYBOARD_FORCE_X = 0;
-  KEYBOARD_FORCE_Y = 0;
-  return [-getForceIncrease() / 2, getForceIncrease() / 2];
+  window.KEYBOARD_FORCE_X = -getForceIncrease() / 2;
+  window.KEYBOARD_FORCE_Y = getForceIncrease() / 2;
 }
 
 // X = Right down
 function runX() {
-  KEYBOARD_FORCE_X = 0;
-  KEYBOARD_FORCE_Y = 0;
-  return [getForceIncrease() / 2, getForceIncrease() / 2];
+  window.KEYBOARD_FORCE_X = getForceIncrease() / 2;
+  window.KEYBOARD_FORCE_Y = getForceIncrease() / 2;
 }
 /* #endregion 2) GLOBAL MOVEMENT */
 
@@ -163,56 +153,56 @@ function runX() {
  *========================================*/
 // Y = Top left
 function runY() {
-  KEYBOARD_FORCE_X = 0;
-  KEYBOARD_FORCE_Y = 0;
+  window.KEYBOARD_FORCE_X = 0;
+  window.KEYBOARD_FORCE_Y = 0;
 }
 
 // U = Top center
 function runU() {
-  KEYBOARD_FORCE_X = 0;
-  KEYBOARD_FORCE_Y = 0;
+  window.KEYBOARD_FORCE_X = 0;
+  window.KEYBOARD_FORCE_Y = 0;
 }
 
 // I = Top right
 function runI() {
-  KEYBOARD_FORCE_X = 0;
-  KEYBOARD_FORCE_Y = 0;
+  window.KEYBOARD_FORCE_X = 0;
+  window.KEYBOARD_FORCE_Y = 0;
 }
 
 // H = Middle left
 function runH() {
-  KEYBOARD_FORCE_X = 0;
-  KEYBOARD_FORCE_Y = 0;
+  window.KEYBOARD_FORCE_X = 0;
+  window.KEYBOARD_FORCE_Y = 0;
 }
 
 // J = Middle center
 function runJ() {
-  KEYBOARD_FORCE_X = 0;
-  KEYBOARD_FORCE_Y = 0;
+  window.KEYBOARD_FORCE_X = 0;
+  window.KEYBOARD_FORCE_Y = 0;
 }
 
 // K = Middle right
 function runK() {
-  KEYBOARD_FORCE_X = 0;
-  KEYBOARD_FORCE_Y = 0;
+  window.KEYBOARD_FORCE_X = 0;
+  window.KEYBOARD_FORCE_Y = 0;
 }
 
 // B = Bottom left
 function runB() {
-  KEYBOARD_FORCE_X = 0;
-  KEYBOARD_FORCE_Y = 0;
+  window.KEYBOARD_FORCE_X = 0;
+  window.KEYBOARD_FORCE_Y = 0;
 }
 
 // N = Bottom center
 function runN() {
-  KEYBOARD_FORCE_X = 0;
-  KEYBOARD_FORCE_Y = 0;
+  window.KEYBOARD_FORCE_X = 0;
+  window.KEYBOARD_FORCE_Y = 0;
 }
 
 // M = Bottom right
 function runM() {
-  KEYBOARD_FORCE_X = 0;
-  KEYBOARD_FORCE_Y = 0;
+  window.KEYBOARD_FORCE_X = 0;
+  window.KEYBOARD_FORCE_Y = 0;
 }
 /* #endregion 3) QUADRANT MAGNETISM */
 
@@ -221,26 +211,26 @@ function runM() {
  *========================================*/
 // R = Paddles left
 function runR() {
-  KEYBOARD_FORCE_X = 0;
-  KEYBOARD_FORCE_Y = 0;
+  window.KEYBOARD_FORCE_X = 0;
+  window.KEYBOARD_FORCE_Y = 0;
 }
 
 // T = Paddles right
 function runT() {
-  KEYBOARD_FORCE_X = 0;
-  KEYBOARD_FORCE_Y = 0;
+  window.KEYBOARD_FORCE_X = 0;
+  window.KEYBOARD_FORCE_Y = 0;
 }
 
 // F = Paddles up
 function runF() {
-  KEYBOARD_FORCE_X = 0;
-  KEYBOARD_FORCE_Y = 0;
+  window.KEYBOARD_FORCE_X = 0;
+  window.KEYBOARD_FORCE_Y = 0;
 }
 
 // C = Paddles down
 function runC() {
-  KEYBOARD_FORCE_X = 0;
-  KEYBOARD_FORCE_Y = 0;
+  window.KEYBOARD_FORCE_X = 0;
+  window.KEYBOARD_FORCE_Y = 0;
 }
 /* #endregion 4) PONG */
 
@@ -250,8 +240,7 @@ function runC() {
 
 // V = Velocity invert
 function runV() {
-  for (STAR in window.STARFIELD.starsList)
-  {
+  for (const STAR of window.STARFIELD.starList) {
     STAR.vx = -STAR.vx;
     STAR.vy = -STAR.vy;
   }
@@ -259,25 +248,25 @@ function runV() {
 
 // G = Grumble
 function runG() {
-  KEYBOARD_FORCE_X = 0;
-  KEYBOARD_FORCE_Y = 0;
+  window.KEYBOARD_FORCE_X = 0;
+  window.KEYBOARD_FORCE_Y = 0;
 }
 
 // O = Orbit
 function runO() {
-  KEYBOARD_FORCE_X = 0;
-  KEYBOARD_FORCE_Y = 0;
+  window.KEYBOARD_FORCE_X = 0;
+  window.KEYBOARD_FORCE_Y = 0;
 }
 
 // P = Poke burst
 function runP() {
-  KEYBOARD_FORCE_X = 0;
-  KEYBOARD_FORCE_Y = 0;
+  window.KEYBOARD_FORCE_X = 0;
+  window.KEYBOARD_FORCE_Y = 0;
 }
 
 // L = Link shatter
 function runL() {
-  KEYBOARD_FORCE_X = 0;
-  KEYBOARD_FORCE_Y = 0;
+  window.KEYBOARD_FORCE_X = 0;
+  window.KEYBOARD_FORCE_Y = 0;
 }
 /* #endregion 5) OTHERS */
