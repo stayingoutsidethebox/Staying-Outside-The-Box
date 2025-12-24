@@ -12,9 +12,7 @@ document.getElementById("dbgMisc")?.textContent = "L";
 /* Event listener */
 window.addEventListener("keydown", (event) => {
   
-    document.getElementById("dbgMisc")?.textContent = "K";
-  // Wait until webpage is ready
-  if (!STARFIELD?.starList?.length) return;
+  document.getElementById("dbgMisc")?.textContent = "K";
   
   // Ignore held-down repeats
   if (event.repeat) return;
