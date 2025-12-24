@@ -6,13 +6,15 @@
 
 // Debug version
 document.addEventListener("DOMContentLoaded", () => {
-  document.getElementById("dbgMisc")?.textContent = "5";
+  document.getElementById("dbgMisc")?.textContent = "L";
 });
 
 const STARFIELD = window.STARFIELD;
 
 /* Event listener */
 window.addEventListener("keydown", (event) => {
+  
+    document.getElementById("dbgMisc")?.textContent = "K";
   // Wait until webpage is ready
   if (!STARFIELD?.starList?.length) return;
   
@@ -27,6 +29,8 @@ window.addEventListener("keydown", (event) => {
 
 /* Key proccessing */
 function processKeyPress(KEY) {
+  
+    document.getElementById("dbgMisc")?.textContent = "P";
   
   // Step 1: normalize key into a lookup value
   const KEYBOARD_INPUT = String(KEY).toLowerCase();
@@ -122,6 +126,7 @@ function getForceIncrease() {
 
 // W = Up
 function runW(STAR) {
+    document.getElementById("dbgMisc")?.textContent = "W";
   return [0, getForceIncrease()];
 }
 
