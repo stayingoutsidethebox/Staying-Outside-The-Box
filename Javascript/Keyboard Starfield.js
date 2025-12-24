@@ -1,6 +1,6 @@
 // thank heavens for chatGPT <3
 
-alert("Debug car");
+//alert("Debug car");
 
 /*========================================*
 //#region 1) SETUP
