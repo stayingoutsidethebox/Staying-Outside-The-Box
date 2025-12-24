@@ -17,7 +17,7 @@
 //#region 1) PHYSICS
  *========================================*/
 
-window.MISC_VARIABLE = 3;
+window.MISC_VARIABLE ??= "NAN";
 
 (() => {
   const STARFIELD = window.STARFIELD;
