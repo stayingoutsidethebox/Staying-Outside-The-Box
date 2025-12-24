@@ -154,8 +154,8 @@
     }
     
     // Step 18: reset keybiard forces
-    window.KEYBOARD_FORCE_X = 0;
-    window.KEYBOARD_FORCE_Y = 0;
+    window.KEYBOARD_FORCE_X = 1;
+    window.KEYBOARD_FORCE_Y = 1;
 
     // Step 19: global decay for pointer speed
     STARFIELD.pointerSpeedUnits *= 0.5;
