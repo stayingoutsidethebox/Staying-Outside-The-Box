@@ -145,8 +145,6 @@ var STARFIELD = window.STARFIELD;
 
   /**
    * Safari timestamp normalization:
-   * Some browsers give epoch-ish event.timeStamp, others perf-ish, some 0.
-   * Output is always perf.now()-style.
    */
   STARFIELD.normalizePointerTimestampMs = function normalizePointerTimestampMs(RAW_TIMESTAMP) {
     // Step 1: If the timestamp is missing/invalid, use "now"
