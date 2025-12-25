@@ -17,24 +17,24 @@
 //#region 1) PHYSICS
  *========================================*/
 
-  var STARFIELD = window.STARFIELD;
+  var S = window.STARFIELD;
 
-  STARFIELD.updateStarPhysics = function updateStarPhysics() {
+  S.updateStarPhysics = function updateStarPhysics() {
     // Step 1: bail if nothing to simulate, otherwise get set up
-    if (!STARFIELD.isCanvasReady || !STARFIELD.starList.length) return;
+    if (!S.isCanvasReady || !S.starList.length) return;
 
-    const INFLUENCE_RANGE = STARFIELD.screenPerimeter * 0.2;
+    const INFLUENCE_RANGE = S.screenPerimeter * 0.2;
     const INFLUENCE_RANGE_SQ = INFLUENCE_RANGE * INFLUENCE_RANGE;
 
     const WRAP_DISTANCE_SQ = 200 * 200;
 
-    const SETTINGS = STARFIELD.interactionSettings;
-    const SCALE = STARFIELD.screenScalePowers;
+    const SETTINGS = S.interactionSettings;
+    const SCALE = S.screenScalePowers;
 
     // Step 2: update each star
-    for (const STAR of STARFIELD.starList) {
-      const POINTER_DELTA_X = STARFIELD.pointerClientX - STAR.x;
-      const POINTER_DELTA_Y = STARFIELD.pointerClientY - STAR.y;
+    for (const STAR of S.starList) {
+      const POINTER_DELTA_X = S.pointerClientX - STAR.x;
+      const POINTER_DELTA_Y = S.pointerClientY - STAR.y;
 
       // Step 3: squared distance first (cheap)
       const DISTANCE_SQ = POINTER_DELTA_X * POINTER_DELTA_X + POINTER_DELTA_Y * POINTER_DELTA_Y;
@@ -70,12 +70,12 @@
         // Step 7: compute forces
         const ATTRACTION_FORCE =
           ((SETTINGS.attractStrength * 0.006) * SCALE.attractionForce) *
-          STARFIELD.pointerSpeedUnits *
+          S.pointerSpeedUnits *
           ATTRACTION_SHAPE;
 
         const REPULSION_FORCE =
           ((SETTINGS.repelStrength * 0.0182) * SCALE.repulsionForce) *
-          STARFIELD.pointerSpeedUnits *
+          S.pointerSpeedUnits *
           REPULSION_SHAPE;
 
         // Step 8: apply attraction
@@ -87,14 +87,14 @@
         STAR.momentumY += REPULSION_FORCE * -UNIT_TO_POINTER_Y;
 
         // Step 10: apply poke impulse (repel-shaped)
-        const POKE_FORCE = (0.01 * SETTINGS.pokeStrength) * STARFIELD.pokeImpulseTimer * REPULSION_SHAPE;
+        const POKE_FORCE = (0.01 * SETTINGS.pokeStrength) * S.pokeImpulseTimer * REPULSION_SHAPE;
         STAR.momentumX += POKE_FORCE * -UNIT_TO_POINTER_X;
         STAR.momentumY += POKE_FORCE * -UNIT_TO_POINTER_Y;
       }
 
       // Step 11: baseline drift boosted by user interaction
-      STAR.momentumX += STAR.vx * Math.min(10, 0.05 * STARFIELD.pointerSpeedUnits);
-      STAR.momentumY += STAR.vy * Math.min(10, 0.05 * STARFIELD.pointerSpeedUnits);
+      STAR.momentumX += STAR.vx * Math.min(10, 0.05 * S.pointerSpeedUnits);
+      STAR.momentumY += STAR.vy * Math.min(10, 0.05 * S.pointerSpeedUnits);
       STAR.momentumX *= window.KEYBOARD.multX;
       STAR.momentumY *= window.KEYBOARD.multY;
       STAR.momentumX += window.KEYBOARD.addX;
@@ -122,22 +122,22 @@
       STAR.momentumY *= 0.98;
 
       // Step 15: wrap vs bounce (same conditions as before)
-      if (STARFIELD.pointerRingTimer === 0 || DISTANCE_SQ > WRAP_DISTANCE_SQ || STARFIELD.pokeImpulseTimer > 10) {
+      if (S.pointerRingTimer === 0 || DISTANCE_SQ > WRAP_DISTANCE_SQ || S.pokeImpulseTimer > 10) {
         const STAR_RADIUS = (STAR.whiteValue * 2 + STAR.size) || 0;
 
-        if (STAR.x < -STAR_RADIUS) STAR.x = STARFIELD.canvasWidth + STAR_RADIUS;
-        else if (STAR.x > STARFIELD.canvasWidth + STAR_RADIUS) STAR.x = -STAR_RADIUS;
+        if (STAR.x < -STAR_RADIUS) STAR.x = S.canvasWidth + STAR_RADIUS;
+        else if (STAR.x > S.canvasWidth + STAR_RADIUS) STAR.x = -STAR_RADIUS;
 
-        if (STAR.y < -STAR_RADIUS) STAR.y = STARFIELD.canvasHeight + STAR_RADIUS;
-        else if (STAR.y > STARFIELD.canvasHeight + STAR_RADIUS) STAR.y = -STAR_RADIUS;
+        if (STAR.y < -STAR_RADIUS) STAR.y = S.canvasHeight + STAR_RADIUS;
+        else if (STAR.y > S.canvasHeight + STAR_RADIUS) STAR.y = -STAR_RADIUS;
       } else {
         const STAR_RADIUS = (STAR.whiteValue * 2 + STAR.size) || 0;
 
         if (STAR.x < STAR_RADIUS) { STAR.x = 2 * STAR_RADIUS - STAR.x; STAR.momentumX = -STAR.momentumX; }
-        else if (STAR.x > STARFIELD.canvasWidth - STAR_RADIUS) { STAR.x = 2 * (STARFIELD.canvasWidth - STAR_RADIUS) - STAR.x; STAR.momentumX = -STAR.momentumX; }
+        else if (STAR.x > S.canvasWidth - STAR_RADIUS) { STAR.x = 2 * (S.canvasWidth - STAR_RADIUS) - STAR.x; STAR.momentumX = -STAR.momentumX; }
 
         if (STAR.y < STAR_RADIUS) { STAR.y = 2 * STAR_RADIUS - STAR.y; STAR.momentumY = -STAR.momentumY; }
-        else if (STAR.y > STARFIELD.canvasHeight - STAR_RADIUS) { STAR.y = 2 * (STARFIELD.canvasHeight - STAR_RADIUS) - STAR.y; STAR.momentumY = -STAR.momentumY; }
+        else if (STAR.y > S.canvasHeight - STAR_RADIUS) { STAR.y = 2 * (S.canvasHeight - STAR_RADIUS) - STAR.y; STAR.momentumY = -STAR.momentumY; }
       }
 
       // Step 16: flash decay
@@ -164,31 +164,31 @@
     window.KEYBOARD.addY = 0;
 
     // Step 19: global decay for pointer speed
-    STARFIELD.pointerSpeedUnits *= 0.5;
-    if (STARFIELD.pointerSpeedUnits < 0.001) STARFIELD.pointerSpeedUnits = 0;
+    S.pointerSpeedUnits *= 0.5;
+    if (S.pointerSpeedUnits < 0.001) S.pointerSpeedUnits = 0;
 
     // Step 20: ring behavior (grow then fade with pointerRingTimer)
-    STARFIELD.pointerRingTimer *= 0.95;
-    if (STARFIELD.pointerRingTimer < 1) {
-      STARFIELD.pointerRingTimer = 0;
+    S.pointerRingTimer *= 0.95;
+    if (S.pointerRingTimer < 1) {
+      S.pointerRingTimer = 0;
     }
 
     // Step 21: poke timer decay
-    STARFIELD.pokeImpulseTimer *= 0.85;
-    if (STARFIELD.pokeImpulseTimer < 1) STARFIELD.pokeImpulseTimer = 0;
+    S.pokeImpulseTimer *= 0.85;
+    if (S.pokeImpulseTimer < 1) S.pokeImpulseTimer = 0;
 
     // Step 22: debug readouts
     const MISC_READER = document.getElementById("dbgMisc");
     if (MISC_READER) MISC_READER.textContent = "NAN";
     
     const DEBUG_RING = document.getElementById("dbgCircle");
-    if (DEBUG_RING) DEBUG_RING.textContent = STARFIELD.pointerRingTimer.toFixed(3);
+    if (DEBUG_RING) DEBUG_RING.textContent = S.pointerRingTimer.toFixed(3);
 
     const DEBUG_SPEED = document.getElementById("dbgSpeed");
-    if (DEBUG_SPEED) DEBUG_SPEED.textContent = STARFIELD.pointerSpeedUnits.toFixed(3);
+    if (DEBUG_SPEED) DEBUG_SPEED.textContent = S.pointerSpeedUnits.toFixed(3);
 
     const DEBUG_POKE = document.getElementById("dbgPoke");
-    if (DEBUG_POKE) DEBUG_POKE.textContent = STARFIELD.pokeImpulseTimer.toFixed(1);
+    if (DEBUG_POKE) DEBUG_POKE.textContent = S.pokeImpulseTimer.toFixed(1);
   };
 
 /* #endregion 1) PHYSICS */
@@ -208,24 +208,24 @@
     }
   }
 
-  STARFIELD.renderStarsAndLinks = function renderStarsAndLinks() {
-    if (!STARFIELD.isCanvasReady || !STARFIELD.drawingContext) return;
+  S.renderStarsAndLinks = function renderStarsAndLinks() {
+    if (!S.isCanvasReady || !S.drawingContext) return;
 
-    const CONTEXT = STARFIELD.drawingContext;
+    const CONTEXT = S.drawingContext;
 
     // Step 1: clear canvas
-    CONTEXT.clearRect(0, 0, STARFIELD.canvasWidth, STARFIELD.canvasHeight);
+    CONTEXT.clearRect(0, 0, S.canvasWidth, S.canvasHeight);
 
     // Step 2: pointer ring sizing
-    const TARGET_RING_RADIUS = Math.max(0, STARFIELD.screenScaleUp * 100 - 40);
+    const TARGET_RING_RADIUS = Math.max(0, S.screenScaleUp * 100 - 40);
 
-    let RING_RADIUS = TARGET_RING_RADIUS * (STARFIELD.pointerRingTimer / 50);
-    let RING_WIDTH = STARFIELD.pointerRingTimer * 0.15;
-    let RING_ALPHA = Math.min(STARFIELD.pointerRingTimer * 0.07, 1);
+    let RING_RADIUS = TARGET_RING_RADIUS * (S.pointerRingTimer / 50);
+    let RING_WIDTH = S.pointerRingTimer * 0.15;
+    let RING_ALPHA = Math.min(S.pointerRingTimer * 0.07, 1);
 
     // Step 3: alternate ring behavior when pointer speed is zero (poke visualization)
-    if (STARFIELD.pointerSpeedUnits == 0) {
-      const NORMALIZED_POKE = Math.min(1, Math.max(0, STARFIELD.pokeImpulseTimer / 200));
+    if (S.pointerSpeedUnits == 0) {
+      const NORMALIZED_POKE = Math.min(1, Math.max(0, S.pokeImpulseTimer / 200));
       const INVERTED_POKE = 1 - NORMALIZED_POKE;
 
       RING_RADIUS = TARGET_RING_RADIUS * INVERTED_POKE;
@@ -241,7 +241,7 @@
       CONTEXT.globalAlpha = RING_ALPHA;
 
       CONTEXT.beginPath();
-      CONTEXT.arc(STARFIELD.pointerClientX, STARFIELD.pointerClientY, RING_RADIUS, 0, Math.PI * 2);
+      CONTEXT.arc(S.pointerClientX, S.pointerClientY, RING_RADIUS, 0, Math.PI * 2);
       CONTEXT.stroke();
       CONTEXT.restore();
     }
@@ -249,29 +249,29 @@
     // Step 5: draw links
     CONTEXT.lineWidth = 1;
 
-    const STAR_COUNT = STARFIELD.starList.length;
+    const STAR_COUNT = S.starList.length;
     if (STAR_COUNT) {
       // Step 5a: compute edge fade factor once per star
       for (let STAR_INDEX = 0; STAR_INDEX < STAR_COUNT; STAR_INDEX++) {
-        STARFIELD.starList[STAR_INDEX].edge = STARFIELD.getEdgeFadeFactor(STARFIELD.starList[STAR_INDEX]);
+        S.starList[STAR_INDEX].edge = S.getEdgeFadeFactor(S.starList[STAR_INDEX]);
       }
 
-      const DISTANCE_SCALE = STARFIELD.screenPerimeter / 500;
-      const RAW_CUTOFF = STARFIELD.maxLinkDistance / DISTANCE_SCALE;
+      const DISTANCE_SCALE = S.screenPerimeter / 500;
+      const RAW_CUTOFF = S.maxLinkDistance / DISTANCE_SCALE;
       const CUTOFF_DISTANCE_SQ = RAW_CUTOFF * RAW_CUTOFF;
 
       resetLinkPaths();
 
       // Step 5b: pairwise linking
       for (let STAR_A_INDEX = 0; STAR_A_INDEX < STAR_COUNT; STAR_A_INDEX++) {
-        const STAR_A = STARFIELD.starList[STAR_A_INDEX];
+        const STAR_A = S.starList[STAR_A_INDEX];
         const AX = STAR_A.x;
         const AY = STAR_A.y;
         const OPACITY_A = STAR_A.opacity;
         const EDGE_A = STAR_A.edge;
 
         for (let STAR_B_INDEX = STAR_A_INDEX + 1; STAR_B_INDEX < STAR_COUNT; STAR_B_INDEX++) {
-          const STAR_B = STARFIELD.starList[STAR_B_INDEX];
+          const STAR_B = S.starList[STAR_B_INDEX];
 
           const DELTA_X = AX - STAR_B.x;
           const DELTA_Y = AY - STAR_B.y;
@@ -283,7 +283,7 @@
 
           const MIN_OPACITY = Math.min(OPACITY_A, STAR_B.opacity);
           const MIN_EDGE = Math.min(EDGE_A, STAR_B.edge);
-          const DISTANCE_FADE = 1 - (SCALED_DISTANCE / STARFIELD.maxLinkDistance);
+          const DISTANCE_FADE = 1 - (SCALED_DISTANCE / S.maxLinkDistance);
 
           let LINK_ALPHA = Math.max(0, DISTANCE_FADE) * MIN_OPACITY * MIN_EDGE;
           if (LINK_ALPHA <= 0.002) continue;
@@ -308,7 +308,7 @@
     }
 
     // Step 6: draw star bodies
-    for (const STAR of STARFIELD.starList) {
+    for (const STAR of S.starList) {
       let TEMP_RED = 255 * STAR.whiteValue + STAR.redValue;
       if (TEMP_RED > 255) TEMP_RED = 255;
 
@@ -327,58 +327,59 @@
 //#region 3) USER INPUT
  *========================================*/
 
-  STARFIELD.updatePointerSpeed = function updatePointerSpeed(CURRENT_X, CURRENT_Y) {
-    const NOW_MS = STARFIELD.getNowMs();
+  S.updatePointerSpeed = function updatePointerSpeed(CURRENT_X, CURRENT_Y) {
+    const NOW_MS = S.getNowMs();
 
     // Step 1: initialize baseline if this is the first event
-    if (!STARFIELD.lastPointerTimeMs) {
-      STARFIELD.pointerClientX = CURRENT_X;
-      STARFIELD.pointerClientY = CURRENT_Y;
-      STARFIELD.lastPointerTimeMs = NOW_MS;
-      STARFIELD.pointerSpeedUnits = 0;
+    if (!S.lastPointerTimeMs) {
+      S.pointerClientX = CURRENT_X;
+      S.pointerClientY = CURRENT_Y;
+      S.lastPointerTimeMs = NOW_MS;
+      S.pointerSpeedUnits = 0;
       return;
     }
 
     // Step 2: compute dt (at least 1ms)
-    const DELTA_TIME_MS = Math.max(1, NOW_MS - STARFIELD.lastPointerTimeMs);
+    const DELTA_TIME_MS = Math.max(1, NOW_MS - S.lastPointerTimeMs);
 
     // Step 3: compute dx/dy
-    const DELTA_X = CURRENT_X - STARFIELD.pointerClientX;
-    const DELTA_Y = CURRENT_Y - STARFIELD.pointerClientY;
+    const DELTA_X = CURRENT_X - S.pointerClientX;
+    const DELTA_Y = CURRENT_Y - S.pointerClientY;
 
     // Step 4: compute speed per ms and scale into “units”
     const RAW_SPEED = Math.sqrt(DELTA_X * DELTA_X + DELTA_Y * DELTA_Y) / DELTA_TIME_MS;
-    STARFIELD.pointerSpeedUnits = Math.min(RAW_SPEED * 50, 50);
+    S.pointerSpeedUnits = S.screenScaleDown * Math.min(RAW_SPEED * 50, 50) 
+    ;
 
     // Step 5: ring timer is driven by max(pointerRingTimer, speed)
-    STARFIELD.pointerRingTimer = Math.max(STARFIELD.pointerRingTimer, STARFIELD.pointerSpeedUnits);
+    S.pointerRingTimer = Math.max(S.pointerRingTimer, S.pointerSpeedUnits);
 
     // Step 6: store current as new baseline
-    STARFIELD.pointerClientX = CURRENT_X;
-    STARFIELD.pointerClientY = CURRENT_Y;
-    STARFIELD.lastPointerTimeMs = NOW_MS;
+    S.pointerClientX = CURRENT_X;
+    S.pointerClientY = CURRENT_Y;
+    S.lastPointerTimeMs = NOW_MS;
   };
 
-  STARFIELD.beginPointerInteraction = function beginPointerInteraction(START_X, START_Y) {
+  S.beginPointerInteraction = function beginPointerInteraction(START_X, START_Y) {
     // Step 1: apply poke impulse
-    STARFIELD.pokeImpulseTimer = 200;
+    S.pokeImpulseTimer = 200;
 
     // Step 2: reset time baseline so first update is clean
-    STARFIELD.lastPointerTimeMs = 0;
+    S.lastPointerTimeMs = 0;
 
     // Step 3: feed the first point
-    STARFIELD.updatePointerSpeed(START_X, START_Y);
+    S.updatePointerSpeed(START_X, START_Y);
   };
 
   // Mouse
   window.addEventListener("mousedown", (EVENT) =>
-    STARFIELD.beginPointerInteraction(EVENT.clientX, EVENT.clientY)
+    S.beginPointerInteraction(EVENT.clientX, EVENT.clientY)
   );
   
   // Pointer move (mouse, stylus, trackpad)
   window.addEventListener("pointermove", (EVENT) => {
     if (EVENT.pointerType === "touch") return;
-    STARFIELD.updatePointerSpeed(EVENT.clientX, EVENT.clientY);
+    S.updatePointerSpeed(EVENT.clientX, EVENT.clientY);
   });
   
   // Touch
@@ -387,7 +388,7 @@
     (EVENT) => {
       const TOUCH = EVENT.touches[0];
       if (!TOUCH) return;
-      STARFIELD.beginPointerInteraction(TOUCH.clientX, TOUCH.clientY);
+      S.beginPointerInteraction(TOUCH.clientX, TOUCH.clientY);
     },
     { passive: true }
   );
@@ -398,7 +399,7 @@
     (EVENT) => {
       const TOUCH = EVENT.touches[0];
       if (!TOUCH) return;
-      STARFIELD.updatePointerSpeed(TOUCH.clientX, TOUCH.clientY);
+      S.updatePointerSpeed(TOUCH.clientX, TOUCH.clientY);
     },
     { passive: true }
   );
