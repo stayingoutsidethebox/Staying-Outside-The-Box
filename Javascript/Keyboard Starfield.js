@@ -103,49 +103,49 @@ const NEGATIVE = -STRENGTH;
 // W = Up
 function runW() {
   // X
-  window.KEYBOARD.multY = NEGATIVE;
+  window.KEYBOARD.addY = NEGATIVE;
 }
 
 // A = Left
 function runA() {
-  window.KEYBOARD.multX = NEGATIVE;
+  window.KEYBOARD.addX = NEGATIVE;
   // Y
 }
 
 // S = Down
 function runS() {
   // X
-  window.KEYBOARD.multY = POSITIVE;
+  window.KEYBOARD.addY = POSITIVE;
 }
 
 // D = Right
 function runD() {
-  window.KEYBOARD.multX = POSITIVE;
+  window.KEYBOARD.addX = POSITIVE;
   // Y
 }
 
 // Q = Left up
 function runQ() {
-  window.KEYBOARD.multX = NEGATIVE / 2;
-  window.KEYBOARD.multY = NEGATIVE / 2;
+  window.KEYBOARD.addX = NEGATIVE / 2;
+  window.KEYBOARD.addY = NEGATIVE / 2;
 }
 
 // E = Right up
 function runE() {
-  window.KEYBOARD.multX = POSITIVE / 2;
-  window.KEYBOARD.multY = NEGATIVE / 2;
+  window.KEYBOARD.addX = POSITIVE / 2;
+  window.KEYBOARD.addY = NEGATIVE / 2;
 }
 
 // Z = Left down
 function runZ() {
-  window.KEYBOARD.multX = NEGATIVE / 2;
-  window.KEYBOARD.multY = POSITIVE / 2;
+  window.KEYBOARD.addX = NEGATIVE / 2;
+  window.KEYBOARD.addY = POSITIVE / 2;
 }
 
 // X = Right down
 function runX() {
-  window.KEYBOARD.multX = POSITIVE / 2;
-  window.KEYBOARD.multY = POSITIVE / 2;
+  window.KEYBOARD.addX = POSITIVE / 2;
+  window.KEYBOARD.addY = POSITIVE / 2;
 }
 /* #endregion 2) GLOBAL MOVEMENT */
 
@@ -228,14 +228,14 @@ function runC() {
 
 // V = Less (v) speed
 function runV() {
-  window.KEYBOARD.addX = DIVIDE;
-  window.KEYBOARD.addY = DIVIDE;
+  window.KEYBOARD.multX = DIVIDE;
+  window.KEYBOARD.multY = DIVIDE;
 }
 
 // G = Greater (^) speed
 function runG() {
-  window.KEYBOARD.addX = MULTIPLY;
-  window.KEYBOARD.addY = MULTIPLY;
+  window.KEYBOARD.multX = MULTIPLY;
+  window.KEYBOARD.multY = MULTIPLY;
 }
 
 // O = Orbit
