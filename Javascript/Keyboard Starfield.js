@@ -88,7 +88,7 @@ const KEY_FUNCTIONS = {
 };
 
 /* Function constants */
-const STRENGTH = 8;
+const STRENGTH = 0.8;
 const MULTIPLY = 1 + STRENGTH;
 const DIVIDE = 1 - STRENGTH;
 const POSITIVE = STRENGTH;
