@@ -18,7 +18,6 @@
  *========================================*/
 
   var STARFIELD = window.STARFIELD;
-  var KEYBOARD = window.KEYBOARD;
 
   STARFIELD.updateStarPhysics = function updateStarPhysics() {
     // Step 1: bail if nothing to simulate, otherwise get set up
@@ -94,8 +93,8 @@
       }
 
       // Step 11: baseline drift boosted by user interaction
-      STAR.momentumX += STAR.vx * Math.min(10, 0.05 * STARFIELD.pointerSpeedUnits) * KEYBOARD.multX + KEYBOARD.addX;
-      STAR.momentumY += STAR.vy * Math.min(10, 0.05 * STARFIELD.pointerSpeedUnits) * KEYBOARD.multY + KEYBOARD.addY;
+      STAR.momentumX += STAR.vx * Math.min(10, 0.05 * STARFIELD.pointerSpeedUnits) * window.KEYBOARD.multX + window.KEYBOARD.addX;
+      STAR.momentumY += STAR.vy * Math.min(10, 0.05 * STARFIELD.pointerSpeedUnits) * window.KEYBOARD.multY + window.KEYBOARD.addY;
 
       // Step 12: clamp force magnitude (prevents runaway)
       let FORCE_X = STAR.momentumX;
@@ -155,10 +154,10 @@
     }
     
     // Step 18: reset keyboard forces
-    KEYBOARD.multX = 1;
-    KEYBOARD.multY = 1;
-    KEYBOARD.addX = 0;
-    KEYBOARD.addY = 0;
+    window.KEYBOARD.multX = 1;
+    window.KEYBOARD.multY = 1;
+    window.KEYBOARD.addX = 0;
+    window.KEYBOARD.addY = 0;
 
     // Step 19: global decay for pointer speed
     STARFIELD.pointerSpeedUnits *= 0.5;
