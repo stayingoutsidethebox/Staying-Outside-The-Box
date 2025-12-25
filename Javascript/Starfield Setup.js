@@ -24,13 +24,8 @@
 //#region 1) STARFIELD NAMESPACE + CANVAS
  *========================================*/
 
-window.STARFIELD = {};
-window.KEYBOARD = {
-  multX: 1,
-  multY: 1,
-  addX: 0,
-  addY: 0
-};
+window.STARFIELD = window.STARFIELD ||= {};
+window.KEYBOARD = window.KEYBOARD ||= { multX: 1, multY: 1, addX: 0, addY: 0 };
 var STARFIELD = window.STARFIELD;
 
   // Step 1: Find the canvas element
@@ -307,7 +302,7 @@ var STARFIELD = window.STARFIELD;
         size: STARFIELD.randomBetween(Math.min(MIN_SIZE, MAX_SIZE), Math.max(MIN_SIZE, MAX_SIZE)),
         opacity: STARFIELD.randomBetween(0.005, 1.8),
         fadeSpeed: STARFIELD.randomBetween(1, 2.1),
-        redValue: STARFIELD.randomBetween(100, 200),
+        redValue: STARFIELD.randomBetween(50, 200),
         whiteValue: 0,
         momentumX: 0,
         momentumY: 0,
