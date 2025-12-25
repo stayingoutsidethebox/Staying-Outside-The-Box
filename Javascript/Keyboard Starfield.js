@@ -6,8 +6,6 @@ alert("Debug man");
 //#region 1) SETUP
  *========================================*/
 
-var KEYBOARD = window.KEYBOARD;
-
 /* Event listener */
 window.addEventListener("keydown", (event) => {
   
@@ -105,49 +103,49 @@ const NEGATIVE = -STRENGTH;
 // W = Up
 function runW() {
   // X
-  KEYBOARD.multY = NEGATIVE;
+  window.KEYBOARD.multY = NEGATIVE;
 }
 
 // A = Left
 function runA() {
-  KEYBOARD.multX = NEGATIVE;
+  window.KEYBOARD.multX = NEGATIVE;
   // Y
 }
 
 // S = Down
 function runS() {
   // X
-  KEYBOARD.multY = POSITIVE;
+  window.KEYBOARD.multY = POSITIVE;
 }
 
 // D = Right
 function runD() {
-  KEYBOARD.multX = POSITIVE;
+  window.KEYBOARD.multX = POSITIVE;
   // Y
 }
 
 // Q = Left up
 function runQ() {
-  KEYBOARD.multX = NEGATIVE / 2;
-  KEYBOARD.multY = NEGATIVE / 2;
+  window.KEYBOARD.multX = NEGATIVE / 2;
+  window.KEYBOARD.multY = NEGATIVE / 2;
 }
 
 // E = Right up
 function runE() {
-  KEYBOARD.multX = POSITIVE / 2;
-  KEYBOARD.multY = NEGATIVE / 2;
+  window.KEYBOARD.multX = POSITIVE / 2;
+  window.KEYBOARD.multY = NEGATIVE / 2;
 }
 
 // Z = Left down
 function runZ() {
-  KEYBOARD.multX = NEGATIVE / 2;
-  KEYBOARD.multY = POSITIVE / 2;
+  window.KEYBOARD.multX = NEGATIVE / 2;
+  window.KEYBOARD.multY = POSITIVE / 2;
 }
 
 // X = Right down
 function runX() {
-  KEYBOARD.multX = POSITIVE / 2;
-  KEYBOARD.multY = POSITIVE / 2;
+  window.KEYBOARD.multX = POSITIVE / 2;
+  window.KEYBOARD.multY = POSITIVE / 2;
 }
 /* #endregion 2) GLOBAL MOVEMENT */
 
@@ -230,14 +228,14 @@ function runC() {
 
 // V = Less (v) speed
 function runV() {
-  KEYBOARD.addX = DIVIDE;
-  KEYBOARD.addY = DIVIDE;
+  window.KEYBOARD.addX = DIVIDE;
+  window.KEYBOARD.addY = DIVIDE;
 }
 
 // G = Greater (^) speed
 function runG() {
-  KEYBOARD.addX = MULTIPLY;
-  KEYBOARD.addY = MULTIPLY;
+  window.KEYBOARD.addX = MULTIPLY;
+  window.KEYBOARD.addY = MULTIPLY;
 }
 
 // O = Orbit
