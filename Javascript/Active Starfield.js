@@ -95,11 +95,7 @@
       // Step 11: baseline drift boosted by user interaction
       STAR.momentumX += STAR.vx * Math.min(10, 0.05 * S.pointerSpeedUnits);
       STAR.momentumY += STAR.vy * Math.min(10, 0.05 * S.pointerSpeedUnits);
-      STAR.momentumX *= window.KEYBOARD.multX;
-      STAR.momentumY *= window.KEYBOARD.multY;
-      STAR.momentumX += window.KEYBOARD.addX;
-      STAR.momentumY += window.KEYBOARD.addY;
-            
+      
       // Step 12: clamp force magnitude (prevents runaway)
       let FORCE_X = STAR.momentumX;
       let FORCE_Y = STAR.momentumY;
@@ -112,6 +108,12 @@
         FORCE_X *= FORCE_SCALE;
         FORCE_Y *= FORCE_SCALE;
       }
+      
+      // Step ?: add keyboard influence
+      STAR.momentumX *= window.KEYBOARD.multX;
+      STAR.momentumY *= window.KEYBOARD.multY;
+      STAR.momentumX += window.KEYBOARD.addX;
+      STAR.momentumY += window.KEYBOARD.addY;
 
       // Step 13: integrate
       STAR.x += STAR.vx + FORCE_X;
