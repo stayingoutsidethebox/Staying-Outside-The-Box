@@ -96,7 +96,15 @@
       STAR.momentumX += STAR.vx * Math.min(10, 0.05 * S.pointerSpeedUnits);
       STAR.momentumY += STAR.vy * Math.min(10, 0.05 * S.pointerSpeedUnits);
       
-      // Step 12: clamp force magnitude (prevents runaway)
+      // Step 12: clamp momentum magnitude
+      const MOMENTUM_MAG = Math.sqrt(STAR.momentumX * STAR.momentumX + STAR.momentumY * STAR.momentumY);
+
+      if (MOMENTUM_MAG > 5) {
+        const MOMENTUM_SCALE = 5 / MOMENTUM_MAG;
+        FORCE_X *= FORCE_SCALE;
+        FORCE_Y *= FORCE_SCALE;
+      
+      // Step 13: clamp single frame magnitude
       let FORCE_X = STAR.momentumX;
       let FORCE_Y = STAR.momentumY;
 
@@ -109,21 +117,21 @@
         FORCE_Y *= FORCE_SCALE;
       }
       
-      // Step ?: add keyboard influence
+      // Step 14: add keyboard influence
       STAR.momentumX *= window.KEYBOARD.multX;
       STAR.momentumY *= window.KEYBOARD.multY;
       STAR.momentumX += window.KEYBOARD.addX;
       STAR.momentumY += window.KEYBOARD.addY;
 
-      // Step 13: integrate
+      // Step 15: integrate
       STAR.x += STAR.vx + FORCE_X;
       STAR.y += STAR.vy + FORCE_Y;
 
-      // Step 14: friction
+      // Step 16: friction
       STAR.momentumX *= 0.98;
       STAR.momentumY *= 0.98;
 
-      // Step 15: wrap vs bounce (same conditions as before)
+      // Step 17: wrap vs bounce (same conditions as before)
       if (S.pointerRingTimer === 0 || DISTANCE_SQ > WRAP_DISTANCE_SQ || S.pokeImpulseTimer > 10) {
         const STAR_RADIUS = (STAR.whiteValue * 2 + STAR.size) || 0;
 
@@ -142,13 +150,13 @@
         else if (STAR.y > S.canvasHeight - STAR_RADIUS) { STAR.y = 2 * (S.canvasHeight - STAR_RADIUS) - STAR.y; STAR.momentumY = -STAR.momentumY; }
       }
 
-      // Step 16: flash decay
+      // Step 18: flash decay
       if (STAR.whiteValue > 0) {
         STAR.whiteValue *= 0.98;
         if (STAR.whiteValue < 0.001) STAR.whiteValue = 0;
       }
 
-      // Step 17: opacity cycle
+      // Step 19: opacity cycle
       if (STAR.opacity <= 0.005) {
         STAR.opacity = 1;
         if (Math.random() < 0.07) STAR.whiteValue = 1;
@@ -159,27 +167,27 @@
       }
     }
     
-    // Step 18: reset keyboard forces
+    // Step 20: reset keyboard forces
     window.KEYBOARD.multX = 1;
     window.KEYBOARD.multY = 1;
     window.KEYBOARD.addX = 0;
     window.KEYBOARD.addY = 0;
 
-    // Step 19: global decay for pointer speed
+    // Step 21: global decay for pointer speed
     S.pointerSpeedUnits *= 0.5;
     if (S.pointerSpeedUnits < 0.001) S.pointerSpeedUnits = 0;
 
-    // Step 20: ring behavior (grow then fade with pointerRingTimer)
+    // Step 22: ring behavior (grow then fade with pointerRingTimer)
     S.pointerRingTimer *= 0.95;
     if (S.pointerRingTimer < 1) {
       S.pointerRingTimer = 0;
     }
 
-    // Step 21: poke timer decay
+    // Step 23: poke timer decay
     S.pokeImpulseTimer *= 0.85;
     if (S.pokeImpulseTimer < 1) S.pokeImpulseTimer = 0;
 
-    // Step 22: debug readouts
+    // Step 24: debug readouts
     const MISC_READER = document.getElementById("dbgMisc");
     if (MISC_READER) MISC_READER.textContent = S.starList[0].momentumX;
     
