@@ -53,7 +53,7 @@ const STAR_SPRITES = {
   IMG.loading = "eager";
   IMG.onload = () => { STAR_SPRITES.ready = true; };
   IMG.onerror = () => { STAR_SPRITES.ready = false; }; // if missing, you’ll see nothing (by design)
-  IMG.src = "/Resources/Star1.webp";
+  IMG.src = "/Resources/Star.webp";
   STAR_SPRITES.img = IMG;
 })();
 
