@@ -417,6 +417,9 @@ S.createNewStars = function createNewStars() {
         Math.max(MIN_SIZE, MAX_SIZE)
       ), // Base size used by rendering
 
+      // Rotation
+      rotation: Math.random() * Math.PI * 2,
+
       opacity: S.randomBetween(0.005, 1.8), // Start opacity for twinkle cycle
       fadeSpeed: S.randomBetween(1, 2.1), // Twinkle fade speed multiplier
 
