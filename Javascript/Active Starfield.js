@@ -397,24 +397,34 @@ S.renderStarsAndLinks = function renderStarsAndLinks() {
     CONTEXT.globalAlpha = STAR.opacity;
     CONTEXT.drawImage(IMG, X, Y, SIZE, SIZE);
 
-    // Darkness from redValue (50..200 -> darker..brighter)
+        // Darkness from redValue (50..200 -> darker..brighter)
     let t = (STAR.redValue - 50) / 150;
     if (t < 0) t = 0;
     if (t > 1) t = 1;
 
     const DARKNESS = 0.15 + 0.55 * (1 - t);
 
+    // Circle mask (prevents square flicker)
+    const CX = STAR.x;
+    const CY = STAR.y;
+    const CR = SIZE * 0.48; // tweak: 0.45..0.5 depending on your sprite padding
+
+    // Darken inside circle only
     CONTEXT.globalCompositeOperation = "source-atop";
     CONTEXT.globalAlpha = STAR.opacity * DARKNESS;
     CONTEXT.fillStyle = "rgba(0, 0, 0, 1)";
-    CONTEXT.fillRect(X, Y, SIZE, SIZE);
+    CONTEXT.beginPath();
+    CONTEXT.arc(CX, CY, CR, 0, Math.PI * 2);
+    CONTEXT.fill();
 
-    // Optional: white flash brightening
+    // White flash brighten inside circle only
     if (STAR.whiteValue > 0.01) {
       CONTEXT.globalCompositeOperation = "lighter";
       CONTEXT.globalAlpha = STAR.opacity * (STAR.whiteValue > 1 ? 1 : STAR.whiteValue);
       CONTEXT.fillStyle = "rgba(255, 255, 255, 1)";
-      CONTEXT.fillRect(X, Y, SIZE, SIZE);
+      CONTEXT.beginPath();
+      CONTEXT.arc(CX, CY, CR, 0, Math.PI * 2);
+      CONTEXT.fill();
     }
 
     CONTEXT.restore();
