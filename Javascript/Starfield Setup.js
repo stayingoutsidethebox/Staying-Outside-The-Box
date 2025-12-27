@@ -504,7 +504,7 @@ var S = window.STARFIELD;
     
     // Step 5: compute star/link caps
     S.starCountLimit = Math.min(450, S.screenScaleDown * 126);
-    S.maxLinkDistance = S.screenScaleUp * 2000;
+    S.maxLinkDistance = S.screenScaleUp ** 3 * 1600;
 
     // Step 6: compute physics scaling powers
     S.screenScalePowers.attractionGradient = S.screenScaleUp ** 1.11;
