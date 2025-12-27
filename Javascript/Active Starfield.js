@@ -9,14 +9,6 @@
  *   1) Physics (updateStarPhysics)
  *   2) Rendering (renderStarsAndLinks)
  *   3) User input (updatePointerSpeed + listeners)
- *
- *  PERF:
- *   - Links rebuild every 3 frames (fast pointer forces immediate rebuild)
- *   - Debug DOM refs cached + updated at ~10fps (if debug elements exist)
- *   - Star sprites (WebP) with opacity/twinkle preserved
- *   - Darkness driven by STAR.redValue (no extra per-star fields)
- *   - Faster edge fade (keeps radius in edge check)
- *   - Physics is time-scaled (dt normalized to 60fps units)
  *==============================================================*/
 
 //alert("Debug HAT"); // Optional debug tripwire: confirms this file loaded
@@ -25,7 +17,7 @@
 //#region 0) PERF HELPERS
  *========================================*/
 
-// Grab the shared STARFIELD state created by Setup.js
+// Grab the shared STARFIELD state created by Starfield Setup.js
 var S = window.STARFIELD;
 
 /*---------- Debug refs cached (NOT on STARFIELD) ----------*/
@@ -38,7 +30,7 @@ const DBG = {
   lastMs: 0       // Tracks last time we updated debug text (throttle to ~10fps)
 };
 
-// Look up optional debug elements (they may not exist on most pages)
+// Look up optional debug elements (they don't exist on most pages)
 DBG.misc = document.getElementById("dbgMisc");     // Debug readout: misc
 DBG.circle = document.getElementById("dbgCircle"); // Debug readout: ring timer
 DBG.speed = document.getElementById("dbgSpeed");   // Debug readout: pointer speed
@@ -81,8 +73,8 @@ let LINK_FRAME = 0;
 // Flag used to force an immediate link rebuild (ex: fast pointer movement)
 let LINKS_DIRTY = true;
 
-/*---------- Faster edge fade (keeps radius) ----------*/
-function getEdgeFadeFastWithRadius(STAR) {
+/*---------- Links fade near the edges ----------*/
+function getEdgeDistance(STAR) {
   // Approximate star "radius" based on how large it draws on screen
   const STAR_RADIUS = (STAR.whiteValue * 2 + STAR.size) || 0;
 
@@ -585,7 +577,7 @@ S.renderStarsAndLinks = function renderStarsAndLinks() {
       // Update each star's cached edge fade factor
       for (let i = 0; i < STAR_COUNT; i++) {
         // Store computed edge fade on the star for later link alpha use
-        S.starList[i].edge = getEdgeFadeFastWithRadius(S.starList[i]);
+        S.starList[i].edge = getEdgeDistance(S.starList[i]);
       }
 
       // Convert raw pixel distance into a scaled distance space
