@@ -212,7 +212,7 @@ S.updateStarPhysics = function updateStarPhysics() {
 
       // Compute attraction force based on settings, screen scale, pointer energy, and shape
       const ATTRACTION_FORCE =
-        ((SETTINGS.attractStrength * 0.00435) * SCALE.attractionForce) *
+        ((SETTINGS.attractStrength * 0.0044) * SCALE.attractionForce) *
         S.pointerSpeedUnits *
         ATTRACTION_SHAPE;
 
