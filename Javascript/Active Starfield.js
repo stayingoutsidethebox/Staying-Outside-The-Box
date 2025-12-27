@@ -163,7 +163,7 @@ S.updateStarPhysics = function updateStarPhysics() {
       );
 
       const ATTRACTION_FORCE =
-        ((SETTINGS.attractStrength * 0.0045) * SCALE.attractionForce) *
+        ((SETTINGS.attractStrength * 0.00435) * SCALE.attractionForce) *
         S.pointerSpeedUnits *
         ATTRACTION_SHAPE;
 
