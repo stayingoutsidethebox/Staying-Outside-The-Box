@@ -87,12 +87,16 @@ const KEY_FUNCTIONS = {
   l: () => runL()
 };
 
-/* Function constants */
+/* CONSTANTS */
 const STRENGTH = 0.8;
 const MULTIPLY = 1 + STRENGTH;
 const DIVIDE = 1 - STRENGTH;
 const POSITIVE = STRENGTH;
 const NEGATIVE = -STRENGTH;
+
+/* PADDLES */
+let HORIZONTAL_PADDLES = 50;// 1-100 for screen width %
+let VERTICAL_PADDLES = 50;
 
 /* #endregion 1) SETUP */
 
@@ -203,22 +207,22 @@ function runM() {
  *========================================*/
 // R = Paddles left
 function runR() {
-  
+  HORIZONTAL_PADDLES -= 5;
 }
 
 // T = Paddles right
 function runT() {
-  
+  HORIZONTAL_PADDLES += 5;
 }
 
 // F = Paddles up
 function runF() {
-  
+  VERTICAL_PADDLES -= 5;
 }
 
 // C = Paddles down
 function runC() {
-  
+  VERTICAL_PADDLES += 5;
 }
 /* #endregion 4) PONG */
 
