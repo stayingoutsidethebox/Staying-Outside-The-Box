@@ -16,6 +16,7 @@
  *   - Star sprites (WebP) with opacity/twinkle preserved
  *   - Darkness driven by STAR.redValue (no extra per-star fields)
  *   - Faster edge fade (keeps radius in edge check)
+ *   - Physics is time-scaled (dt normalized to 60fps units)
  *==============================================================*/
 
 //alert("Debug HAT");
@@ -52,7 +53,7 @@ const STAR_SPRITES = {
   IMG.decoding = "async";
   IMG.loading = "eager";
   IMG.onload = () => { STAR_SPRITES.ready = true; };
-  IMG.onerror = () => { STAR_SPRITES.ready = false; }; // if missing, you’ll see nothing (by design)
+  IMG.onerror = () => { STAR_SPRITES.ready = false; };
   IMG.src = "/Resources/Star.webp";
   STAR_SPRITES.img = IMG;
 })();
@@ -74,11 +75,24 @@ function getEdgeFadeFastWithRadius(STAR) {
 
   const FADE_BAND = Math.min(90, S.screenPerimeter * 0.03) || 1;
 
-  // clamp 0..1 (branchy but cheap)
   let t = MIN_EDGE_DISTANCE <= 0 ? 0 : MIN_EDGE_DISTANCE >= FADE_BAND ? 1 : (MIN_EDGE_DISTANCE / FADE_BAND);
-
-  // cheap easing
   return t * t;
+}
+
+/*---------- Time scaling helpers ----------*/
+const FRAME_MS = 1000 / 60;
+
+function clampDtMs(dtMs) {
+  // prevents tab-sleep teleport + mega forces
+  if (dtMs < 0) return 0;
+  if (dtMs > 50) return 50; // ~3 frames at 60fps
+  return dtMs;
+}
+
+function decayPerFrameToDt(basePerFrame, dtFrames) {
+  // convert "multiply by basePerFrame each frame" to time-based
+  // e.g. 0.98 per frame -> 0.98^dtFrames
+  return Math.pow(basePerFrame, dtFrames);
 }
 
 /* #endregion 0) PERF HELPERS */
@@ -90,8 +104,16 @@ function getEdgeFadeFastWithRadius(STAR) {
  *========================================*/
 
 S.updateStarPhysics = function updateStarPhysics() {
-  // Step 1: bail if nothing to simulate
   if (!S.starList.length) return;
+
+  // dt in ms, then normalized to "60fps frames"
+  const NOW = S.getNowMs();
+  const LAST = S.lastPhysicsMs || NOW;
+  const dtMs = clampDtMs(NOW - LAST);
+  S.lastPhysicsMs = NOW;
+
+  const dt = dtMs / FRAME_MS; // 1.0 at 60fps
+  if (dt <= 0) return;
 
   const INFLUENCE_RANGE = S.screenPerimeter * 0.2;
   const INFLUENCE_RANGE_SQ = INFLUENCE_RANGE * INFLUENCE_RANGE;
@@ -101,22 +123,26 @@ S.updateStarPhysics = function updateStarPhysics() {
   const SETTINGS = S.interactionSettings;
   const SCALE = S.screenScalePowers;
 
+  // time-based decays derived from your per-frame tuning
+  const MOMENTUM_DECAY = decayPerFrameToDt(0.98, dt);
+  const WHITE_DECAY = decayPerFrameToDt(0.98, dt);
+  const POINTER_SPEED_DECAY = decayPerFrameToDt(0.5, dt);
+  const RING_DECAY = decayPerFrameToDt(0.95, dt);
+  const POKE_DECAY = decayPerFrameToDt(0.85, dt);
+
   // Step 2: update each star
   for (const STAR of S.starList) {
     const POINTER_DELTA_X = S.pointerClientX - STAR.x;
     const POINTER_DELTA_Y = S.pointerClientY - STAR.y;
 
-    // Step 3: squared distance first (cheap)
     const DISTANCE_SQ = POINTER_DELTA_X * POINTER_DELTA_X + POINTER_DELTA_Y * POINTER_DELTA_Y;
 
-    // Step 4: only do expensive math if close enough
     if (DISTANCE_SQ < INFLUENCE_RANGE_SQ) {
       const DISTANCE = Math.sqrt(DISTANCE_SQ) + 0.0001;
 
       const UNIT_TO_POINTER_X = POINTER_DELTA_X / DISTANCE;
       const UNIT_TO_POINTER_Y = POINTER_DELTA_Y / DISTANCE;
 
-      // Step 5: linear falloff gradients (0..1)
       let ATTRACTION_GRADIENT =
         1 - (DISTANCE / (((SETTINGS.attractRadius * 5.2) * SCALE.attractionGradient) || 1));
 
@@ -126,7 +152,6 @@ S.updateStarPhysics = function updateStarPhysics() {
       ATTRACTION_GRADIENT = Math.max(0, ATTRACTION_GRADIENT);
       REPULSION_GRADIENT = Math.max(0, REPULSION_GRADIENT);
 
-      // Step 6: curve the gradients
       const ATTRACTION_SHAPE = Math.pow(
         ATTRACTION_GRADIENT,
         Math.max(0.1, ((SETTINGS.attractScale * 0.48) * SCALE.attractionShape))
@@ -137,7 +162,6 @@ S.updateStarPhysics = function updateStarPhysics() {
         Math.max(0.1, (SETTINGS.repelScale * 0.64))
       );
 
-      // Step 7: compute forces
       const ATTRACTION_FORCE =
         ((SETTINGS.attractStrength * 0.006) * SCALE.attractionForce) *
         S.pointerSpeedUnits *
@@ -148,31 +172,30 @@ S.updateStarPhysics = function updateStarPhysics() {
         S.pointerSpeedUnits *
         REPULSION_SHAPE;
 
-      // Step 8: apply attraction
-      STAR.momentumX += ATTRACTION_FORCE * UNIT_TO_POINTER_X;
-      STAR.momentumY += ATTRACTION_FORCE * UNIT_TO_POINTER_Y;
+      // APPLY dt so force feels consistent across FPS
+      STAR.momentumX += (ATTRACTION_FORCE * UNIT_TO_POINTER_X) * dt;
+      STAR.momentumY += (ATTRACTION_FORCE * UNIT_TO_POINTER_Y) * dt;
 
-      // Step 9: apply repulsion
-      STAR.momentumX += REPULSION_FORCE * -UNIT_TO_POINTER_X;
-      STAR.momentumY += REPULSION_FORCE * -UNIT_TO_POINTER_Y;
+      STAR.momentumX += (REPULSION_FORCE * -UNIT_TO_POINTER_X) * dt;
+      STAR.momentumY += (REPULSION_FORCE * -UNIT_TO_POINTER_Y) * dt;
 
-      // Step 10: apply poke impulse (repel-shaped)
       const POKE_FORCE = (0.01 * SETTINGS.pokeStrength) * S.pokeImpulseTimer * REPULSION_SHAPE;
-      STAR.momentumX += POKE_FORCE * -UNIT_TO_POINTER_X;
-      STAR.momentumY += POKE_FORCE * -UNIT_TO_POINTER_Y;
+      STAR.momentumX += (POKE_FORCE * -UNIT_TO_POINTER_X) * dt;
+      STAR.momentumY += (POKE_FORCE * -UNIT_TO_POINTER_Y) * dt;
     }
 
-    // Step 11: baseline drift boosted by user interaction
-    STAR.momentumX += STAR.vx * Math.min(10, 0.05 * S.pointerSpeedUnits);
-    STAR.momentumY += STAR.vy * Math.min(10, 0.05 * S.pointerSpeedUnits);
+    // baseline drift boosted by interaction (dt-scaled)
+    const DRIFT_BOOST = Math.min(10, 0.05 * S.pointerSpeedUnits);
+    STAR.momentumX += (STAR.vx * DRIFT_BOOST) * dt;
+    STAR.momentumY += (STAR.vy * DRIFT_BOOST) * dt;
 
-    // Step 12: add keyboard influence
+    // keyboard influence is “instant”, leave it unscaled
     STAR.momentumX *= window.KEYBOARD.multX;
     STAR.momentumY *= window.KEYBOARD.multY;
     STAR.momentumX += window.KEYBOARD.addX;
     STAR.momentumY += window.KEYBOARD.addY;
 
-    // Step 13: clamp momentum magnitude
+    // clamp momentum magnitude (keep behavior stable)
     const MOMENTUM_LIMIT = 2 * SETTINGS.clamp * SCALE.forceClamp;
     const MOMENTUM_MAG = Math.sqrt(STAR.momentumX * STAR.momentumX + STAR.momentumY * STAR.momentumY);
 
@@ -182,15 +205,15 @@ S.updateStarPhysics = function updateStarPhysics() {
       STAR.momentumY *= MOMENTUM_SCALE;
     }
 
-    // Step 15: integrate
-    STAR.x += STAR.vx + STAR.momentumX;
-    STAR.y += STAR.vy + STAR.momentumY;
+    // integrate (dt-scaled)
+    STAR.x += (STAR.vx + STAR.momentumX) * dt;
+    STAR.y += (STAR.vy + STAR.momentumY) * dt;
 
-    // Step 16: friction
-    STAR.momentumX *= 0.98;
-    STAR.momentumY *= 0.98;
+    // friction (time-based)
+    STAR.momentumX *= MOMENTUM_DECAY;
+    STAR.momentumY *= MOMENTUM_DECAY;
 
-    // Step 17: wrap vs bounce (radius check prevents pop)
+    // wrap vs bounce (radius check prevents pop)
     if (S.pointerRingTimer === 0 || DISTANCE_SQ > WRAP_DISTANCE_SQ || S.pokeImpulseTimer > 10) {
       const STAR_RADIUS = (STAR.whiteValue * 2 + STAR.size) || 0;
 
@@ -209,44 +232,43 @@ S.updateStarPhysics = function updateStarPhysics() {
       else if (STAR.y > S.canvasHeight - STAR_RADIUS) { STAR.y = 2 * (S.canvasHeight - STAR_RADIUS) - STAR.y; STAR.momentumY = -STAR.momentumY; }
     }
 
-    // Step 18: flash decay
+    // flash decay (time-based)
     if (STAR.whiteValue > 0) {
-      STAR.whiteValue *= 0.98;
+      STAR.whiteValue *= WHITE_DECAY;
       if (STAR.whiteValue < 0.001) STAR.whiteValue = 0;
     }
 
-    // Step 19: opacity cycle
+    // opacity cycle (time-based)
+    // previously: -0.005*fadeSpeed per frame when >0.02
+    // now: multiply by dt
     if (STAR.opacity <= 0.005) {
       STAR.opacity = 1;
       if (Math.random() < 0.07) STAR.whiteValue = 1;
     } else if (STAR.opacity > 0.02) {
-      STAR.opacity -= 0.005 * STAR.fadeSpeed;
+      STAR.opacity -= (0.005 * STAR.fadeSpeed) * dt;
     } else {
-      STAR.opacity -= 0.0001;
+      STAR.opacity -= 0.0001 * dt;
     }
   }
 
-  // Step 20: reset keyboard forces
+  // reset keyboard forces
   window.KEYBOARD.multX = 1;
   window.KEYBOARD.multY = 1;
   window.KEYBOARD.addX = 0;
   window.KEYBOARD.addY = 0;
 
-  // Step 21: global decay for pointer speed
-  S.pointerSpeedUnits *= 0.5;
+  // global decay (time-based)
+  S.pointerSpeedUnits *= POINTER_SPEED_DECAY;
   if (S.pointerSpeedUnits < 0.001) S.pointerSpeedUnits = 0;
 
-  // Step 22: ring behavior
-  S.pointerRingTimer *= 0.95;
+  S.pointerRingTimer *= RING_DECAY;
   if (S.pointerRingTimer < 1) S.pointerRingTimer = 0;
 
-  // Step 23: poke timer decay
-  S.pokeImpulseTimer *= 0.85;
+  S.pokeImpulseTimer *= POKE_DECAY;
   if (S.pokeImpulseTimer < 1) S.pokeImpulseTimer = 0;
 
-  // Step 24: debug readouts (10fps) if elements exist
+  // debug readouts (10fps) if elements exist
   if (DBG.misc || DBG.circle || DBG.speed || DBG.poke) {
-    const NOW = S.getNowMs();
     if (NOW - DBG.lastMs >= 100) {
       DBG.lastMs = NOW;
       if (DBG.misc) DBG.misc.textContent = S.starList[0].momentumX;
@@ -277,17 +299,14 @@ function resetLinkPaths() {
 S.renderStarsAndLinks = function renderStarsAndLinks() {
   const CONTEXT = S.drawingContext;
 
-  // Step 1: clear canvas
   CONTEXT.clearRect(0, 0, S.canvasWidth, S.canvasHeight);
 
-  // Step 2: pointer ring sizing
   const TARGET_RING_RADIUS = Math.max(0, S.screenScaleUp * 100 - 40);
 
   let RING_RADIUS = TARGET_RING_RADIUS * (S.pointerRingTimer / 50);
   let RING_WIDTH = S.pointerRingTimer * 0.15;
   let RING_ALPHA = Math.min(S.pointerRingTimer * 0.07, 1);
 
-  // Step 3: alternate ring behavior when pointer speed is zero (poke visualization)
   if (S.pointerSpeedUnits == 0) {
     const NORMALIZED_POKE = Math.min(1, Math.max(0, S.pokeImpulseTimer / 200));
     const INVERTED_POKE = 1 - NORMALIZED_POKE;
@@ -297,7 +316,6 @@ S.renderStarsAndLinks = function renderStarsAndLinks() {
     RING_ALPHA = NORMALIZED_POKE;
   }
 
-  // Step 4: draw the ring if visible
   if (RING_ALPHA > 0.001) {
     CONTEXT.save();
     CONTEXT.lineWidth = RING_WIDTH;
@@ -310,7 +328,7 @@ S.renderStarsAndLinks = function renderStarsAndLinks() {
     CONTEXT.restore();
   }
 
-  // Step 5: draw links (rebuild every 3 frames, fast pointer forces rebuild)
+  // links
   CONTEXT.lineWidth = 1;
 
   const STAR_COUNT = S.starList.length;
@@ -324,7 +342,6 @@ S.renderStarsAndLinks = function renderStarsAndLinks() {
     if (SHOULD_REBUILD_LINKS) {
       LINKS_DIRTY = false;
 
-      // edge fade once per rebuild
       for (let i = 0; i < STAR_COUNT; i++) {
         S.starList[i].edge = getEdgeFadeFastWithRadius(S.starList[i]);
       }
@@ -370,7 +387,6 @@ S.renderStarsAndLinks = function renderStarsAndLinks() {
       }
     }
 
-    // stroke cached buckets every frame
     for (let i = 0; i < LINK_BUCKET_COUNT; i++) {
       const A = i / (LINK_BUCKET_COUNT - 1);
       if (A <= 0) continue;
@@ -380,9 +396,8 @@ S.renderStarsAndLinks = function renderStarsAndLinks() {
     }
   }
 
-  // Step 6: draw star bodies (sprite only)
+  // stars
   if (!STAR_SPRITES.ready) return;
-
   const IMG = STAR_SPRITES.img;
 
   for (const STAR of S.starList) {
@@ -392,24 +407,20 @@ S.renderStarsAndLinks = function renderStarsAndLinks() {
     const X = STAR.x - SIZE / 2;
     const Y = STAR.y - SIZE / 2;
 
-    // Base sprite with twinkle alpha
     CONTEXT.save();
     CONTEXT.globalAlpha = STAR.opacity;
     CONTEXT.drawImage(IMG, X, Y, SIZE, SIZE);
 
-        // Darkness from redValue (50..200 -> darker..brighter)
     let t = (STAR.redValue - 50) / 150;
     if (t < 0) t = 0;
     if (t > 1) t = 1;
 
     const DARKNESS = 0.15 + 0.55 * (1 - t);
 
-    // Circle mask (prevents square flicker)
     const CX = STAR.x;
     const CY = STAR.y;
-    const CR = SIZE * 0.48; // tweak: 0.45..0.5 depending on your sprite padding
+    const CR = SIZE * 0.48;
 
-    // Darken inside circle only
     CONTEXT.globalCompositeOperation = "source-atop";
     CONTEXT.globalAlpha = STAR.opacity * DARKNESS;
     CONTEXT.fillStyle = "rgba(0, 0, 0, 1)";
@@ -417,7 +428,6 @@ S.renderStarsAndLinks = function renderStarsAndLinks() {
     CONTEXT.arc(CX, CY, CR, 0, Math.PI * 2);
     CONTEXT.fill();
 
-    // White flash brighten inside circle only
     if (STAR.whiteValue > 0.01) {
       CONTEXT.globalCompositeOperation = "lighter";
       CONTEXT.globalAlpha = STAR.opacity * (STAR.whiteValue > 1 ? 1 : STAR.whiteValue);
