@@ -24,6 +24,7 @@
 //#region 1) STARFIELD NAMESPACE + CANVAS
  *========================================*/
 
+/* GLOBAL CONTAINERS */
 // Create the global STARFIELD namespace container
 window.STARFIELD = {};
 
@@ -33,6 +34,7 @@ window.KEYBOARD = { multX: 1, multY: 1, addX: 0, addY: 0 };
 // Create a short alias for the STARFIELD namespace
 var S = window.STARFIELD;
 
+/* CANVAS WIRING */
 // Find the canvas element by id (required for the starfield)
 S.constellationCanvas = document.getElementById("constellations");
 
@@ -45,7 +47,7 @@ S.drawingContext =
 // Record whether canvas drawing is actually available
 S.isCanvasReady = !!(S.constellationCanvas && S.drawingContext);
 
-// If the canvas is missing, warn and silently disable starfield behavior
+// Warn and disable starfield behavior when canvas is missing or unsupported
 if (!S.isCanvasReady) {
   console.warn("Constellation canvas not found or unsupported; starfield disabled.");
 }
@@ -53,11 +55,11 @@ if (!S.isCanvasReady) {
 // Track whether the simulation should pause (ex: navigation / transitions)
 S.isFrozen = false;
 
-/* POINTER STATE (Active file updates these) */
-// Track the current pointer position in client coordinates
+/* POINTER STATE (Active updates these) */
+// Track the current pointer X position in client coordinates
 S.pointerClientX = 0;
 
-// Track the current pointer position in client coordinates
+// Track the current pointer Y position in client coordinates
 S.pointerClientY = 0;
 
 // Track the last pointer timestamp baseline (perf-style ms)
@@ -72,30 +74,30 @@ S.pokeImpulseTimer = 0;
 // Track the ring timer used to animate the pointer ring
 S.pointerRingTimer = 0;
 
-/* CANVAS SIZING + SCALING (Setup owns resize) */
-// Store the canvas pixel width
+/* CANVAS METRICS (Setup updates these) */
+// Track the current canvas pixel width used for physics + drawing
 S.canvasWidth = 0;
 
-// Store the canvas pixel height
+// Track the current canvas pixel height used for physics + drawing
 S.canvasHeight = 0;
 
-// Store the screen perimeter proxy used for scaling (width + height)
+// Track a simple "screen size" proxy used for scaling (width + height)
 S.screenPerimeter = 0;
 
-// Store the "scale up" factor used to grow values on large screens
+// Track the scale-up factor used to grow values on large screens
 S.screenScaleUp = 0;
 
-// Store the "scale down" factor used to reduce values on small screens
+// Track the scale-down factor used to normalize values on small screens
 S.screenScaleDown = 0;
 
-// Store the computed maximum number of stars allowed for this screen size
+// Track the computed maximum number of stars allowed for this screen size
 S.starCountLimit = 0;
 
-// Store the computed maximum link distance for this screen size
+// Track the computed maximum link distance for this screen size
 S.maxLinkDistance = 0;
 
 /* PRECOMPUTED PHYSICS SCALING POWERS (Setup writes, Active reads) */
-// Store scaling multipliers used by physics so physics stays screen-consistent
+// Store scaling multipliers so physics stays screen-consistent without recomputing exponents per star
 S.screenScalePowers = {
   attractionGradient: 1, // Scales attraction radius math for larger screens
   repulsionGradient: 1,  // Scales repulsion radius math for larger screens
@@ -132,66 +134,38 @@ S.saveStarfieldToStorage = function saveStarfieldToStorage() {
   if (!S.isCanvasReady) return;
 
   try {
-    // Save the star list under the legacy key for compatibility
+    // Persist the star list under a stable key (kept for compatibility)
     localStorage.setItem("constellationStars", JSON.stringify(S.starList));
 
-    // Save meta info under the legacy key for compatibility
+    // Persist the meta object under a stable key (kept for compatibility)
     localStorage.setItem(
       "constellationMeta",
       JSON.stringify({
-        // Save canvas size so we can rescale stars on restore
-        width: S.canvasWidth,
+        /* CANVAS SIZE (used to rescale stars on restore) */
+        width: S.canvasWidth,   // Save canvas width so we can rescale X later
+        height: S.canvasHeight, // Save canvas height so we can rescale Y later
 
-        // Save canvas size so we can rescale stars on restore
-        height: S.canvasHeight,
+        /* POINTER + TIMERS (used to resume interaction visuals smoothly) */
+        pokeTimer: S.pokeImpulseTimer,   // Save poke timer so poke resumes smoothly
+        userSpeed: S.pointerSpeedUnits,  // Save pointer speed so energy resumes smoothly
+        userX: S.pointerClientX,         // Save pointer X so ring resumes at correct position
+        userY: S.pointerClientY,         // Save pointer Y so ring resumes at correct position
+        userTime: S.lastPointerTimeMs,   // Save pointer time baseline (legacy / optional)
+        ringTimer: S.pointerRingTimer,   // Save ring timer so ring resumes smoothly
 
-        /* POINTER + TIMERS */
-        // Save poke timer so poke resumes smoothly
-        pokeTimer: S.pokeImpulseTimer,
-
-        // Save pointer speed so motion energy resumes smoothly
-        userSpeed: S.pointerSpeedUnits,
-
-        // Save pointer X so the ring resumes at the right position
-        userX: S.pointerClientX,
-
-        // Save pointer Y so the ring resumes at the right position
-        userY: S.pointerClientY,
-
-        // Save pointer timing baseline (mostly legacy)
-        userTime: S.lastPointerTimeMs,
-
-        // Save ring timer so the ring resumes smoothly
-        ringTimer: S.pointerRingTimer,
-
-        /* UI PARAMS */
-        // Save attraction strength slider value
-        attractStrength: S.interactionSettings.attractStrength,
-
-        // Save attraction radius slider value
-        attractRadius: S.interactionSettings.attractRadius,
-
-        // Save attraction curve slider value
-        attractScale: S.interactionSettings.attractScale,
-
-        // Save clamp slider value
-        clamp: S.interactionSettings.clamp,
-
-        // Save repulsion strength slider value
-        repelStrength: S.interactionSettings.repelStrength,
-
-        // Save repulsion radius slider value
-        repelRadius: S.interactionSettings.repelRadius,
-
-        // Save repulsion curve slider value
-        repelScale: S.interactionSettings.repelScale,
-
-        // Save poke strength slider value
-        pokeStrength: S.interactionSettings.pokeStrength
+        /* UI PARAMS (restore controller settings across reloads) */
+        attractStrength: S.interactionSettings.attractStrength, // Save attraction strength slider value
+        attractRadius: S.interactionSettings.attractRadius,     // Save attraction radius slider value
+        attractScale: S.interactionSettings.attractScale,       // Save attraction curve slider value
+        clamp: S.interactionSettings.clamp,                     // Save clamp slider value
+        repelStrength: S.interactionSettings.repelStrength,     // Save repulsion strength slider value
+        repelRadius: S.interactionSettings.repelRadius,         // Save repulsion radius slider value
+        repelScale: S.interactionSettings.repelScale,           // Save repulsion curve slider value
+        pokeStrength: S.interactionSettings.pokeStrength        // Save poke strength slider value
       })
     );
   } catch (ERROR) {
-    // Warn but do not crash if storage is blocked or full
+    // Storage can fail (private mode, quota, blocked), so warn and continue
     console.warn("Could not save stars:", ERROR);
   }
 };
@@ -204,6 +178,7 @@ S.saveStarfieldToStorage = function saveStarfieldToStorage() {
 //#region 3) UTILITIES
  *========================================*/
 
+/* TIME BASE */
 // Return a high-resolution timestamp in milliseconds when possible
 S.getNowMs = function getNowMs() {
   // Prefer performance.now() for stable deltas, fallback to Date.now()
@@ -211,16 +186,16 @@ S.getNowMs = function getNowMs() {
 };
 
 /**
- * Safari timestamp normalization:
+ * SAFARI TIMESTAMP NORMALIZATION
  * Convert pointer event timestamps into the same "perf-style ms" space as performance.now().
  */
 S.normalizePointerTimestampMs = function normalizePointerTimestampMs(RAW_TIMESTAMP) {
-  // If the timestamp is missing/invalid, use "now" so deltas stay safe
+  // Use "now" when the timestamp is missing/invalid so deltas stay safe
   if (!Number.isFinite(RAW_TIMESTAMP) || RAW_TIMESTAMP <= 0) return S.getNowMs();
 
-  // If it's epoch-like, convert to perf-style using timeOrigin when available
+  // Translate epoch-style timestamps into perf-style ms using timeOrigin when possible
   if (RAW_TIMESTAMP > 1e12) {
-    // Use timeOrigin to translate epoch ms into performance.now ms space
+    // Convert epoch ms into performance.now() space when timeOrigin exists
     if (performance && Number.isFinite(performance.timeOrigin)) {
       return RAW_TIMESTAMP - performance.timeOrigin;
     }
@@ -229,17 +204,19 @@ S.normalizePointerTimestampMs = function normalizePointerTimestampMs(RAW_TIMESTA
     return S.getNowMs();
   }
 
-  // Otherwise it already looks perf-ish, return as-is
+  // Return as-is when it already looks like a perf.now timestamp
   return RAW_TIMESTAMP;
 };
 
+/* RANDOM HELPERS */
 // Return a random float between MIN_VALUE and MAX_VALUE
 S.randomBetween = (MIN_VALUE, MAX_VALUE) =>
   Math.random() * (MAX_VALUE - MIN_VALUE) + MIN_VALUE;
 
+/* EDGE FADE */
 /** Return 0 at/beyond wrap threshold, 1 safely away from edges */
 S.getEdgeFadeFactor = function getEdgeFadeFactor(STAR) {
-  // Compute a "radius" that roughly matches how big the star draws
+  // Approximate star "radius" based on how large it draws on screen
   const STAR_RADIUS = (STAR.whiteValue * 2 + STAR.size) || 0;
 
   // Measure padded distance to the left edge
@@ -254,19 +231,19 @@ S.getEdgeFadeFactor = function getEdgeFadeFactor(STAR) {
   // Measure padded distance to the bottom edge
   const DIST_BOTTOM = S.canvasHeight + STAR_RADIUS - STAR.y;
 
-  // Find the closest edge distance (worst case)
+  // Find the closest edge distance (worst-case direction)
   const MIN_EDGE_DISTANCE = Math.min(DIST_LEFT, DIST_RIGHT, DIST_TOP, DIST_BOTTOM);
 
-  // Define a fade band (cap at 90px, scale slightly with screen)
+  // Define how wide the fade band is near edges (cap keeps it stable and cheap)
   const FADE_BAND = Math.min(90, S.screenPerimeter * 0.03);
 
-  // Convert distance into a 0..1 factor
+  // Convert closest distance into a 0..1 fade factor
   let T = MIN_EDGE_DISTANCE / FADE_BAND;
 
-  // Clamp the factor to 0 at the low end
+  // Clamp fade factor at the low end
   if (T < 0) T = 0;
 
-  // Clamp the factor to 1 at the high end
+  // Clamp fade factor at the high end
   if (T > 1) T = 1;
 
   // Smoothstep the fade so it eases instead of linear snapping
@@ -286,23 +263,24 @@ S.restoreOrCreateStars = function restoreOrCreateStars() {
   // Bail if canvas isn't active so we don't create unusable state
   if (!S.isCanvasReady) return;
 
+  /* LOAD STAR LIST */
   // Attempt to read saved stars from localStorage
   let RAW_STARS_JSON = null;
 
   // Read the saved star JSON (storage can throw in private mode)
   try { RAW_STARS_JSON = localStorage.getItem("constellationStars"); } catch {}
 
-  // If no save exists, create new stars and exit
+  // Create new stars when no saved data exists
   if (!RAW_STARS_JSON) {
     S.createNewStars();
     return;
   }
 
   try {
-    // Parse saved star list
+    // Parse saved star list from JSON
     const PARSED_STARS = JSON.parse(RAW_STARS_JSON);
 
-    // Validate the parsed data before adopting it
+    // Regenerate if parsed data is not a usable array
     if (!Array.isArray(PARSED_STARS) || !PARSED_STARS.length) {
       S.createNewStars();
       return;
@@ -311,17 +289,18 @@ S.restoreOrCreateStars = function restoreOrCreateStars() {
     // Adopt saved stars (keep star object shape unchanged for compatibility)
     S.starList = PARSED_STARS;
 
+    /* LOAD META */
     // Attempt to read saved meta from localStorage
     let RAW_META_JSON = null;
 
     // Read the meta JSON (storage can throw in private mode)
     try { RAW_META_JSON = localStorage.getItem("constellationMeta"); } catch {}
 
-    // If no meta exists, keep stars but skip restoring UI/state
+    // Skip meta restore when meta is missing (stars alone are still valid)
     if (!RAW_META_JSON) return;
 
     try {
-      // Parse saved meta object
+      // Parse saved meta object from JSON
       const META = JSON.parse(RAW_META_JSON);
 
       /* RESCALE STARS */
@@ -338,9 +317,9 @@ S.restoreOrCreateStars = function restoreOrCreateStars() {
 
         // Apply rescale to each star position and size
         for (const STAR of S.starList) {
-          STAR.x *= SCALE_X;
-          STAR.y *= SCALE_Y;
-          STAR.size *= SIZE_SCALE;
+          STAR.x *= SCALE_X;       // Scale X position into the new canvas space
+          STAR.y *= SCALE_Y;       // Scale Y position into the new canvas space
+          STAR.size *= SIZE_SCALE; // Scale size so stars feel consistent after resize
         }
       }
 
@@ -348,42 +327,42 @@ S.restoreOrCreateStars = function restoreOrCreateStars() {
       // Restore poke timer (or default to 0)
       S.pokeImpulseTimer = META.pokeTimer ?? 0;
 
-      // Restore pointer speed (or default to 0)
+      // Restore pointer speed energy (or default to 0)
       S.pointerSpeedUnits = META.userSpeed ?? 0;
 
       // Restore ring timer (or default to 0)
       S.pointerRingTimer = META.ringTimer ?? 0;
 
       /* RESTORE UI SETTINGS */
-      // Restore attraction strength slider value (fallback to current)
+      // Restore attraction strength (fallback to current)
       S.interactionSettings.attractStrength =
         META.attractStrength ?? S.interactionSettings.attractStrength;
 
-      // Restore attraction radius slider value (fallback to current)
+      // Restore attraction radius (fallback to current)
       S.interactionSettings.attractRadius =
         META.attractRadius ?? S.interactionSettings.attractRadius;
 
-      // Restore attraction curve slider value (fallback to current)
+      // Restore attraction curve (fallback to current)
       S.interactionSettings.attractScale =
         META.attractScale ?? S.interactionSettings.attractScale;
 
-      // Restore clamp slider value (fallback to current)
+      // Restore momentum clamp (fallback to current)
       S.interactionSettings.clamp =
         META.clamp ?? S.interactionSettings.clamp;
 
-      // Restore repulsion strength slider value (fallback to current)
+      // Restore repulsion strength (fallback to current)
       S.interactionSettings.repelStrength =
         META.repelStrength ?? S.interactionSettings.repelStrength;
 
-      // Restore repulsion radius slider value (fallback to current)
+      // Restore repulsion radius (fallback to current)
       S.interactionSettings.repelRadius =
         META.repelRadius ?? S.interactionSettings.repelRadius;
 
-      // Restore repulsion curve slider value (fallback to current)
+      // Restore repulsion curve (fallback to current)
       S.interactionSettings.repelScale =
         META.repelScale ?? S.interactionSettings.repelScale;
 
-      // Restore poke strength slider value (fallback to current)
+      // Restore poke strength (fallback to current)
       S.interactionSettings.pokeStrength =
         META.pokeStrength ?? S.interactionSettings.pokeStrength;
 
@@ -398,11 +377,11 @@ S.restoreOrCreateStars = function restoreOrCreateStars() {
       // Reset pointer timing baseline to “now” so the next delta is sane
       S.lastPointerTimeMs = S.getNowMs();
     } catch (ERROR) {
-      // Warn but keep stars if meta is corrupted
+      // Meta can be corrupted, so warn and keep stars
       console.warn("Could not parse constellationMeta; skipping meta restore.", ERROR);
     }
   } catch (ERROR) {
-    // Warn and regenerate if stars JSON is corrupted
+    // Stars JSON can be corrupted, so warn and regenerate
     console.warn("Could not parse constellationStars; recreating.", ERROR);
     S.createNewStars();
   }
@@ -416,29 +395,40 @@ S.createNewStars = function createNewStars() {
   // Clear any existing stars before rebuilding
   S.starList = [];
 
+  /* STAR SIZE LIMITS */
   // Define the minimum allowed star size
   const MIN_SIZE = 3;
 
   // Define the maximum allowed star size (scaled by screen)
   const MAX_SIZE = S.screenPerimeter / 400 || 3;
 
+  /* BUILD STARS */
   // Create each star object (keep fields stable for storage compatibility)
   for (let STAR_INDEX = 0; STAR_INDEX < S.starCountLimit; STAR_INDEX++) {
     S.starList.push({
-      x: Math.random() * S.canvasWidth,                                        // Random start X
-      y: Math.random() * S.canvasHeight,                                       // Random start Y
-      vx: S.randomBetween(-0.25, 0.25),                                        // Passive drift X
-      vy: S.randomBetween(-0.25, 0.25),                                        // Passive drift Y
-      size: S.randomBetween(Math.min(MIN_SIZE, MAX_SIZE), Math.max(MIN_SIZE, MAX_SIZE)), // Base size
-      opacity: S.randomBetween(0.005, 1.8),                                    // Start opacity for twinkle cycle
-      fadeSpeed: S.randomBetween(1, 2.1),                                      // Twinkle fade speed
-      redValue: S.randomBetween(50, 200),                                      // Redness used for darkness overlay
-      whiteValue: 0,                                                           // White flash intensity
-      momentumX: 0,                                                            // Accumulated momentum X
-      momentumY: 0,                                                            // Accumulated momentum Y
-      edge: 1,                                                                 // Cached edge fade factor
-      keyboardForceX: 0,                                                       // Keyboard force X (legacy/optional)
-      keyboardForceY: 0                                                        // Keyboard force Y (legacy/optional)
+      x: Math.random() * S.canvasWidth, // Spawn X uniformly across the canvas
+      y: Math.random() * S.canvasHeight, // Spawn Y uniformly across the canvas
+
+      vx: S.randomBetween(-0.25, 0.25), // Passive drift velocity X
+      vy: S.randomBetween(-0.25, 0.25), // Passive drift velocity Y
+
+      size: S.randomBetween(
+        Math.min(MIN_SIZE, MAX_SIZE),
+        Math.max(MIN_SIZE, MAX_SIZE)
+      ), // Base size used by rendering
+
+      opacity: S.randomBetween(0.005, 1.8), // Start opacity for twinkle cycle
+      fadeSpeed: S.randomBetween(1, 2.1), // Twinkle fade speed multiplier
+
+      redValue: S.randomBetween(50, 200), // Redness used by the darkness overlay
+      whiteValue: 0, // White flash intensity (set by Active physics/twinkle)
+
+      momentumX: 0, // Accumulated momentum X (forces add here)
+      momentumY: 0, // Accumulated momentum Y (forces add here)
+
+      edge: 1, // Cached edge fade factor used by link brightness
+      keyboardForceX: 0, // Keyboard force X (legacy/optional)
+      keyboardForceY: 0 // Keyboard force Y (legacy/optional)
     });
   }
 };
@@ -473,6 +463,7 @@ S.enableHoldToRepeat = function enableHoldToRepeat(BUTTON, onStep) {
   // Track the repeating interval handle
   let REPEAT_INTERVAL_TIMER = null;
 
+  /* REPEAT TIMING */
   // Set how long to wait before repeating starts
   const INITIAL_DELAY_MS = 350;
 
@@ -534,7 +525,7 @@ S.enableHoldToRepeat = function enableHoldToRepeat(BUTTON, onStep) {
   BUTTON.addEventListener("mouseleave", stopHold);
 
   /* TOUCH EVENTS */
-  // Start hold-repeat on touch start (prevent default to avoid text selection / ghost clicks)
+  // Start hold-repeat on touch start (prevent default to avoid ghost behavior)
   BUTTON.addEventListener("touchstart", (EVENT) => { EVENT.preventDefault(); startHold(); }, { passive: false });
 
   // Stop hold-repeat on touch end
@@ -561,6 +552,7 @@ S.bindSliderAndNumberInput = function bindSliderAndNumberInput(CONTROL_ID, apply
   // Find stepper buttons inside this control block (optional)
   const STEP_BUTTONS = CONTROL_BLOCK ? CONTROL_BLOCK.querySelectorAll(".stepBtn[data-step]") : [];
 
+  /* RANGE + STEP */
   // Read the minimum allowed value from the slider or number input
   const MIN_VALUE = Number(SLIDER.min || (NUMBER_INPUT && NUMBER_INPUT.min) || 0);
 
@@ -804,9 +796,9 @@ S.resizeStarfieldCanvas = function resizeStarfieldCanvas() {
 
     // Apply rescale to each star position and size
     for (const STAR of S.starList) {
-      STAR.x *= SCALE_X;
-      STAR.y *= SCALE_Y;
-      STAR.size *= SIZE_SCALE;
+      STAR.x *= SCALE_X;    // Scale star X into the new canvas space
+      STAR.y *= SCALE_Y;    // Scale star Y into the new canvas space
+      STAR.size *= SIZE_SCALE; // Scale star size to match new perimeter
     }
   }
 };
@@ -839,7 +831,7 @@ function runAnimationLoop(NOW) {
   requestAnimationFrame(runAnimationLoop);
 }
 
-// Expose the loop for debugging hooks and legacy parity
+// Expose the loop so we can start/inspect it from the console
 S._runAnimationLoop = runAnimationLoop;
 
 /* #endregion 6) RESIZE + ANIMATION */
