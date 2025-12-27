@@ -254,8 +254,8 @@ S.updateStarPhysics = function updateStarPhysics() {
        *        POKE LOGIC
        *============================*/
 
-      // Poke radius is 1/4 of the screen perimeter
-      const POKE_RADIUS = S.screenPerimeter * 0.25;
+      // Poke radius is 1/5 of the screen
+      const POKE_RADIUS = S.screenPerimeter * 0.2;
 
       // Normalize distance into inverted 0–1 gradient
       const POKE_GRADIENT = 1 - (DISTANCE / POKE_RADIUS);
