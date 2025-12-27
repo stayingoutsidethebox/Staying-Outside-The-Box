@@ -101,12 +101,14 @@ let PADDLES_TIMER = 0;
 /* PADDLES */
 function animatePaddles(NEW_X, NEW_Y) {
   PADDLES_ACTIVE++;
-  //K.paddlesX
+  K.paddlesX += NEW_X;
+  K.paddlesY += NEW_Y;
 
-// draw paddles 
+  //GPT HELP! draw paddles. paddlesX width is 10%, paddlesY height is 10%. paddles Y one line on width 0%, one line on width 100%. paddles X one line on height 0%, one line on height 100%.opacity = Math.min(1, PADDLES_TIMER)
 
   // If user hasn't already started more paddle frames, then schedule the next one
   PADDLES_ACTIVE--;
+  PADLES_TIMER -= 0.1;
   if (PADDLES_ACTIVE == 0 && PADDLES_TIMER > 0) requestAnimationFrame(animatePaddles(0, 0));
 }
 
@@ -221,7 +223,7 @@ function runM() {
 function runR() {
   let X = 0;
   if (K.paddlesX > 0) X = -5;
-  paddlesTimer = 100;
+  paddlesTimeR = 10;
   animatePaddles(X, 0);
 }
 
@@ -229,7 +231,7 @@ function runR() {
 function runT() {
   let X = 0;
   if (K.paddlesX < 100) X = 5;
-  paddlesTimer = 100;
+  paddlesTimeR = 10;
   animatePaddles(X, 0);
 }
 
@@ -237,7 +239,7 @@ function runT() {
 function runF() {
   let Y = 0;
   if (K.paddlesY > 0) Y = -5;
-  paddlesTimer = 100;
+  paddlesTimeR = 10;
   animatePaddles(0, Y);
 }
 
@@ -245,7 +247,7 @@ function runF() {
 function runC() {
   let Y = 0;
   if (K.paddlesY < 100) Y = 5;
-  paddlesTimer = 100;
+  paddlesTimeR = 10;
   animatePaddles(0, Y);
 }
 /* #endregion 4) PONG */
