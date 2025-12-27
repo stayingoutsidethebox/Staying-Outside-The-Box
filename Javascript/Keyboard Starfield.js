@@ -6,6 +6,8 @@
 //#region 1) SETUP
  *========================================*/
 
+var K = window.KEYBOARD;
+
 /* Event listener */
 window.addEventListener("keydown", (event) => {
   
@@ -93,10 +95,20 @@ const MULTIPLY = 1 + STRENGTH;
 const DIVIDE = 1 - STRENGTH;
 const POSITIVE = STRENGTH;
 const NEGATIVE = -STRENGTH;
+let PADDLES_ACTIVE = 0;
+let PADDLES_TIMER = 0;
 
 /* PADDLES */
-let HORIZONTAL_PADDLES = 50;// 1-100 for screen width %
-let VERTICAL_PADDLES = 50;
+function animatePaddles(NEW_X, NEW_Y) {
+  PADDLES_ACTIVE++;
+  //K.paddlesX
+
+// draw paddles 
+
+  // If user hasn't already started more paddle frames, then schedule the next one
+  PADDLES_ACTIVE--;
+  if (PADDLES_ACTIVE == 0 && PADDLES_TIMER > 0) requestAnimationFrame(animatePaddles(0, 0));
+}
 
 /* #endregion 1) SETUP */
 
@@ -107,49 +119,49 @@ let VERTICAL_PADDLES = 50;
 // W = Up
 function runW() {
   // X
-  window.KEYBOARD.addY = NEGATIVE;
+  K.addY = NEGATIVE;
 }
 
 // A = Left
 function runA() {
-  window.KEYBOARD.addX = NEGATIVE;
+  K.addX = NEGATIVE;
   // Y
 }
 
 // S = Down
 function runS() {
   // X
-  window.KEYBOARD.addY = POSITIVE;
+  K.addY = POSITIVE;
 }
 
 // D = Right
 function runD() {
-  window.KEYBOARD.addX = POSITIVE;
+  K.addX = POSITIVE;
   // Y
 }
 
 // Q = Left up
 function runQ() {
-  window.KEYBOARD.addX = NEGATIVE / 2;
-  window.KEYBOARD.addY = NEGATIVE / 2;
+  K.addX = NEGATIVE / 2;
+  K.addY = NEGATIVE / 2;
 }
 
 // E = Right up
 function runE() {
-  window.KEYBOARD.addX = POSITIVE / 2;
-  window.KEYBOARD.addY = NEGATIVE / 2;
+  K.addX = POSITIVE / 2;
+  K.addY = NEGATIVE / 2;
 }
 
 // Z = Left down
 function runZ() {
-  window.KEYBOARD.addX = NEGATIVE / 2;
-  window.KEYBOARD.addY = POSITIVE / 2;
+  K.addX = NEGATIVE / 2;
+  K.addY = POSITIVE / 2;
 }
 
 // X = Right down
 function runX() {
-  window.KEYBOARD.addX = POSITIVE / 2;
-  window.KEYBOARD.addY = POSITIVE / 2;
+  K.addX = POSITIVE / 2;
+  K.addY = POSITIVE / 2;
 }
 /* #endregion 2) GLOBAL MOVEMENT */
 
@@ -207,22 +219,34 @@ function runM() {
  *========================================*/
 // R = Paddles left
 function runR() {
-  HORIZONTAL_PADDLES -= 5;
+  let X = 0;
+  if (K.paddlesX > 0) X = -5;
+  paddlesTimer = 100;
+  animatePaddles(X, 0);
 }
 
 // T = Paddles right
 function runT() {
-  HORIZONTAL_PADDLES += 5;
+  let X = 0;
+  if (K.paddlesX < 100) X = 5;
+  paddlesTimer = 100;
+  animatePaddles(X, 0);
 }
 
 // F = Paddles up
 function runF() {
-  VERTICAL_PADDLES -= 5;
+  let Y = 0;
+  if (K.paddlesY > 0) Y = -5;
+  paddlesTimer = 100;
+  animatePaddles(0, Y);
 }
 
 // C = Paddles down
 function runC() {
-  VERTICAL_PADDLES += 5;
+  let Y = 0;
+  if (K.paddlesY < 100) Y = 5;
+  paddlesTimer = 100;
+  animatePaddles(0, Y);
 }
 /* #endregion 4) PONG */
 
@@ -232,14 +256,14 @@ function runC() {
 
 // V = Less (v) speed
 function runV() {
-  window.KEYBOARD.multX = DIVIDE;
-  window.KEYBOARD.multY = DIVIDE;
+  K.multX = DIVIDE;
+  K.multY = DIVIDE;
 }
 
 // G = Greater (^) speed
 function runG() {
-  window.KEYBOARD.multX = MULTIPLY;
-  window.KEYBOARD.multY = MULTIPLY;
+  K.multX = MULTIPLY;
+  K.multY = MULTIPLY;
 }
 
 // O = Orbit
