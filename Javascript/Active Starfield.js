@@ -591,7 +591,7 @@ S.renderStarsAndLinks = function renderStarsAndLinks() {
     }
   }
 
-  /* STARS */
+    /* STARS */
   // Bail out if the sprite is not loaded yet
   if (!STAR_SPRITES.ready) return;
 
@@ -606,27 +606,10 @@ S.renderStarsAndLinks = function renderStarsAndLinks() {
     // Convert radius into sprite draw size (with a minimum for visibility)
     const SIZE = Math.max(2, R * 2.4);
 
-    // Compute top-left corner for centered sprite placement
-    const X = STAR.x - SIZE / 2;
-    const Y = STAR.y - SIZE / 2;
-
-    // Save context state so per-star settings do not leak
-    CONTEXT.save();
-
-    // Draw base sprite with the star's opacity
-    CONTEXT.globalAlpha = STAR.opacity;
-    
-    // Move origin to the star center
-    CONTEXT.translate(STAR.x, STAR.y);
-    
-    // Rotate by the star’s rotation
-    CONTEXT.rotate(STAR.rotation || 0);
-    
-    // Draw sprite centered at 0,0
-    CONTEXT.drawImage(IMG, -SIZE / 2, -SIZE / 2, SIZE, SIZE);
-    
-    // Restore context state so per-star settings do not leak
-    CONTEXT.restore();
+    // Cache center and radius for the overlay circle
+    const CX = STAR.x;
+    const CY = STAR.y;
+    const CR = SIZE * 0.48;
 
     // Normalize redValue into a 0..1 range for darkness mapping
     let t = (STAR.redValue - 50) / 150;
@@ -636,17 +619,28 @@ S.renderStarsAndLinks = function renderStarsAndLinks() {
     // Convert "redness" into a darkness factor (less red = darker)
     const DARKNESS = 0.15 + 0.55 * (1 - t);
 
-    // Cache center and radius for the overlay circle
-    const CX = STAR.x;
-    const CY = STAR.y;
-    const CR = SIZE * 0.48;
+    // Save context state so per-star settings do not leak
+    CONTEXT.save();
 
+    /* BASE SPRITE (ROTATED) */
+    CONTEXT.globalAlpha = STAR.opacity;
+
+    // Move origin to the star center
+    CONTEXT.translate(CX, CY);
+
+    // Rotate by the star’s rotation
+    CONTEXT.rotate(STAR.rotation || 0);
+
+    // Draw sprite centered at 0,0
+    CONTEXT.drawImage(IMG, -SIZE / 2, -SIZE / 2, SIZE, SIZE);
+
+    /* OVERLAYS (IN LOCAL SPACE, ROTATION DOESN'T MATTER FOR CIRCLES) */
     // Restrict the darkness fill so it only affects the sprite pixels
     CONTEXT.globalCompositeOperation = "source-atop";
     CONTEXT.globalAlpha = STAR.opacity * DARKNESS;
     CONTEXT.fillStyle = "rgba(0, 0, 0, 1)";
     CONTEXT.beginPath();
-    CONTEXT.arc(CX, CY, CR, 0, Math.PI * 2);
+    CONTEXT.arc(0, 0, CR, 0, Math.PI * 2);
     CONTEXT.fill();
 
     // Add a white glow when the star is flashing
@@ -655,7 +649,7 @@ S.renderStarsAndLinks = function renderStarsAndLinks() {
       CONTEXT.globalAlpha = STAR.opacity * (STAR.whiteValue > 1 ? 1 : STAR.whiteValue);
       CONTEXT.fillStyle = "rgba(255, 255, 255, 1)";
       CONTEXT.beginPath();
-      CONTEXT.arc(CX, CY, CR, 0, Math.PI * 2);
+      CONTEXT.arc(0, 0, CR, 0, Math.PI * 2);
       CONTEXT.fill();
     }
 
