@@ -75,6 +75,17 @@ let LINKS_DIRTY = true;
 
 /*---------- Links fade near the edges ----------*/
 function getEdgeDistance(STAR) {
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
   // Approximate star "radius" based on how large it draws on screen
   const STAR_RADIUS = (STAR.whiteValue * 2 + STAR.size) || 0;
 
