@@ -506,7 +506,6 @@ if (window.KEYBOARD.paddlesTimer > 0) {
   // Decay paddles
   window.KEYBOARD.paddlesTimer -= 0.1;
   }
-}
 
 
 
