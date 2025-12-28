@@ -60,6 +60,9 @@ if (!S.isCanvasReady) {
   console.warn("Constellation canvas not found or unsupported; starfield disabled.");
 }
 
+// The stars physics pause regularly for html updates to prevent lag
+S.lastUpdateFinished = true;
+
 // Track whether the simulation should pause (ex: navigation / transitions)
 S.isFrozen = false;
 
@@ -821,20 +824,22 @@ S.resizeStarfieldCanvas = function resizeStarfieldCanvas() {
 function runAnimationLoop(NOW) {
   // Bail if canvas isn't active so we don't draw into null context
   if (!S.isCanvasReady) return;
-
-  // Store last frame time for throttling comparisons
-  S._lastFrameMs = NOW;
-
-  /* PHYSICS */
-  // Run physics update if not frozen and Active file has installed the function
-  if (!S.isFrozen && typeof S.updateStarPhysics === "function") {
-    S.updateStarPhysics();
-  }
-
-  /* RENDER */
-  // Run render step if Active file has installed the function
-  if (typeof S.renderStarsAndLinks === "function") {
-    S.renderStarsAndLinks();
+  
+  if (S.lastUpdateFinished){
+    // Store last frame time for throttling comparisons
+    S._lastFrameMs = NOW;
+  
+    /* PHYSICS */
+    // Run physics update if not frozen and Active file has installed the function
+    if (!S.isFrozen && typeof S.updateStarPhysics === "function") {
+      S.updateStarPhysics();
+    }
+  
+    /* RENDER */
+    // Run render step if Active file has installed the function
+    if (typeof S.renderStarsAndLinks === "function") {
+      S.renderStarsAndLinks();
+    }
   }
 
   /* NEXT FRAME */
