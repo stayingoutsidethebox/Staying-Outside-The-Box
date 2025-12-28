@@ -825,14 +825,16 @@ function runAnimationLoop(NOW) {
   // Bail if canvas isn't active so we don't draw into null context
   if (!S.isCanvasReady) return;
   
+  const LAST = S._lastFrameMs || NOW;
+  const dtMs = clampDtMs(NOW - LAST);
+  S._lastFrameMs = NOW
+  
   if (S.lastUpdateFinished){
-    // Store last frame time for throttling comparisons
-    S._lastFrameMs = NOW;
   
     /* PHYSICS */
     // Run physics update if not frozen and Active file has installed the function
     if (!S.isFrozen && typeof S.updateStarPhysics === "function") {
-      S.updateStarPhysics();
+      S.updateStarPhysics(dtMs);
     }
     
   }
