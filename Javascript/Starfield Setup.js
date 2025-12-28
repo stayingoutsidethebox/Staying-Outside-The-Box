@@ -775,11 +775,11 @@ S.resizeStarfieldCanvas = function resizeStarfieldCanvas() {
   S.starCountLimit = Math.min(300, S.screenScaleDown * 100);
 
   // Compute the maximum link distance for this screen size
-  S.maxLinkDistance = S.screenScaleUp ** 3 * 300;
+  S.maxLinkDistance = S.screenScaleUp ** 10 * 300;
 
   /* RECOMPUTE PHYSICS SCALING POWERS */
   // Scale attraction radius behavior as screen grows
-  S.screenScalePowers.attractionGradient = S.screenScaleUp ** 1.11;
+  S.screenScalePowers.attractionGradient = S.screenScaleUp ** 0.8;
 
   // Scale repulsion radius behavior as screen grows
   S.screenScalePowers.repulsionGradient = S.screenScaleUp ** 0.66;
