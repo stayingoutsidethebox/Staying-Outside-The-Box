@@ -90,9 +90,9 @@ const KEY_FUNCTIONS = {
 };
 
 /* CONSTANTS */
-const STRENGTH = 0.8;
-const MULTIPLY = 1 + STRENGTH;
-const DIVIDE = 1 - STRENGTH;
+const STRENGTH = 5;
+const MULTIPLY = STRENGTH;
+const DIVIDE = 1 / STRENGTH;
 const POSITIVE = STRENGTH;
 const NEGATIVE = -STRENGTH;
 
