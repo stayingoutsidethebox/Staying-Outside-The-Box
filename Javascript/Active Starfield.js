@@ -466,44 +466,45 @@ if (window.KEYBOARD.paddlesTimer > 0) {
   window.KEYBOARD.paddlesX = Math.max(0, Math.min(100, (window.KEYBOARD.paddlesX)));
   window.KEYBOARD.paddlesY = Math.max(0, Math.min(100, (window.KEYBOARD.paddlesY)));
 
-// GPT START
-  const CANVAS = S?.constellationCanvas;
-  const CTX = CANVAS?.getContext?.("2d");
-  if (CTX && CANVAS) {
-    const W = CANVAS.width;
-    const H = CANVAS.height;
+  // Use the render pass context (already cleared this frame)
+  const W = S.canvasWidth;
+  const H = S.canvasHeight;
 
-    const alpha = Math.min(1, Math.max(0, PADDLES_TIMER));
-    const paddleW = W * 0.10; // 10% of width (top/bottom paddles)
-    const paddleH = H * 0.10; // 10% of height (left/right paddles)
+  // Timer lives on KEYBOARD now
+  const alpha = Math.min(1, Math.max(0, window.KEYBOARD.paddlesTimer));
 
-    const cx = (window.KEYBOARD.paddlesX / 100) * W;
-    const cy = (window.KEYBOARD.paddlesY / 100) * H;
+  // 10% paddle spans
+  const paddleW = W * 0.10; // top/bottom
+  const paddleH = H * 0.10; // left/right
 
-    CTX.save();
-    CTX.globalAlpha = alpha;
+  // Convert 0..100 to pixels
+  const cx = (window.KEYBOARD.paddlesX / 100) * W;
+  const cy = (window.KEYBOARD.paddlesY / 100) * H;
 
-    // Feel free to change styling
-    CTX.lineWidth = Math.max(2, Math.min(W, H) * 0.004);
-    CTX.lineCap = "round";
-    CTX.strokeStyle = "rgba(255,255,255,1)";
+  CONTEXT.save();
+  CONTEXT.globalAlpha = alpha;
+  CONTEXT.lineWidth = Math.max(2, Math.min(W, H) * 0.004);
+  CONTEXT.lineCap = "round";
+  CONTEXT.strokeStyle = "rgba(255,255,255,1)";
 
-    // Left & right vertical paddles (x = 0% and x = 100%)
-    CTX.beginPath();
-    CTX.moveTo(0, Math.max(0, cy - paddleH / 2));
-    CTX.lineTo(0, Math.min(H, cy + paddleH / 2));
-    CTX.moveTo(W, Math.max(0, cy - paddleH / 2));
-    CTX.lineTo(W, Math.min(H, cy + paddleH / 2));
+  // Left & right vertical paddles
+  CONTEXT.beginPath();
+  CONTEXT.moveTo(0, Math.max(0, cy - paddleH / 2));
+  CONTEXT.lineTo(0, Math.min(H, cy + paddleH / 2));
+  CONTEXT.moveTo(W, Math.max(0, cy - paddleH / 2));
+  CONTEXT.lineTo(W, Math.min(H, cy + paddleH / 2));
 
-    // Top & bottom horizontal paddles (y = 0% and y = 100%)
-    CTX.moveTo(Math.max(0, cx - paddleW / 2), 0);
-    CTX.lineTo(Math.min(W, cx + paddleW / 2), 0);
-    CTX.moveTo(Math.max(0, cx - paddleW / 2), H);
-    CTX.lineTo(Math.min(W, cx + paddleW / 2), H);
+  // Top & bottom horizontal paddles
+  CONTEXT.moveTo(Math.max(0, cx - paddleW / 2), 0);
+  CONTEXT.lineTo(Math.min(W, cx + paddleW / 2), 0);
+  CONTEXT.moveTo(Math.max(0, cx - paddleW / 2), H);
+  CONTEXT.lineTo(Math.min(W, cx + paddleW / 2), H);
 
-    CTX.stroke();
-    CTX.restore();
-    // GPT END
+  CONTEXT.stroke();
+  CONTEXT.restore();
+  
+  // Decay paddles
+  window.KEYBOARD.paddlesTimer -= 0.1;
   }
 }
 
