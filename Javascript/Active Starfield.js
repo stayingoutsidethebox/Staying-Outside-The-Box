@@ -459,103 +459,63 @@ S.renderStarsAndLinks = function renderStarsAndLinks() {
 
 
 
-/* PADDLES */
-if (window.KEYBOARD.paddlesTimer > 0) {
-
-  // Clamp 0-100
-  window.KEYBOARD.paddlesX = Math.max(0, Math.min(100, (window.KEYBOARD.paddlesX)));
-  window.KEYBOARD.paddlesY = Math.max(0, Math.min(100, (window.KEYBOARD.paddlesY)));
-
-  // Use the render pass context (already cleared this frame)
-  const W = S.canvasWidth;
-  const H = S.canvasHeight;
-
-  // Timer lives on KEYBOARD now
-  const alpha = Math.min(1, Math.max(0, window.KEYBOARD.paddlesTimer));
-
-  // 10% paddle spans
-  const paddleW = W * 0.10; // top/bottom
-  const paddleH = H * 0.10; // left/right
-
-  // Convert 0..100 to pixels
-  const cx = (window.KEYBOARD.paddlesX / 100) * W;
-  const cy = (window.KEYBOARD.paddlesY / 100) * H;
-
-  CONTEXT.save();
-  CONTEXT.globalAlpha = alpha;
-  CONTEXT.lineWidth = Math.max(2, Math.min(W, H) * 0.004);
-  CONTEXT.lineCap = "round";
-  CONTEXT.strokeStyle = "rgba(255,255,255,1)";
-
-  // Left & right vertical paddles
-  CONTEXT.beginPath();
-  CONTEXT.moveTo(0, Math.max(0, cy - paddleH / 2));
-  CONTEXT.lineTo(0, Math.min(H, cy + paddleH / 2));
-  CONTEXT.moveTo(W, Math.max(0, cy - paddleH / 2));
-  CONTEXT.lineTo(W, Math.min(H, cy + paddleH / 2));
-
-  // Top & bottom horizontal paddles
-  CONTEXT.moveTo(Math.max(0, cx - paddleW / 2), 0);
-  CONTEXT.lineTo(Math.min(W, cx + paddleW / 2), 0);
-  CONTEXT.moveTo(Math.max(0, cx - paddleW / 2), H);
-  CONTEXT.lineTo(Math.min(W, cx + paddleW / 2), H);
-
-  CONTEXT.stroke();
-  CONTEXT.restore();
+  /* PADDLES */
+  if (window.KEYBOARD.paddlesTimer > 0) {
   
-  // Decay paddles
-  window.KEYBOARD.paddlesTimer -= 0.1;
-  }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  /* USER POINTER RING */
-  // Compute the baseline ring radius based on screen size
-  const TARGET_RING_RADIUS = Math.max(0, S.screenScaleUp * 100 - 40);
-
-  // Compute ring visuals from timers (defaults to ring-timer behavior)
-  let RING_RADIUS = TARGET_RING_RADIUS * (S.pointerRingTimer / 50);
-  let RING_WIDTH = S.pointerRingTimer * 0.15;
-  let RING_ALPHA = Math.min(S.pointerRingTimer * 0.07, 1);
-
-  // If pointer is not moving, use poke timer to drive the ring visuals instead
-  if (S.pointerSpeedUnits == 0) {
-    // Normalize poke timer into 0..1 range
-    const NORMALIZED_POKE = Math.min(1, Math.max(0, S.pokeImpulseTimer / 200));
-
-    // Invert poke so the ring grows as poke fades
-    const INVERTED_POKE = 1 - NORMALIZED_POKE;
-
-    // Drive ring radius, width, and alpha from poke
-    RING_RADIUS = TARGET_RING_RADIUS * INVERTED_POKE;
-    RING_WIDTH = NORMALIZED_POKE * 7;
-    RING_ALPHA = NORMALIZED_POKE;
-  }
-
-  // Draw the ring only when it is visible enough to matter
-  if (RING_ALPHA > 0.001) {
-    // Draw ring using isolated context state so styling does not leak
+    // Clamp 0-100
+    window.KEYBOARD.paddlesX = Math.max(0, Math.min(100, (window.KEYBOARD.paddlesX)));
+    window.KEYBOARD.paddlesY = Math.max(0, Math.min(100, (window.KEYBOARD.paddlesY)));
+  
+    // Use the render pass context (already cleared this frame)
+    const W = S.canvasWidth;
+    const H = S.canvasHeight;
+  
+    // Timer lives on KEYBOARD now
+    const alpha = Math.min(1, Math.max(0, window.KEYBOARD.paddlesTimer));
+  
+    // 10% paddle spans
+    const paddleW = W * 0.10; // top/bottom
+    const paddleH = H * 0.10; // left/right
+  
+    // Convert 0..100 to pixels
+    const cx = (window.KEYBOARD.paddlesX / 100) * W;
+    const cy = (window.KEYBOARD.paddlesY / 100) * H;
+  
     CONTEXT.save();
-    CONTEXT.lineWidth = RING_WIDTH;
-    CONTEXT.strokeStyle = "rgba(189, 189, 189, 1)";
-    CONTEXT.globalAlpha = RING_ALPHA;
+    CONTEXT.globalAlpha = alpha;
+    CONTEXT.lineWidth = Math.max(5, Math.min(W, H) * 0.05);
+    CONTEXT.lineCap = "round";
+    CONTEXT.strokeStyle = "rgba(255,255,255,1)";
+  
+    // Left & right vertical paddles
     CONTEXT.beginPath();
-    CONTEXT.arc(S.pointerClientX, S.pointerClientY, RING_RADIUS, 0, Math.PI * 2);
+    CONTEXT.moveTo(0, Math.max(0, cy - paddleH / 2));
+    CONTEXT.lineTo(0, Math.min(H, cy + paddleH / 2));
+    CONTEXT.moveTo(W, Math.max(0, cy - paddleH / 2));
+    CONTEXT.lineTo(W, Math.min(H, cy + paddleH / 2));
+  
+    // Top & bottom horizontal paddles
+    CONTEXT.moveTo(Math.max(0, cx - paddleW / 2), 0);
+    CONTEXT.lineTo(Math.min(W, cx + paddleW / 2), 0);
+    CONTEXT.moveTo(Math.max(0, cx - paddleW / 2), H);
+    CONTEXT.lineTo(Math.min(W, cx + paddleW / 2), H);
+  
     CONTEXT.stroke();
     CONTEXT.restore();
+    
+    // Decay paddles
+    window.KEYBOARD.paddlesTimer -= 0.1;
   }
+
+
+
+
+
+
+
+
+
+
 
   /* LINKS */
   // Set a thin line width for link drawing
@@ -664,7 +624,7 @@ if (window.KEYBOARD.paddlesTimer > 0) {
     }
   }
 
-    /* STARS */
+  /* STARS */
   // Bail out if the sprite is not loaded yet
   if (!STAR_SPRITES.ready) return;
 
@@ -727,6 +687,42 @@ if (window.KEYBOARD.paddlesTimer > 0) {
     }
 
     // Restore context state for the next star
+    CONTEXT.restore();
+  }
+
+  /* USER POINTER RING */
+  // Compute the baseline ring radius based on screen size
+  const TARGET_RING_RADIUS = Math.max(0, S.screenScaleUp * 100 - 40);
+
+  // Compute ring visuals from timers (defaults to ring-timer behavior)
+  let RING_RADIUS = TARGET_RING_RADIUS * (S.pointerRingTimer / 50);
+  let RING_WIDTH = S.pointerRingTimer * 0.15;
+  let RING_ALPHA = Math.min(S.pointerRingTimer * 0.07, 1);
+
+  // If pointer is not moving, use poke timer to drive the ring visuals instead
+  if (S.pointerSpeedUnits == 0) {
+    // Normalize poke timer into 0..1 range
+    const NORMALIZED_POKE = Math.min(1, Math.max(0, S.pokeImpulseTimer / 200));
+
+    // Invert poke so the ring grows as poke fades
+    const INVERTED_POKE = 1 - NORMALIZED_POKE;
+
+    // Drive ring radius, width, and alpha from poke
+    RING_RADIUS = TARGET_RING_RADIUS * INVERTED_POKE;
+    RING_WIDTH = NORMALIZED_POKE * 7;
+    RING_ALPHA = NORMALIZED_POKE;
+  }
+
+  // Draw the ring only when it is visible enough to matter
+  if (RING_ALPHA > 0.001) {
+    // Draw ring using isolated context state so styling does not leak
+    CONTEXT.save();
+    CONTEXT.lineWidth = RING_WIDTH;
+    CONTEXT.strokeStyle = "rgba(189, 189, 189, 1)";
+    CONTEXT.globalAlpha = RING_ALPHA;
+    CONTEXT.beginPath();
+    CONTEXT.arc(S.pointerClientX, S.pointerClientY, RING_RADIUS, 0, Math.PI * 2);
+    CONTEXT.stroke();
     CONTEXT.restore();
   }
 };
