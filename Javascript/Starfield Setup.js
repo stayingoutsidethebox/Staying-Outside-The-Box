@@ -60,9 +60,6 @@ if (!S.isCanvasReady) {
   console.warn("Constellation canvas not found or unsupported; starfield disabled.");
 }
 
-// The stars physics pause regularly for html updates to prevent lag
-S.lastUpdateFinished = true;
-
 // Track whether the simulation should pause (ex: navigation / transitions)
 S.isFrozen = false;
 
@@ -446,8 +443,10 @@ S.createNewStars = function createNewStars() {
     });
   }
   // Consistant speed for paddles ball
+if (S.starList.length) {
   S.starList[0].vx = 0.25;
   S.starList[0].vy = 0.25;
+}
 };
 
 /* #endregion 4) INIT */
@@ -616,9 +615,6 @@ S.bindSliderAndNumberInput = function bindSliderAndNumberInput(CONTROL_ID, apply
 
     // Write the value into the settings object via callback
     applySettingValue(VALUE);
-
-    // Re-emit input event so other listeners stay in sync
-    SLIDER.dispatchEvent(new Event("input", { bubbles: true }));
   };
 
   // Nudge the value by one step in a direction (+1 or -1)
@@ -821,7 +817,7 @@ S.resizeStarfieldCanvas = function resizeStarfieldCanvas() {
 };
 
 // Run the main animation loop and call physics + rendering
-function runAnimationLoop(NOW) {
+function runAnimationLoop() {
   // Bail if canvas isn't active so we don't draw into null context
   if (!S.isCanvasReady) return;
 
