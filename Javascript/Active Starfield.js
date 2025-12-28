@@ -806,7 +806,7 @@ S.renderStarsAndLinks = function renderStarsAndLinks() {
   let RING_WIDTH = S.pointerRingTimer * 0.15;
   let RING_ALPHA = Math.min(S.pointerRingTimer * 0.07, 1);
 
-  if (S.pointerSpeedUnits == 0) {
+  if (S.pointerSpeedUnits < 1) {
     const NORMALIZED_POKE = Math.min(1, Math.max(0, S.pokeImpulseTimer / 200));
     const INVERTED_POKE = 1 - NORMALIZED_POKE;
 
