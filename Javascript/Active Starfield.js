@@ -466,7 +466,7 @@ if (window.KEYBOARD.paddlesTimer > 0) {
   window.KEYBOARD.paddlesX = Math.max(0, Math.min(100, (window.KEYBOARD.paddlesX)));
   window.KEYBOARD.paddlesY = Math.max(0, Math.min(100, (window.KEYBOARD.paddlesY)));
 
-  const S = window.STARFIELD;
+// GPT START
   const CANVAS = S?.constellationCanvas;
   const CTX = CANVAS?.getContext?.("2d");
   if (CTX && CANVAS) {
@@ -503,6 +503,7 @@ if (window.KEYBOARD.paddlesTimer > 0) {
 
     CTX.stroke();
     CTX.restore();
+    // GPT END
   }
 }
 
