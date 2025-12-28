@@ -381,7 +381,7 @@ S.updateStarPhysics = function updateStarPhysics() {
             const outVx = +1 * speed * Math.cos(ang);
             const outVy = speed * Math.sin(ang);
 
-            DID_BOUNCE = bounceVertical(STAR, viewLeft, +1, outVx, outVy, pushOutX, NOW, HIT_COOLDOWN_MS, false) || DID_BOUNCE;
+            DID_BOUNCE = bounceVertical(STAR, viewLeft, +1, outVx, outVy, pushOutX, NOW, HIT_COOLDOWN_MS) || DID_BOUNCE;
           }
 
           // RIGHT paddle: bounce to the left (-1)
@@ -392,7 +392,7 @@ S.updateStarPhysics = function updateStarPhysics() {
             const outVx = -1 * speed * Math.cos(ang);
             const outVy = speed * Math.sin(ang);
 
-            DID_BOUNCE = bounceVertical(STAR, viewRight, -1, outVx, outVy, pushOutX, NOW, HIT_COOLDOWN_MS, false) || DID_BOUNCE;
+            DID_BOUNCE = bounceVertical(STAR, viewRight, -1, outVx, outVy, pushOutX, NOW, HIT_COOLDOWN_MS) || DID_BOUNCE;
           }
 
           // TOP paddle: bounce down (+1)
@@ -403,7 +403,7 @@ S.updateStarPhysics = function updateStarPhysics() {
             const outVy = +1 * speed * Math.cos(ang);
             const outVx = speed * Math.sin(ang);
 
-            DID_BOUNCE = bounceHorizontal(STAR, viewTop, +1, outVx, outVy, pushOutY, NOW, HIT_COOLDOWN_MS, false) || DID_BOUNCE;
+            DID_BOUNCE = bounceHorizontal(STAR, viewTop, +1, outVx, outVy, pushOutY, NOW, HIT_COOLDOWN_MS) || DID_BOUNCE;
           }
 
           // BOTTOM paddle: bounce up (-1)
@@ -414,7 +414,7 @@ S.updateStarPhysics = function updateStarPhysics() {
             const outVy = -1 * speed * Math.cos(ang);
             const outVx = speed * Math.sin(ang);
 
-            DID_BOUNCE = bounceHorizontal(STAR, viewBottom, -1, outVx, outVy, pushOutY, NOW, HIT_COOLDOWN_MS, false) || DID_BOUNCE;
+            DID_BOUNCE = bounceHorizontal(STAR, viewBottom, -1, outVx, outVy, pushOutY, NOW, HIT_COOLDOWN_MS) || DID_BOUNCE;
           }
         }
       }
@@ -449,33 +449,30 @@ S.updateStarPhysics = function updateStarPhysics() {
         const pushOutX = STAR_RADIUS + 0.5;
         const pushOutY = STAR_RADIUS + 0.5;
 
-        // For normal stars, keep momentum. For paddle-ball while paddles active, clear it.
-        const CLEAR = false;
-
         // Left wall
         if (STAR.x < STAR_RADIUS) {
           const outVx = Math.abs(Vx);
           const outVy = Vy;
-          bounceVertical(STAR, STAR_RADIUS, +1, outVx, outVy, pushOutX, NOW, 0, CLEAR);
+          bounceVertical(STAR, STAR_RADIUS, +1, outVx, outVy, pushOutX, NOW, 0);
         }
         // Right wall
         else if (STAR.x > S.canvasWidth - STAR_RADIUS) {
           const outVx = -Math.abs(Vx);
           const outVy = Vy;
-          bounceVertical(STAR, S.canvasWidth - STAR_RADIUS, -1, outVx, outVy, pushOutX, NOW, 0, CLEAR);
+          bounceVertical(STAR, S.canvasWidth - STAR_RADIUS, -1, outVx, outVy, pushOutX, NOW, 0);
         }
 
         // Top wall
         if (STAR.y < STAR_RADIUS) {
           const outVx = Vx;
           const outVy = Math.abs(Vy);
-          bounceHorizontal(STAR, STAR_RADIUS, +1, outVx, outVy, pushOutY, NOW, 0, CLEAR);
+          bounceHorizontal(STAR, STAR_RADIUS, +1, outVx, outVy, pushOutY, NOW, 0);
         }
         // Bottom wall
         else if (STAR.y > S.canvasHeight - STAR_RADIUS) {
           const outVx = Vx;
           const outVy = -Math.abs(Vy);
-          bounceHorizontal(STAR, S.canvasHeight - STAR_RADIUS, -1, outVx, outVy, pushOutY, NOW, 0, CLEAR);
+          bounceHorizontal(STAR, S.canvasHeight - STAR_RADIUS, -1, outVx, outVy, pushOutY, NOW, 0);
         }
       }
     }
@@ -560,8 +557,8 @@ S.updateStarPhysics = function updateStarPhysics() {
   }
 };
 
-/* ---------- Bounce helpers (reusable) ---------- */
-function bounceVertical(STAR, wallX, wallSign, outVx, outVy, pushOut, NOW, cooldownMs = 0, clearMomentum = false) {
+/* ---------- Bounce helpers (momentum-only, no hard-stop) ---------- */
+function bounceVertical(STAR, wallX, wallSign, outVx, outVy, pushOut, NOW, cooldownMs = 0) {
   if (cooldownMs > 0) {
     const last = STAR.lastBounceV_Ms || 0;
     if (NOW - last < cooldownMs) return false;
@@ -576,19 +573,13 @@ function bounceVertical(STAR, wallX, wallSign, outVx, outVy, pushOut, NOW, coold
   STAR.momentumX = outVx - baseVx;
   STAR.momentumY = outVy - baseVy;
 
-  // Optional: if you ever want to hard-reset momentum (usually no)
-  if (clearMomentum) {
-    STAR.momentumX = 0;
-    STAR.momentumY = 0;
-  }
-
   // Push away from wall so we don't immediately collide again
   STAR.x = wallX + wallSign * pushOut;
 
   return true;
 }
 
-function bounceHorizontal(STAR, wallY, wallSign, outVx, outVy, pushOut, NOW, cooldownMs = 0, clearMomentum = false) {
+function bounceHorizontal(STAR, wallY, wallSign, outVx, outVy, pushOut, NOW, cooldownMs = 0) {
   if (cooldownMs > 0) {
     const last = STAR.lastBounceH_Ms || 0;
     if (NOW - last < cooldownMs) return false;
@@ -600,11 +591,6 @@ function bounceHorizontal(STAR, wallY, wallSign, outVx, outVy, pushOut, NOW, coo
 
   STAR.momentumX = outVx - baseVx;
   STAR.momentumY = outVy - baseVy;
-
-  if (clearMomentum) {
-    STAR.momentumX = 0;
-    STAR.momentumY = 0;
-  }
 
   STAR.y = wallY + wallSign * pushOut;
 
