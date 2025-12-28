@@ -285,6 +285,10 @@ S.updateStarPhysics = function updateStarPhysics() {
     const MOMENTUM_MAG = Math.sqrt(
       STAR.momentumX * STAR.momentumX + STAR.momentumY * STAR.momentumY
     );
+    
+    // Apply keyboard adding 
+    STAR.momentumX += window.KEYBOARD.addX;
+    STAR.momentumY += window.KEYBOARD.addY;
 
     // Clamp momentum to prevent runaway speeds and keep the sim stable
     if (MOMENTUM_MAG > MOMENTUM_LIMIT) {
@@ -300,9 +304,7 @@ S.updateStarPhysics = function updateStarPhysics() {
     let FORCE_X = STAR.vx + STAR.momentumX;
     let FORCE_Y = STAR.vy + STAR.momentumY;
     
-    // Apply keyboard impulses (designed as instant per-tick nudges)
-    FORCE_X += window.KEYBOARD.addX;
-    FORCE_Y += window.KEYBOARD.addY;
+    // Apply keyboard multiplication (designed as instant per-tick nudges)
     FORCE_X *= window.KEYBOARD.multX;
     FORCE_Y *= window.KEYBOARD.multY;
 
