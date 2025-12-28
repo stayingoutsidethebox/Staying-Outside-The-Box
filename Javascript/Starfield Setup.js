@@ -29,7 +29,15 @@
 window.STARFIELD = {};
 
 // Create the global keyboard impulse container used by the Active file each frame
-window.KEYBOARD = { multX: 1, multY: 1, addX: 0, addY: 0, paddlesX: 50, paddlesY: 50 };
+window.KEYBOARD = {
+  multX: 1,
+  multY: 1,
+  addX: 0,
+  addY: 0,
+  paddlesX: 50,
+  paddlesY: 50,
+  paddlesTimer: 0
+};
 
 // Create a short alias for the STARFIELD namespace
 var S = window.STARFIELD;
