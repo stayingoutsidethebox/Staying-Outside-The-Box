@@ -103,6 +103,7 @@ S.starCountLimit = 0;
 
 // Track the computed maximum link distance for this screen size
 S.maxLinkDistance = 0;
+S.goalLinkDistance = 0;
 
 /* PRECOMPUTED PHYSICS SCALING POWERS (Setup writes, Active reads) */
 // Store scaling multipliers so physics stays screen-consistent without recomputing exponents per star
@@ -775,6 +776,7 @@ S.resizeStarfieldCanvas = function resizeStarfieldCanvas() {
 
   // Compute the maximum link distance for this screen size
   S.maxLinkDistance = S.screenScaleUp ** 10 * 300;
+  S.goalLinkDistance = S.maxLinkDistance;
 
   /* RECOMPUTE PHYSICS SCALING POWERS */
   // Scale attraction radius behavior as screen grows
