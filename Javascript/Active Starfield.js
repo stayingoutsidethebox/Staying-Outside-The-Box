@@ -550,7 +550,7 @@ if (STAR.momentumY !== 0) STAR.momentumY = Math.sign(STAR.momentumY) * Math.max(
       DBG.lastMs = NOW;
 
       // Write a sample star value for quick sanity checking
-      if (DBG.misc) DBG.misc.textContent = S.starList[0].momentumX;
+      if (DBG.misc) DBG.misc.textContent = S.getNowMs() - FRAME_START_MS;
 
       // Write ring timer value for visual verification
       if (DBG.circle) DBG.circle.textContent = S.pointerRingTimer.toFixed(3);
