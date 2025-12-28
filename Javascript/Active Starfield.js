@@ -559,7 +559,7 @@ if (STAR.momentumY !== 0) STAR.momentumY = Math.sign(STAR.momentumY) * Math.max(
   const FRAME_TIME_MS = S.getNowMs() - FRAME_START_MS;
 
 // Tune these
-const TARGET_MS = 6;          // budget for physics (ms)
+const TARGET_MS = 3;          // budget for physics (ms)
 const SHRINK = 0.95;
 const GROW = 1.05;
 
