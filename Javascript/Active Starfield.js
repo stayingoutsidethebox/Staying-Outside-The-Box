@@ -448,6 +448,80 @@ S.renderStarsAndLinks = function renderStarsAndLinks() {
   // Clear the full canvas each frame before redrawing
   CONTEXT.clearRect(0, 0, S.canvasWidth, S.canvasHeight);
 
+
+
+
+
+
+
+
+
+
+
+
+/* PADDLES */
+if (window.KEYBOARD.paddlesTimer > 0) {
+
+  // Nudge paddle centers (0–100 space)
+  window.KEYBOARD.paddlesX = Math.max(0, Math.min(100, (window.KEYBOARD.paddlesX ?? 50) + NEW_X));
+  window.KEYBOARD.paddlesY = Math.max(0, Math.min(100, (window.KEYBOARD.paddlesY ?? 50) + NEW_Y));
+
+  {
+    const S = window.STARFIELD;
+    const CANVAS = S?.constellationCanvas;
+    const CTX = CANVAS?.getContext?.("2d");
+    if (CTX && CANVAS) {
+      const W = CANVAS.width;
+      const H = CANVAS.height;
+
+      const alpha = Math.min(1, Math.max(0, PADDLES_TIMER));
+      const paddleW = W * 0.10; // 10% of width (top/bottom paddles)
+      const paddleH = H * 0.10; // 10% of height (left/right paddles)
+
+      const cx = (window.KEYBOARD.paddlesX / 100) * W;
+      const cy = (window.KEYBOARD.paddlesY / 100) * H;
+
+      CTX.save();
+      CTX.globalAlpha = alpha;
+
+      // Feel free to change styling
+      CTX.lineWidth = Math.max(2, Math.min(W, H) * 0.004);
+      CTX.lineCap = "round";
+      CTX.strokeStyle = "rgba(255,255,255,1)";
+
+      // Left & right vertical paddles (x = 0% and x = 100%)
+      CTX.beginPath();
+      CTX.moveTo(0, Math.max(0, cy - paddleH / 2));
+      CTX.lineTo(0, Math.min(H, cy + paddleH / 2));
+      CTX.moveTo(W, Math.max(0, cy - paddleH / 2));
+      CTX.lineTo(W, Math.min(H, cy + paddleH / 2));
+
+      // Top & bottom horizontal paddles (y = 0% and y = 100%)
+      CTX.moveTo(Math.max(0, cx - paddleW / 2), 0);
+      CTX.lineTo(Math.min(W, cx + paddleW / 2), 0);
+      CTX.moveTo(Math.max(0, cx - paddleW / 2), H);
+      CTX.lineTo(Math.min(W, cx + paddleW / 2), H);
+
+      CTX.stroke();
+      CTX.restore();
+    }
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   /* USER POINTER RING */
   // Compute the baseline ring radius based on screen size
   const TARGET_RING_RADIUS = Math.max(0, S.screenScaleUp * 100 - 40);
