@@ -308,7 +308,7 @@ S.updateStarPhysics = function updateStarPhysics() {
     STAR.y += (STAR.vy + STAR.momentumY) * dtFrames;
 
 // Apply friction decay to momentum (time-based) BUT never let it hit 0
-const MIN_MOM = 0.01;
+const MIN_MOM = 1;
 
 STAR.momentumX *= MOMENTUM_DECAY;
 STAR.momentumY *= MOMENTUM_DECAY;
