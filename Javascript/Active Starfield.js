@@ -381,7 +381,7 @@ S.updateStarPhysics = function updateStarPhysics() {
             const outVx = +1 * speed * Math.cos(ang);
             const outVy = speed * Math.sin(ang);
 
-            DID_BOUNCE = bounceVertical(STAR, viewLeft, +1, outVx, outVy, pushOutX, NOW, HIT_COOLDOWN_MS, true) || DID_BOUNCE;
+            DID_BOUNCE = bounceVertical(STAR, viewLeft, +1, outVx, outVy, pushOutX, NOW, HIT_COOLDOWN_MS, false) || DID_BOUNCE;
           }
 
           // RIGHT paddle: bounce to the left (-1)
@@ -392,7 +392,7 @@ S.updateStarPhysics = function updateStarPhysics() {
             const outVx = -1 * speed * Math.cos(ang);
             const outVy = speed * Math.sin(ang);
 
-            DID_BOUNCE = bounceVertical(STAR, viewRight, -1, outVx, outVy, pushOutX, NOW, HIT_COOLDOWN_MS, true) || DID_BOUNCE;
+            DID_BOUNCE = bounceVertical(STAR, viewRight, -1, outVx, outVy, pushOutX, NOW, HIT_COOLDOWN_MS, false) || DID_BOUNCE;
           }
 
           // TOP paddle: bounce down (+1)
@@ -403,7 +403,7 @@ S.updateStarPhysics = function updateStarPhysics() {
             const outVy = +1 * speed * Math.cos(ang);
             const outVx = speed * Math.sin(ang);
 
-            DID_BOUNCE = bounceHorizontal(STAR, viewTop, +1, outVx, outVy, pushOutY, NOW, HIT_COOLDOWN_MS, true) || DID_BOUNCE;
+            DID_BOUNCE = bounceHorizontal(STAR, viewTop, +1, outVx, outVy, pushOutY, NOW, HIT_COOLDOWN_MS, false) || DID_BOUNCE;
           }
 
           // BOTTOM paddle: bounce up (-1)
@@ -414,7 +414,7 @@ S.updateStarPhysics = function updateStarPhysics() {
             const outVy = -1 * speed * Math.cos(ang);
             const outVx = speed * Math.sin(ang);
 
-            DID_BOUNCE = bounceHorizontal(STAR, viewBottom, -1, outVx, outVy, pushOutY, NOW, HIT_COOLDOWN_MS, true) || DID_BOUNCE;
+            DID_BOUNCE = bounceHorizontal(STAR, viewBottom, -1, outVx, outVy, pushOutY, NOW, HIT_COOLDOWN_MS, false) || DID_BOUNCE;
           }
         }
       }
@@ -450,7 +450,7 @@ S.updateStarPhysics = function updateStarPhysics() {
         const pushOutY = STAR_RADIUS + 0.5;
 
         // For normal stars, keep momentum. For paddle-ball while paddles active, clear it.
-        const CLEAR = (STAR === S.starList[0] && window.KEYBOARD.paddlesTimer > 0);
+        const CLEAR = false;
 
         // Left wall
         if (STAR.x < STAR_RADIUS) {
@@ -561,26 +561,22 @@ S.updateStarPhysics = function updateStarPhysics() {
 };
 
 /* ---------- Bounce helpers (reusable) ---------- */
-/**
- * Apply a vertical-wall bounce (left/right).
- * Caller provides:
- *  - wallX: x coordinate of the wall line
- *  - wallSign: +1 means bounce to the right, -1 means bounce to the left
- *  - outVx/outVy: the post-bounce velocity components you computed
- *  - pushOut: how far to place the star away from the wall to avoid re-hits
- *  - NOW + cooldownMs: optional hit-cooldown support (per-star)
- *  - clearMomentum: true for paddle ball, false for normal stars if desired
- */
-function bounceVertical(STAR, wallX, wallSign, outVx, outVy, pushOut, NOW, cooldownMs = 0, clearMomentum = true) {
+function bounceVertical(STAR, wallX, wallSign, outVx, outVy, pushOut, NOW, cooldownMs = 0, clearMomentum = false) {
   if (cooldownMs > 0) {
     const last = STAR.lastBounceV_Ms || 0;
     if (NOW - last < cooldownMs) return false;
     STAR.lastBounceV_Ms = NOW;
   }
 
-  STAR.vx = outVx;
-  STAR.vy = outVy;
+  // Base drift never changes
+  const baseVx = STAR.vx || 0;
+  const baseVy = STAR.vy || 0;
 
+  // Convert desired post-bounce TOTAL velocity into momentum-only
+  STAR.momentumX = outVx - baseVx;
+  STAR.momentumY = outVy - baseVy;
+
+  // Optional: if you ever want to hard-reset momentum (usually no)
   if (clearMomentum) {
     STAR.momentumX = 0;
     STAR.momentumY = 0;
@@ -592,32 +588,24 @@ function bounceVertical(STAR, wallX, wallSign, outVx, outVy, pushOut, NOW, coold
   return true;
 }
 
-/**
- * Apply a horizontal-wall bounce (top/bottom).
- * Caller provides:
- *  - wallY: y coordinate of the wall line
- *  - wallSign: +1 means bounce downward, -1 means bounce upward
- *  - outVx/outVy: the post-bounce velocity components you computed
- *  - pushOut: how far to place the star away from the wall to avoid re-hits
- *  - NOW + cooldownMs: optional hit-cooldown support (per-star)
- *  - clearMomentum: true for paddle ball, false for normal stars if desired
- */
-function bounceHorizontal(STAR, wallY, wallSign, outVx, outVy, pushOut, NOW, cooldownMs = 0, clearMomentum = true) {
+function bounceHorizontal(STAR, wallY, wallSign, outVx, outVy, pushOut, NOW, cooldownMs = 0, clearMomentum = false) {
   if (cooldownMs > 0) {
     const last = STAR.lastBounceH_Ms || 0;
     if (NOW - last < cooldownMs) return false;
     STAR.lastBounceH_Ms = NOW;
   }
 
-  STAR.vx = outVx;
-  STAR.vy = outVy;
+  const baseVx = STAR.vx || 0;
+  const baseVy = STAR.vy || 0;
+
+  STAR.momentumX = outVx - baseVx;
+  STAR.momentumY = outVy - baseVy;
 
   if (clearMomentum) {
     STAR.momentumX = 0;
     STAR.momentumY = 0;
   }
 
-  // Push away from wall so we don't immediately collide again
   STAR.y = wallY + wallSign * pushOut;
 
   return true;
