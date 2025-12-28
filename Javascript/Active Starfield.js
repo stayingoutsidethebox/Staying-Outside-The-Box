@@ -271,11 +271,17 @@ S.updateStarPhysics = function updateStarPhysics() {
 
     /* GLOBAL FORCES */
     // Compute a drift multiplier that grows slightly when the pointer is active
-    const DRIFT_BOOST = Math.min(7, 0.01 * S.pointerSpeedUnits);
+    const DRIFT_BOOST = Math.min(7, 0.01 * (S.pointerSpeedUnits + 0.0001));
 
     // Add passive drift (dt-scaled so it feels stable across FPS)
     STAR.momentumX += (STAR.vx * DRIFT_BOOST) * dtFrames;
     STAR.momentumY += (STAR.vy * DRIFT_BOOST) * dtFrames;
+
+    // Apply keyboard influence 
+    STAR.momentumX *= window.KEYBOARD.multX;
+    STAR.momentumY *= window.KEYBOARD.multY;
+    STAR.momentumX += window.KEYBOARD.addX;
+    STAR.momentumY += window.KEYBOARD.addY;
 
     /* MOMENTUM CLAMP */
     // Compute a maximum allowed momentum based on user clamp and screen scaling
@@ -286,10 +292,6 @@ S.updateStarPhysics = function updateStarPhysics() {
       STAR.momentumX * STAR.momentumX + STAR.momentumY * STAR.momentumY
     );
     
-    // Apply keyboard adding 
-    STAR.momentumX += window.KEYBOARD.addX;
-    STAR.momentumY += window.KEYBOARD.addY;
-
     // Clamp momentum to prevent runaway speeds and keep the sim stable
     if (MOMENTUM_MAG > MOMENTUM_LIMIT) {
       // Compute the scale factor needed to reduce momentum down to the limit
@@ -299,19 +301,11 @@ S.updateStarPhysics = function updateStarPhysics() {
       STAR.momentumX *= MOMENTUM_SCALE;
       STAR.momentumY *= MOMENTUM_SCALE;
     }
-
-    // Switch to a treatable force
-    let FORCE_X = STAR.vx + STAR.momentumX;
-    let FORCE_Y = STAR.vy + STAR.momentumY;
     
-    // Apply keyboard multiplication (designed as instant per-tick nudges)
-    FORCE_X *= window.KEYBOARD.multX;
-    FORCE_Y *= window.KEYBOARD.multY;
-
     /* INTEGRATION */
     // Advance star position using base velocity plus accumulated momentum (dt-scaled)
-    STAR.x += FORCE_X * dtFrames;
-    STAR.y += FORCE_Y * dtFrames;
+    STAR.x += (STAR.vx + STAR.momentumX) * dtFrames;
+    STAR.y += (STAR.vy + STAR.momentumY) * dtFrames;
 
     // Apply friction decay to momentum (time-based)
     STAR.momentumX *= MOMENTUM_DECAY;
