@@ -205,25 +205,25 @@ function runM() {
  *========================================*/
 // R = Paddles left
 function runR() {
-  K.paddlesTimer = 10;
+  K.paddlesTimer = 50;
   K.paddlesX -= 5;
 }
 
 // T = Paddles right
 function runT() {
-  K.paddlesTimer = 10;
+  K.paddlesTimer = 50;
   K.paddlesX += 5;
 }
 
 // F = Paddles up
 function runF() {
-  K.paddlesTimer = 10;
+  K.paddlesTimer = 50;
   K.paddlesY -= 5;
 }
 
 // C = Paddles down
 function runC() {
-  K.paddlesTimer = 10;
+  K.paddlesTimer = 50;
   K.paddlesY += 5;
 }
 /* #endregion 4) PONG */
