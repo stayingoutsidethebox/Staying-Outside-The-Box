@@ -26,8 +26,7 @@ const DBG = {
   misc: null,     // Displays a sample value (momentumX) for quick sanity checks
   circle: null,   // Displays ring timer
   speed: null,    // Displays pointer speed
-  poke: null,     // Displays poke timer
-  lastMs: 0       // Tracks last time we updated debug text (throttle to ~10fps)
+  poke: null     // Displays poke timer
 };
 
 // Look up optional debug elements (they don't exist on most pages)
@@ -544,10 +543,6 @@ if (STAR.momentumY !== 0) STAR.momentumY = Math.sign(STAR.momentumY) * Math.max(
   /* DEBUG READOUTS */
   // Only do debug work when any debug elements exist
   if (DBG.misc || DBG.circle || DBG.speed || DBG.poke) {
-    // Throttle debug DOM writes to about 10 updates per second
-    if (NOW - DBG.lastMs >= 10) {
-      // Record the last debug update time
-      DBG.lastMs = NOW;
 
       // Write a sample star value for quick sanity checking
       if (DBG.misc) DBG.misc.textContent = (S.getNowMs() - FRAME_START_MS).toFixed(5);
@@ -561,7 +556,6 @@ if (STAR.momentumY !== 0) STAR.momentumY = Math.sign(STAR.momentumY) * Math.max(
       // Write poke timer value for visual verification
       if (DBG.poke) DBG.poke.textContent = S.pokeImpulseTimer.toFixed(1);
     }
-  }
   const FRAME_TIME_MS = S.getNowMs() - FRAME_START_MS;
 
 // Tune these
