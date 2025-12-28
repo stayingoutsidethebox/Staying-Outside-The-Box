@@ -834,14 +834,15 @@ function runAnimationLoop(NOW) {
     if (!S.isFrozen && typeof S.updateStarPhysics === "function") {
       S.updateStarPhysics();
     }
-  
-    /* RENDER */
-    // Run render step if Active file has installed the function
-    if (typeof S.renderStarsAndLinks === "function") {
-      S.renderStarsAndLinks();
-    }
+    
   }
-
+  
+  /* RENDER */
+  // Run render step if Active file has installed the function
+  if (typeof S.renderStarsAndLinks === "function") {
+    S.renderStarsAndLinks();
+  }
+  
   /* NEXT FRAME */
   // Schedule the next animation frame
   requestAnimationFrame(runAnimationLoop);
