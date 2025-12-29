@@ -273,5 +273,6 @@ function runP() {
 // L = Link fade in
 function runL() {
   window.STARFIELD.linkRebuildTimer = 300;
+  S.maxLinkDistance = 0;
 }
 /* #endregion 5) OTHERS */
