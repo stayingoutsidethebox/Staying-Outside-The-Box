@@ -772,6 +772,8 @@ S.renderStarsAndLinks = function renderStarsAndLinks() {
   /* LINKS */
   // Keyboard "L" button
   if (S.linkRebuildTimer > 0) {
+    const dtMs = clampDtMs(S.getNowMs() - (S._lastRenderMs || S.getNowMs()));
+    S._lastRenderMs = S.getNowMs();
     const t = 1 - (S.linkRebuildTimer / 300);
     S.maxLinkDistance = S.goalLinkDistance * t;
     S.linkRebuildTimer -= 0.004 * dtMs;
