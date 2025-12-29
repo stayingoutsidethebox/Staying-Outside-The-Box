@@ -291,7 +291,6 @@ S.updateStarPhysics = function updateStarPhysics() {
         
         if (window.KEYBOARD.magnetPointer) {
           // magnetX/magnetY are pointer client coords
-          window.KEYBOARD.magnetPointer = false;
           const rect = S.constellationCanvas.getBoundingClientRect();
           mx = S.pointerClientX - rect.left;
           my = S.pointerClientY - rect.top;
@@ -579,6 +578,7 @@ if (STAR.momentumY !== 0) STAR.momentumY = Math.sign(STAR.momentumY) * Math.max(
   window.KEYBOARD.addY = 0;
   window.KEYBOARD.magnetX = 0;
   window.KEYBOARD.magnetY = 0;
+  window.KEYBOARD.magnetPointer = false;
 
   // Decay pointer speed energy over time
   S.pointerSpeedUnits *= POINTER_SPEED_DECAY;
