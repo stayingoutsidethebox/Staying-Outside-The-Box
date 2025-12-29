@@ -778,7 +778,7 @@ S.resizeStarfieldCanvas = function resizeStarfieldCanvas() {
   S.starCountLimit = Math.min(300, S.screenScaleUp * 70);
 
   // Compute the maximum link distance for this screen size
-  S.maxLinkDistance = S.screenScaleUp ** 7 * 300;
+  S.maxLinkDistance = S.screenScaleUp ** 6.5 * 275;
   S.goalLinkDistance = S.maxLinkDistance;
 
   /* RECOMPUTE PHYSICS SCALING POWERS */
