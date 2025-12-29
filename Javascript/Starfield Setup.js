@@ -823,19 +823,18 @@ S.resizeStarfieldCanvas = function resizeStarfieldCanvas() {
 
 // Run the main animation loop and call physics + rendering
 function runAnimationLoop() {
-  // Bail if canvas isn't active so we don't draw into null context
   if (!S.isCanvasReady) return;
 
-  S.updateStarPhysics();
-  
-  /* RENDER */
-  // Run render step if Active file has installed the function
+  // ✅ Only run physics if Active has installed it
+  if (typeof S.updateStarPhysics === "function") {
+    S.updateStarPhysics();
+  }
+
+  // ✅ Only run render if Active has installed it
   if (typeof S.renderStarsAndLinks === "function") {
     S.renderStarsAndLinks();
   }
-  
-  /* NEXT FRAME */
-  // Schedule the next animation frame
+
   requestAnimationFrame(runAnimationLoop);
 }
 
