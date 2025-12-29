@@ -89,12 +89,6 @@ const KEY_FUNCTIONS = {
   l: () => runL()
 };
 
-/* CONSTANTS */
-const 1.7 = 1.7;
-const 0.6 = 0.6;
-const 1 = 1;
-const -1 = -1;
-
 /* #endregion 1) SETUP */
 
 /*========================================*
@@ -155,56 +149,65 @@ function runX() {
  *========================================*/
 // Y = Top left
 function runY() {
-  K.magnetX = 16.5%;
-  K.magnetY = 16.5%;
+  K.magnetPointer = true;
+  K.magnetX = 16.5;
+  K.magnetY = 16.5;
 }
 
 // U = Top center
 function runU() {
-  K.magnetX = 50%;
-  K.magnetY = 16.5%;
+  K.magnetPointer = true;
+  K.magnetX = 50;
+  K.magnetY = 16.5;
 }
 
 // I = Top right
 function runI() {
-  K.magnetX = 83.5%;
-  K.magnetY = 16.5%;
+  K.magnetPointer = true;
+  K.magnetX = 83.5;
+  K.magnetY = 16.5;
 }
 
 // H = Middle left
 function runH() {
-  K.magnetX = 16.5%;
-  K.magnetY = 50%;
+  K.magnetPointer = true;
+  K.magnetX = 16.5;
+  K.magnetY = 50;
 }
 
 // J = Middle center
 function runJ() {
-  K.magnetX = 50%;
-  K.magnetY = 50%;
+  K.magnetPointer = true;
+  K.magnetX = 50;
+  K.magnetY = 50;
 }
 
 // K = Middle right
 function runK() {
-  K.magnetX = 83.5%;
-  K.magnetY = 50%;
+  K.magnetPointer = true;
+  K.magnetX = 83.5;
+  K.magnetY = 50;
 }
 
 // B = Bottom left
 function runB() {
-  K.magnetX = 16.5%;
-  K.magnetY = 83.5%;
+  K.magnetPointer = true;
+  K.magnetX = 16.5;
+  K.magnetY = 83.5;
 }
 
 // N = Bottom center
 function runN() {
-  K.magnetX = 50%;
-  K.magnetY = 83.5%;
+  K.magnetPointer = true;
+  K.magnetX = 50;
+  K.magnetY = 83.5;
 }
 
 // M = Bottom right
 function runM() {
-  K.magnetX = 83.5%;
-  K.magnetY = 83.5%;
+  K.magnetPointer = true;
+  K.magnetX = 83.5;
+  K.magnetY = 83.5;
 }
 /* #endregion 3) QUADRANT MAGNETISM */
 
