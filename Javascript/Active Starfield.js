@@ -828,7 +828,8 @@ S.renderStarsAndLinks = function renderStarsAndLinks() {
 
           const DISTANCE_FADE = 1 - (SCALED_DISTANCE / S.maxLinkDistance);
           const DISTANCE_CLAMP = DISTANCE_FADE > 0 ? DISTANCE_FADE : 0;
-          const LINK_ALPHA = DISTANCE_CLAMP * MIN_OPACITY * MIN_EDGE;
+          let LINK_ALPHA = DISTANCE_CLAMP * MIN_OPACITY * MIN_EDGE;
+          LINK_ALPHA = LINK_ALPHA * (LINK_ALPHA + 1);
 
           if (LINK_ALPHA <= 0.002) continue;
 
