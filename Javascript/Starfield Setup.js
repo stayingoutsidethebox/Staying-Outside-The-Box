@@ -420,8 +420,8 @@ S.createNewStars = function createNewStars() {
       x: Math.random() * S.canvasWidth, // Spawn X uniformly across the canvas
       y: Math.random() * S.canvasHeight, // Spawn Y uniformly across the canvas
 
-      vx: S.randomBetween(-0.25, 0.25), // Passive drift velocity X
-      vy: S.randomBetween(-0.25, 0.25), // Passive drift velocity Y
+      vx: S.randomBetween(-0.15, 0.15), // Passive drift velocity X
+      vy: S.randomBetween(-0.15, 0.15), // Passive drift velocity Y
 
       size: S.randomBetween(
         Math.min(MIN_SIZE, MAX_SIZE),
