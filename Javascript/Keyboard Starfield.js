@@ -258,8 +258,6 @@ function runG() {
 // O = Orbit
 function runO() {
   K.magnetPointer = true;
-  K.magnetX = window.STARFIELD.pointerClientX;
-  K.magnetY = window.STARFIELD.pointerClientY;
 }
 
 // P = Passive movement inversion
