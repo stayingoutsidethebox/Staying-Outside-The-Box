@@ -571,19 +571,6 @@ if (STAR.momentumY !== 0) STAR.momentumY = Math.sign(STAR.momentumY) * Math.max(
       STAR.opacity -= 0.0001 * dtFrames;
     }
   }
-  
-  /* Keyboard "L" button */
-  if (S.linkRebuildTimer > 0) {
-    const t = 1 - (S.linkRebuildTimer / 300);
-    S.maxLinkDistance = S.goalLinkDistance * t;
-    S.linkRebuildTimer -= 0.004 * dtMs;
-  
-    if (S.linkRebuildTimer < 0) {
-      S.linkRebuildTimer = 0;
-      S.maxLinkDistance = S.goalLinkDistance;
-    }
-    LINKS_DIRTY = true;
-  }
 
   /* GLOBAL DECAYS */
 
@@ -629,6 +616,8 @@ if (STAR.momentumY !== 0) STAR.momentumY = Math.sign(STAR.momentumY) * Math.max(
       // Write poke timer value for visual verification
       if (DBG.poke) DBG.poke.textContent = S.pokeImpulseTimer.toFixed(1);
     }
+    
+    /* LAG BUSTER */
   const FRAME_TIME_MS = S.getNowMs() - FRAME_START_MS;
 
 // Tune these
@@ -644,9 +633,21 @@ if (FRAME_TIME_MS > TARGET_MS) {
   // Too slow: reduce link distance
   S.maxLinkDistance *= SHRINK;
 } else {
+  
   // Fast enough: restore quality
   S.maxLinkDistance *= GROW;
+  /* Keyboard "L" button */
+  if (S.linkRebuildTimer > 0) {
+    const t = 1 - (S.linkRebuildTimer / 300);
+    S.maxLinkDistance = S.goalLinkDistance * t;
+    LINKS_DIRTY = true;
+  }
 }
+
+    if (S.linkRebuildTimer > 0) S.linkRebuildTimer -= 0.004 * dtMs;
+    if (S.linkRebuildTimer < 0) S.linkRebuildTimer = 0;
+
+
 
 // Clamp
 if (S.maxLinkDistance < MIN_LINK_DISTANCE) {
