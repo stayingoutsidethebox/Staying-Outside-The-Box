@@ -286,9 +286,10 @@ S.updateStarPhysics = function updateStarPhysics() {
       const CANVAS = S.constellationCanvas;
       if (CANVAS) {
         const rect = CANVAS.getBoundingClientRect();
-      
+           //GPT START
+/*
         // Convert magnet target into CANVAS coordinates (same space as STAR.x / STAR.y)
-        let mx, my;
+        let MAGNET_X, MAGNET_Y;
       
         if (window.KEYBOARD.magnetPointer) {
           window.KEYBOARD.magnetPointer = false;
@@ -296,57 +297,40 @@ S.updateStarPhysics = function updateStarPhysics() {
           const viewLeft = -rect.left;
           const viewTop = -rect.top;
       
-          mx = viewLeft + (window.KEYBOARD.magnetX / 100) * window.innerWidth;
-          my = viewTop + (window.KEYBOARD.magnetY / 100) * window.innerHeight;
+          MAGNET_X = viewLeft + (window.KEYBOARD.magnetX / 100) * window.innerWidth;
+          MAGNET_Y = viewTop + (window.KEYBOARD.magnetY / 100) * window.innerHeight;
         } else {
           // Client -> canvas coords
-          mx = window.KEYBOARD.magnetX - rect.left;
-          my = window.KEYBOARD.magnetY - rect.top;
+          MAGNET_X = window.KEYBOARD.magnetX;//these come in as pointer coordinates
+          MAGNET_Y = window.KEYBOARD.magnetY;
         }
       
-        // Vector from star to magnet
-        const dxm = mx - STAR.x;
-        const dym = my - STAR.y;
-        const d2m = dxm * dxm + dym * dym;
       
-        // Reuse your influence range (keeps it cheap and controlled)
-        if (d2m < INFLUENCE_RANGE_SQ) {
-          const dm = Math.sqrt(d2m) + 0.0001;
-          const ux = dxm / dm;
-          const uy = dym / dm;
-      
-          // Falloff: 1 near magnet, 0 at edge of influence
-          let g = 1 - (dm / (INFLUENCE_RANGE || 1));
-          if (g < 0) g = 0;
-      
-          // Shape it so orbit feels “snappy” near the center
-          const shaped = g * g;
-      
-          // Direction: perpendicular to (ux,uy)
-          const dir = (window.KEYBOARD.magnetDir === -1) ? -1 : 1; // default 1
-          const px = -uy * dir;
-          const py =  ux * dir;
-      
-          // Strength tuning (ties nicely into your existing scale + clamp)
-          const userStrength = window.KEYBOARD.magnetStrength || 1;
-      
-          // Base orbit strength: uses clamp scale so big screens don’t get wimpy
-          const BASE = (0.3 * SETTINGS.clamp * SCALE.forceClamp) * userStrength;
-      
-          // Split into pull (inward) and spin (tangential)
-          // More spin = more orbit; more pull = tighter spiral.
-          const PULL = BASE * 0.35 * shaped;
-          const SPIN = BASE * 0.75 * shaped;
-      
+
+
+if (mangetY is a percentage){ //dont need to check x
+        const rect = CANVAS.getBoundingClientRect();
+MAGNET_X = magnetX of screen width;
+MAGNET_Y = magnetY of screen height;
+}
+//otherwise, magnets already start as coordinates derrived from user pointer
+MAGNET_X += slightly perpendicular and slightly towards magnetX;
+MAGNET_Y += slightly perpendicular and slightly towards magnetY;
+
+
           // Apply (dt-scaled)
-          STAR.momentumX += (ux * PULL + px * SPIN) * dtFrames;
-          STAR.momentumY += (uy * PULL + py * SPIN) * dtFrames;
+          STAR.momentumX += MAGNET_X * dtFrames;
+          STAR.momentumY += MAGNET_Y * dtFrames;
       
           // Mark links dirty if this is doing noticeable work (helps visuals keep up)
-          if (SPIN > 0.05) LINKS_DIRTY = true;
+          if (CHANGE > 0.05) LINKS_DIRTY = true;
+
         }
-      }
-    }
+  
+*/
+// GPT END
+}
+}
 
     /* MOMENTUM CLAMP */
     // Compute a maximum allowed momentum based on user clamp and screen scaling
