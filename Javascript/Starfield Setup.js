@@ -423,21 +423,21 @@ S.restoreOrCreateStars = function restoreOrCreateStars() {
 
     try {
       // Parse saved meta object from JSON.
-      const META = JSON.parse(RAW_META_JSON);
+      const SAVED_META = JSON.parse(RAW_META_JSON);
 
       /* GROUP: Rescale stars */
       // Rescale stars to current canvas so they don’t “corner spawn” after resize.
-      if (META.width > 0 && META.height > 0) {
+      if (SAVED_META.width > 0 && SAVED_META.height > 0) {
 
         // Compute X scale ratio from old canvas to new canvas.
-        const SCALE_X = S.canvasWidth / META.width;
+        const SCALE_X = S.canvasWidth / SAVED_META.width;
 
         // Compute Y scale ratio from old canvas to new canvas.
-        const SCALE_Y = S.canvasHeight / META.height;
+        const SCALE_Y = S.canvasHeight / SAVED_META.height;
 
         // Compute a size scale ratio from old perimeter to new perimeter.
         const SIZE_SCALE =
-          (S.canvasWidth + S.canvasHeight) / (META.width + META.height);
+          (S.canvasWidth + S.canvasHeight) / (SAVED_META.width + SAVED_META.height);
 
         // Apply rescale to each star position and size.
         for (const STAR of S.starList) {
@@ -449,53 +449,53 @@ S.restoreOrCreateStars = function restoreOrCreateStars() {
 
       /* GROUP: Restore interaction state */
       // Restore poke timer (fallback to 0).
-      S.pokeImpulseTimer = META.pokeTimer ?? 0;
+      S.pokeImpulseTimer = SAVED_META.pokeTimer ?? 0;
 
       // Restore pointer speed “energy” (fallback to 0).
-      S.pointerSpeedUnits = META.userSpeed ?? 0;
+      S.pointerSpeedUnits = SAVED_META.userSpeed ?? 0;
 
       // Restore ring timer (fallback to 0).
-      S.pointerRingTimer = META.ringTimer ?? 0;
+      S.pointerRingTimer = SAVED_META.ringTimer ?? 0;
 
       /* GROUP: Restore UI settings */
       // Restore attraction strength (fallback to current).
       S.interactionSettings.attractStrength =
-        META.attractStrength ?? S.interactionSettings.attractStrength;
+        SAVED_META.attractStrength ?? S.interactionSettings.attractStrength;
 
       // Restore attraction radius (fallback to current).
       S.interactionSettings.attractRadius =
-        META.attractRadius ?? S.interactionSettings.attractRadius;
+        SAVED_META.attractRadius ?? S.interactionSettings.attractRadius;
 
       // Restore attraction curve (fallback to current).
       S.interactionSettings.attractScale =
-        META.attractScale ?? S.interactionSettings.attractScale;
+        SAVED_META.attractScale ?? S.interactionSettings.attractScale;
 
       // Restore clamp (fallback to current).
       S.interactionSettings.clamp =
-        META.clamp ?? S.interactionSettings.clamp;
+        SAVED_META.clamp ?? S.interactionSettings.clamp;
 
       // Restore repulsion strength (fallback to current).
       S.interactionSettings.repelStrength =
-        META.repelStrength ?? S.interactionSettings.repelStrength;
+        SAVED_META.repelStrength ?? S.interactionSettings.repelStrength;
 
       // Restore repulsion radius (fallback to current).
       S.interactionSettings.repelRadius =
-        META.repelRadius ?? S.interactionSettings.repelRadius;
+        SAVED_META.repelRadius ?? S.interactionSettings.repelRadius;
 
       // Restore repulsion curve (fallback to current).
       S.interactionSettings.repelScale =
-        META.repelScale ?? S.interactionSettings.repelScale;
+        SAVED_META.repelScale ?? S.interactionSettings.repelScale;
 
       // Restore poke strength (fallback to current).
       S.interactionSettings.pokeStrength =
-        META.pokeStrength ?? S.interactionSettings.pokeStrength;
+        SAVED_META.pokeStrength ?? S.interactionSettings.pokeStrength;
 
       /* GROUP: Restore pointer position */
       // Restore pointer X when saved as a number.
-      if (typeof META.userX === "number") S.pointerClientX = META.userX;
+      if (typeof SAVED_META.userX === "number") S.pointerClientX = SAVED_META.userX;
 
       // Restore pointer Y when saved as a number.
-      if (typeof META.userY === "number") S.pointerClientY = META.userY;
+      if (typeof SAVED_META.userY === "number") S.pointerClientY = SAVED_META.userY;
 
       /* GROUP: Reset pointer time baseline */
       // Reset timing baseline to “now” so next delta is sane.
@@ -633,7 +633,7 @@ S.interactionSettings = {
 
 /* GROUP: Hold-to-repeat steppers */
 // Enable “press and hold” repeating behavior for stepper buttons.
-S.enableHoldToRepeat = function enableHoldToRepeat(BUTTON, onStep) {
+S.enableHoldToRepeat = function enableHoldToRepeat(BUTTON, ON_STEP) {
 
   // Track initial delay timeout handle.
   let HOLD_DELAY_TIMER = null;
@@ -655,13 +655,13 @@ S.enableHoldToRepeat = function enableHoldToRepeat(BUTTON, onStep) {
   const ACCELERATION = 0.88;
 
   // Start hold behavior: fire immediately, then repeat.
-  const startHold = () => {
+  const START_HOLD = () => {
 
     // Track current interval so we can accelerate over time.
     let CURRENT_INTERVAL_MS = START_INTERVAL_MS;
 
     // Fire once immediately on press.
-    onStep();
+    ON_STEP();
 
     // After a short delay, begin repeating.
     HOLD_DELAY_TIMER = setTimeout(() => {
@@ -670,14 +670,14 @@ S.enableHoldToRepeat = function enableHoldToRepeat(BUTTON, onStep) {
       REPEAT_INTERVAL_TIMER = setInterval(() => {
 
         // Execute one step.
-        onStep();
+        ON_STEP();
 
         // Accelerate interval down to minimum.
         CURRENT_INTERVAL_MS = Math.max(MIN_INTERVAL_MS, CURRENT_INTERVAL_MS * ACCELERATION);
 
         // Restart interval at the new faster speed.
         clearInterval(REPEAT_INTERVAL_TIMER);
-        REPEAT_INTERVAL_TIMER = setInterval(onStep, CURRENT_INTERVAL_MS);
+        REPEAT_INTERVAL_TIMER = setInterval(ON_STEP, CURRENT_INTERVAL_MS);
 
       }, CURRENT_INTERVAL_MS);
 
@@ -685,7 +685,7 @@ S.enableHoldToRepeat = function enableHoldToRepeat(BUTTON, onStep) {
   };
 
   // Stop hold behavior and clear timers.
-  const stopHold = () => {
+  const STOP_HOLD = () => {
 
     // Cancel delayed start if it hasn't fired.
     clearTimeout(HOLD_DELAY_TIMER);
@@ -700,30 +700,34 @@ S.enableHoldToRepeat = function enableHoldToRepeat(BUTTON, onStep) {
 
   /* GROUP: Mouse events */
   // Start hold-repeat on mouse down.
-  BUTTON.addEventListener("mousedown", (EVENT) => { EVENT.preventDefault(); startHold(); });
+  BUTTON.addEventListener("mousedown", (EVENT) => { EVENT.preventDefault(); START_HOLD(); });
 
   // Stop hold-repeat on mouse up.
-  BUTTON.addEventListener("mouseup", stopHold);
+  BUTTON.addEventListener("mouseup", STOP_HOLD);
 
   // Stop hold-repeat if mouse leaves button.
-  BUTTON.addEventListener("mouseleave", stopHold);
+  BUTTON.addEventListener("mouseleave", STOP_HOLD);
 
   /* GROUP: Touch events */
   // Start hold-repeat on touch start (prevent ghost clicks).
-  BUTTON.addEventListener("touchstart", (EVENT) => { EVENT.preventDefault(); startHold(); }, { passive: false });
+  BUTTON.addEventListener(
+    "touchstart",
+    (EVENT) => { EVENT.preventDefault(); START_HOLD(); },
+    { passive: false }
+  );
 
   // Stop hold-repeat on touch end.
-  BUTTON.addEventListener("touchend", stopHold);
+  BUTTON.addEventListener("touchend", STOP_HOLD);
 
   // Stop hold-repeat on touch cancel.
-  BUTTON.addEventListener("touchcancel", stopHold);
+  BUTTON.addEventListener("touchcancel", STOP_HOLD);
 };
 
 /* GROUP: Slider + number binding */
 // Bind a slider and optional number input to a setting, plus optional steppers.
 S.bindSliderAndNumberInput = function bindSliderAndNumberInput(
   CONTROL_ID,
-  applySettingValue,
+  APPLY_SETTING_VALUE,
   INITIAL_VALUE
 ) {
 
@@ -740,7 +744,9 @@ S.bindSliderAndNumberInput = function bindSliderAndNumberInput(
   const CONTROL_BLOCK = SLIDER.closest(".controlBlock");
 
   // Find stepper buttons inside this control block (optional).
-  const STEP_BUTTONS = CONTROL_BLOCK ? CONTROL_BLOCK.querySelectorAll(".stepBtn[data-step]") : [];
+  const STEP_BUTTONS = CONTROL_BLOCK
+    ? CONTROL_BLOCK.querySelectorAll(".stepBtn[data-step]")
+    : [];
 
   /* GROUP: Range + step */
   // Read min value from slider or number input.
@@ -750,16 +756,19 @@ S.bindSliderAndNumberInput = function bindSliderAndNumberInput(
   const MAX_VALUE = Number(SLIDER.max || (NUMBER_INPUT && NUMBER_INPUT.max) || 10);
 
   // Read raw step from slider or number input.
-  const RAW_STEP = Number(SLIDER.step || (NUMBER_INPUT && NUMBER_INPUT.step) || 1);
+  const RAW_STEP_SIZE = Number(SLIDER.step || (NUMBER_INPUT && NUMBER_INPUT.step) || 1);
 
   // Use safe step default when missing/invalid.
-  const STEP_SIZE = Number.isFinite(RAW_STEP) && RAW_STEP > 0 ? RAW_STEP : 1;
+  const STEP_SIZE =
+    Number.isFinite(RAW_STEP_SIZE) && RAW_STEP_SIZE > 0
+      ? RAW_STEP_SIZE
+      : 1;
 
   // Clamp value into allowed min/max range.
-  const clampValue = (VALUE) => Math.min(MAX_VALUE, Math.max(MIN_VALUE, VALUE));
+  const CLAMP_VALUE = (VALUE) => Math.min(MAX_VALUE, Math.max(MIN_VALUE, VALUE));
 
   // Snap value to nearest step increment.
-  const snapToStep = (VALUE) => {
+  const SNAP_TO_STEP = (VALUE) => {
 
     // Compute nearest step-aligned value.
     const SNAPPED = MIN_VALUE + Math.round((VALUE - MIN_VALUE) / STEP_SIZE) * STEP_SIZE;
@@ -772,7 +781,7 @@ S.bindSliderAndNumberInput = function bindSliderAndNumberInput(
   };
 
   // Apply a value to UI + settings in one place.
-  const applyValue = (VALUE) => {
+  const APPLY_VALUE = (VALUE) => {
 
     // Convert incoming value to number.
     VALUE = Number(VALUE);
@@ -781,7 +790,7 @@ S.bindSliderAndNumberInput = function bindSliderAndNumberInput(
     if (!Number.isFinite(VALUE)) return;
 
     // Clamp + snap to the step grid.
-    VALUE = snapToStep(clampValue(VALUE));
+    VALUE = SNAP_TO_STEP(CLAMP_VALUE(VALUE));
 
     // Write slider value.
     SLIDER.value = String(VALUE);
@@ -790,23 +799,23 @@ S.bindSliderAndNumberInput = function bindSliderAndNumberInput(
     if (NUMBER_INPUT) NUMBER_INPUT.value = String(VALUE);
 
     // Apply into settings via callback.
-    applySettingValue(VALUE);
+    APPLY_SETTING_VALUE(VALUE);
   };
 
   // Nudge current value by one step in a direction.
-  const nudgeByStep = (DIRECTION) =>
-    applyValue(Number(SLIDER.value) + DIRECTION * STEP_SIZE);
+  const NUDGE_BY_STEP = (DIRECTION) =>
+    APPLY_VALUE(Number(SLIDER.value) + DIRECTION * STEP_SIZE);
 
   // Initialize control with provided value (or keep slider's current).
-  applyValue(INITIAL_VALUE ?? SLIDER.value);
+  APPLY_VALUE(INITIAL_VALUE ?? SLIDER.value);
 
   // Wire slider changes.
-  SLIDER.addEventListener("input", () => applyValue(SLIDER.value));
+  SLIDER.addEventListener("input", () => APPLY_VALUE(SLIDER.value));
 
   // Wire number input changes if present.
   if (NUMBER_INPUT) {
-    NUMBER_INPUT.addEventListener("input", () => applyValue(NUMBER_INPUT.value));
-    NUMBER_INPUT.addEventListener("change", () => applyValue(NUMBER_INPUT.value));
+    NUMBER_INPUT.addEventListener("input", () => APPLY_VALUE(NUMBER_INPUT.value));
+    NUMBER_INPUT.addEventListener("change", () => APPLY_VALUE(NUMBER_INPUT.value));
   }
 
   // Wire stepper buttons if present.
@@ -819,7 +828,7 @@ S.bindSliderAndNumberInput = function bindSliderAndNumberInput(
     if (!DIRECTION) return;
 
     // Enable hold-to-repeat using the nudge function.
-    S.enableHoldToRepeat(BUTTON, () => nudgeByStep(DIRECTION));
+    S.enableHoldToRepeat(BUTTON, () => NUDGE_BY_STEP(DIRECTION));
   });
 
   // Report success to caller.
@@ -839,21 +848,18 @@ S.initializeGravityControlsIfPresent = function initializeGravityControlsIfPrese
   }
 
   /* GROUP: Attract controls */
-  // Bind attraction strength slider to settings.
   S.bindSliderAndNumberInput(
     "ATTRACT_STRENGTH",
     (VALUE) => (S.interactionSettings.attractStrength = VALUE),
     S.interactionSettings.attractStrength
   );
 
-  // Bind attraction radius slider to settings.
   S.bindSliderAndNumberInput(
     "ATTRACT_RADIUS",
     (VALUE) => (S.interactionSettings.attractRadius = VALUE),
     S.interactionSettings.attractRadius
   );
 
-  // Bind attraction scale slider to settings.
   S.bindSliderAndNumberInput(
     "ATTRACT_SCALE",
     (VALUE) => (S.interactionSettings.attractScale = VALUE),
@@ -861,7 +867,6 @@ S.initializeGravityControlsIfPresent = function initializeGravityControlsIfPrese
   );
 
   /* GROUP: Clamp control */
-  // Bind clamp slider to settings.
   S.bindSliderAndNumberInput(
     "CLAMP",
     (VALUE) => (S.interactionSettings.clamp = VALUE),
@@ -869,21 +874,18 @@ S.initializeGravityControlsIfPresent = function initializeGravityControlsIfPrese
   );
 
   /* GROUP: Repel controls */
-  // Bind repulsion strength slider to settings.
   S.bindSliderAndNumberInput(
     "REPEL_STRENGTH",
     (VALUE) => (S.interactionSettings.repelStrength = VALUE),
     S.interactionSettings.repelStrength
   );
 
-  // Bind repulsion radius slider to settings.
   S.bindSliderAndNumberInput(
     "REPEL_RADIUS",
     (VALUE) => (S.interactionSettings.repelRadius = VALUE),
     S.interactionSettings.repelRadius
   );
 
-  // Bind repulsion scale slider to settings.
   S.bindSliderAndNumberInput(
     "REPEL_SCALE",
     (VALUE) => (S.interactionSettings.repelScale = VALUE),
@@ -891,7 +893,6 @@ S.initializeGravityControlsIfPresent = function initializeGravityControlsIfPrese
   );
 
   /* GROUP: Poke control */
-  // Bind poke strength slider to settings.
   S.bindSliderAndNumberInput(
     "POKE_STRENGTH",
     (VALUE) => (S.interactionSettings.pokeStrength = VALUE),
@@ -918,86 +919,47 @@ S.resizeStarfieldCanvas = function resizeStarfieldCanvas() {
   if (!S.isCanvasReady) return;
 
   /* GROUP: Capture old state for rescale */
-  // Save old width so we can scale X positions.
   const OLD_WIDTH = S.canvasWidth;
-
-  // Save old height so we can scale Y positions.
   const OLD_HEIGHT = S.canvasHeight;
-
-  // Save old perimeter so we can scale star sizes.
   const OLD_SCREEN_PERIMETER = S.screenPerimeter || 1;
 
   /* GROUP: Read new viewport size */
-  // Read current viewport width.
   S.canvasWidth = window.innerWidth || 0;
-
-  // Read current viewport height.
   S.canvasHeight = window.innerHeight || 0;
 
   /* GROUP: Resize canvas backing store */
-  // Apply new backing width (also clears canvas).
   S.constellationCanvas.width = S.canvasWidth;
-
-  // Apply new backing height (also clears canvas).
   S.constellationCanvas.height = S.canvasHeight;
 
   /* GROUP: Recompute scaling helpers */
-  // Update perimeter proxy.
   S.screenPerimeter = S.canvasWidth + S.canvasHeight;
-
-  // Compute scale-up curve for large screens.
   S.screenScaleUp = Math.pow(S.screenPerimeter / 1200, 0.35);
-
-  // Compute scale-down curve for small screens.
   S.screenScaleDown = Math.pow(1200 / S.screenPerimeter, 0.35);
 
   /* GROUP: Recompute caps */
-  // Compute star count cap (clamped for performance).
   S.starCountLimit = Math.min(300, S.screenScaleUp * 70);
-
-  // Compute max link distance for this screen size.
   S.maxLinkDistance = S.screenScaleUp ** 6.5 * 275;
-
-  // Keep goal link distance aligned to max by default.
   S.goalLinkDistance = S.maxLinkDistance;
 
   /* GROUP: Recompute physics scaling powers */
-  // Scale attraction radius behavior as screen grows.
   S.screenScalePowers.attractionGradient = S.screenScaleUp ** 0.5;
-
-  // Scale repulsion radius behavior as screen grows.
   S.screenScalePowers.repulsionGradient = S.screenScaleUp ** 0.66;
-
-  // Scale attraction falloff curve shaping as screen shrinks.
   S.screenScalePowers.attractionShape = S.screenScaleDown ** 8.89;
-
-  // Scale attraction force strength as screen shrinks.
   S.screenScalePowers.attractionForce = S.screenScaleDown ** 6.46;
-
-  // Scale repulsion force strength as screen shrinks.
   S.screenScalePowers.repulsionForce = S.screenScaleDown ** 0.89;
-
-  // Scale global clamp as screen grows.
   S.screenScalePowers.forceClamp = S.screenScaleUp ** 1.8;
 
   /* GROUP: Rescale existing stars */
-  // Keep star layout consistent across resize (prevents big jumps).
   if (OLD_WIDTH !== 0 && OLD_HEIGHT !== 0 && S.starList.length) {
 
-    // Compute X ratio from old canvas to new.
     const SCALE_X = S.canvasWidth / OLD_WIDTH;
-
-    // Compute Y ratio from old canvas to new.
     const SCALE_Y = S.canvasHeight / OLD_HEIGHT;
-
-    // Compute size ratio from old perimeter to new.
     const SIZE_SCALE = S.screenPerimeter / OLD_SCREEN_PERIMETER;
 
-    // Apply rescale to each star.
     for (const STAR of S.starList) {
-      STAR.x *= SCALE_X;         // Scale X into new canvas.
-      STAR.y *= SCALE_Y;         // Scale Y into new canvas.
-      STAR.size *= SIZE_SCALE;   // Scale size to match new perimeter.
+      STAR.x *= SCALE_X;
+      STAR.y *= SCALE_Y;
+      STAR.size *= SIZE_SCALE;
     }
   }
 };
@@ -1006,26 +968,21 @@ S.resizeStarfieldCanvas = function resizeStarfieldCanvas() {
 // Main animation loop that calls Active physics + render when present.
 function runAnimationLoop() {
 
-  // Bail if canvas isn't active.
   if (!S.isCanvasReady) return;
 
-  // Skip updates when frozen (transitions/backgrounding).
   if (S.isFrozen) {
     requestAnimationFrame(runAnimationLoop);
     return;
   }
 
-  // Run physics if Active has installed it.
   if (typeof S.updateStarPhysics === "function") {
     S.updateStarPhysics();
   }
 
-  // Run render if Active has installed it.
   if (typeof S.renderStarsAndLinks === "function") {
     S.renderStarsAndLinks();
   }
 
-  // Queue next frame.
   requestAnimationFrame(runAnimationLoop);
 }
 
@@ -1043,13 +1000,11 @@ S._runAnimationLoop = runAnimationLoop;
 /* GROUP: Canvas usability check */
 // Return true when canvas size is stable enough to run starfield.
 function isCanvasSizeUsable() {
-
-  // Validate width/height are numbers and non-trivial.
   return (
-    Number.isFinite(S.canvasWidth) &&   // Ensure width is real.
-    Number.isFinite(S.canvasHeight) &&  // Ensure height is real.
-    S.canvasWidth > 50 &&               // Ensure width is usable.
-    S.canvasHeight > 50                 // Ensure height is usable.
+    Number.isFinite(S.canvasWidth) &&
+    Number.isFinite(S.canvasHeight) &&
+    S.canvasWidth > 50 &&
+    S.canvasHeight > 50
   );
 }
 
@@ -1057,48 +1012,36 @@ function isCanvasSizeUsable() {
 // Initialize starfield once the canvas has usable dimensions.
 function startStarfield() {
 
-  // Resize to current viewport and compute scaling values.
   S.resizeStarfieldCanvas();
 
-  // Mobile can report 0 briefly during first layout.
-  // If unusable, try again next frame.
   if (!isCanvasSizeUsable()) {
     requestAnimationFrame(startStarfield);
     return;
   }
 
   /* GROUP: Stars init */
-  // Restore or create stars exactly once.
   if (!S.hasStarsInitialized) {
-    S.hasStarsInitialized = true;      // Mark init so it cannot run twice.
-    S.restoreOrCreateStars();          // Restore saved field or create new.
+    S.hasStarsInitialized = true;
+    S.restoreOrCreateStars();
   }
 
   /* GROUP: Start loop */
-  // Start animation loop exactly once.
   if (!S.hasAnimationLoopStarted) {
-    S.hasAnimationLoopStarted = true;  // Mark started to prevent duplicates.
-    requestAnimationFrame(S._runAnimationLoop); // Kick off the frame loop.
+    S.hasAnimationLoopStarted = true;
+    requestAnimationFrame(S._runAnimationLoop);
   }
 
   /* GROUP: Resize listener */
-  // Wire resize listener exactly once.
   if (!S.hasResizeListenerWired) {
-    S.hasResizeListenerWired = true;   // Mark wired so we cannot double-add.
-    window.addEventListener("resize", S.resizeStarfieldCanvas); // Keep viewport in sync.
+    S.hasResizeListenerWired = true;
+    window.addEventListener("resize", S.resizeStarfieldCanvas);
   }
 }
 
 /* GROUP: Bootstrap guard */
-// Guard bootstrapping so unexpected errors don't kill the page.
 try {
-
-  // Start the starfield lifecycle.
   startStarfield();
-
 } catch (ERROR) {
-
-  // Report initialization failures clearly in console.
   console.error("Initialization error in Starfield Setup:", ERROR);
 }
 
