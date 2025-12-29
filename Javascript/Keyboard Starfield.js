@@ -1,275 +1,314 @@
 // thank heavens for chatGPT <3
+// Keyboard-driven impulse controller for the Starfield engine.
+// This file translates discrete key presses into one-frame forces
+// written onto window.KEYBOARD for Active Starfield to consume.
 
-//alert("Debug man");
+/*======================================================================
+ *  MENU
+ *----------------------------------------------------------------------
+ *  1) SETUP
+ *     - Keyboard alias
+ *     - Keydown listener
+ *     - Key → action dispatch table
+ *
+ *  2) GLOBAL MOVEMENT
+ *     - Directional impulse nudges (WASD + diagonals)
+ *
+ *  3) QUADRANT MAGNETISM
+ *     - Screen-space magnetic attractors (3×3 grid)
+ *
+ *  4) PONG
+ *     - Paddle movement + visibility timer
+ *
+ *  5) OTHERS
+ *     - Speed scaling
+ *     - Orbit mode
+ *     - Passive inversion
+ *     - Link rebuild trigger
+ *====================================================================*/
 
-/*========================================*
-//#region 1) SETUP
- *========================================*/
 
+/*======================================================================
+ * #region 1) SETUP
+ *====================================================================*/
+
+/* GROUP: Keyboard state alias */
+// Create a short alias to the shared KEYBOARD impulse object.
+// This object is read and cleared every frame by Active Starfield.
 var K = window.KEYBOARD;
 
-/* Event listener */
+/* GROUP: Keydown listener */
+// Listen globally so keyboard input works regardless of focus,
+// unless the browser explicitly suppresses it.
 window.addEventListener("keydown", (event) => {
-  
-  
-  // Ignore held-down repeats
+
+  // Ignore held-down repeat events.
+  // We want single, intentional impulses, not OS-level auto-repeat.
   if (event.repeat) return;
 
-  // Ignore IME composition
+  // Ignore IME composition events (important for non-Latin keyboards).
+  // Prevents accidental impulses while typing.
   if (event.isComposing) return;
 
-  // Run the user command
+  // Normalize key to lowercase and dispatch if mapped.
+  // Optional chaining keeps unknown keys harmless.
   KEY_FUNCTIONS[event.key.toLowerCase()]?.();
 });
 
-/* Assign keys to functions */
+/* GROUP: Key → action dispatch table */
+// Maps physical keys to semantic actions.
+// Each action writes impulses into window.KEYBOARD,
+// which are then applied exactly once in the physics step.
 const KEY_FUNCTIONS = {
 
-  /* 2) GLOBAL MOVEMENT */
-  // Up
-  w: () => runW(),
-  // Left
-  a: () => runA(),
-  // Down
-  s: () => runS(),
-  // Right
-  d: () => runD(),
+  /* GROUP: GLOBAL MOVEMENT */
+  // Cardinal directions
+  w: () => runW(), // Up
+  a: () => runA(), // Left
+  s: () => runS(), // Down
+  d: () => runD(), // Right
 
-  // Up-left
-  q: () => runQ(),
-  // Up-right
-  e: () => runE(),
-  // Down-left
-  z: () => runZ(),
-  // Down-right
-  x: () => runX(),
+  // Diagonals
+  q: () => runQ(), // Up-left
+  e: () => runE(), // Up-right
+  z: () => runZ(), // Down-left
+  x: () => runX(), // Down-right
 
-  /* 3) QUADRANT MAGNETISM */
-  // Top-left
-  y: () => runY(),
-  // Top-center
-  u: () => runU(),
-  // Top-right
-  i: () => runI(),
+  /* GROUP: QUADRANT MAGNETISM */
+  // 3×3 screen grid magnets (percent-based)
+  y: () => runY(), // Top-left
+  u: () => runU(), // Top-center
+  i: () => runI(), // Top-right
 
-  // Middle-left
-  h: () => runH(),
-  // Middle-center
-  j: () => runJ(),
-  // Middle-right
-  k: () => runK(),
+  h: () => runH(), // Middle-left
+  j: () => runJ(), // Middle-center
+  k: () => runK(), // Middle-right
 
-  // Bottom-left
-  b: () => runB(),
-  // Bottom-center
-  n: () => runN(),
-  // Bottom-right
-  m: () => runM(),
+  b: () => runB(), // Bottom-left
+  n: () => runN(), // Bottom-center
+  m: () => runM(), // Bottom-right
 
-  /* 4) PONG */
-  // Paddle left
-  r: () => runR(),
-  // Paddle right
-  t: () => runT(),
-  // Paddle up
-  f: () => runF(),
-  // Paddle down
-  c: () => runC(),
+  /* GROUP: PONG */
+  r: () => runR(), // Paddle left
+  t: () => runT(), // Paddle right
+  f: () => runF(), // Paddle up
+  c: () => runC(), // Paddle down
 
-  /* 5) OTHERS */
-  // Velocity invert
-  v: () => runV(),
-  // Grumble
-  g: () => runG(),
-  // Orbit
-  o: () => runO(),
-  // Poke burst
-  p: () => runP(),
-  // Link shatter
-  l: () => runL()
+  /* GROUP: OTHERS */
+  v: () => runV(), // Reduce velocity
+  g: () => runG(), // Increase velocity
+  o: () => runO(), // Orbit mode
+  p: () => runP(), // Passive drift inversion
+  l: () => runL()  // Link rebuild / shatter
 };
 
 /* #endregion 1) SETUP */
 
-/*========================================*
-//#region 2) GLOBAL MOVEMENT
- *========================================*/
+
+/*======================================================================
+ * #region 2) GLOBAL MOVEMENT
+ *====================================================================*/
+
+/* GROUP: Cardinal impulses */
+// These functions apply small additive impulses.
+// They do NOT move stars directly.
+// Active Starfield consumes and clears them next frame.
 
 // W = Up
 function runW() {
-  // X
+  // Apply upward impulse in screen space.
   K.addY = -1;
 }
 
 // A = Left
 function runA() {
+  // Apply leftward impulse in screen space.
   K.addX = -1;
-  // Y
 }
 
 // S = Down
 function runS() {
-  // X
+  // Apply downward impulse in screen space.
   K.addY = 1;
 }
 
 // D = Right
 function runD() {
+  // Apply rightward impulse in screen space.
   K.addX = 1;
-  // Y
 }
 
-// Q = Left up
+/* GROUP: Diagonal impulses */
+// Diagonals are intentionally weaker to preserve total impulse magnitude.
+
+// Q = Up-left
 function runQ() {
-  K.addX = -1 / 2;
-  K.addY = -1 / 2;
+  K.addX = -0.5; // Left component
+  K.addY = -0.5; // Up component
 }
 
-// E = Right up
+// E = Up-right
 function runE() {
-  K.addX = 1 / 2;
-  K.addY = -1 / 2;
+  K.addX = 0.5;  // Right component
+  K.addY = -0.5; // Up component
 }
 
-// Z = Left down
+// Z = Down-left
 function runZ() {
-  K.addX = -1 / 2;
-  K.addY = 1 / 2;
+  K.addX = -0.5; // Left component
+  K.addY = 0.5;  // Down component
 }
 
-// X = Right down
+// X = Down-right
 function runX() {
-  K.addX = 1 / 2;
-  K.addY = 1 / 2;
+  K.addX = 0.5;  // Right component
+  K.addY = 0.5;  // Down component
 }
+
 /* #endregion 2) GLOBAL MOVEMENT */
 
-/*========================================*
-//#region 3) QUADRANT MAGNETISM
- *========================================*/
-// Y = Top left
+
+/*======================================================================
+ * #region 3) QUADRANT MAGNETISM
+ *====================================================================*/
+
+/* GROUP: Screen-space magnetic targets */
+// These set magnetX / magnetY in percent-of-screen space.
+// Active Starfield converts these into canvas coordinates
+// and applies attraction + orbit forces.
+
+// Y = Top-left
 function runY() {
-  
-  K.magnetX = 16.5;
-  K.magnetY = 16.5;
+  K.magnetX = 16.5; // ~1/6 from left
+  K.magnetY = 16.5; // ~1/6 from top
 }
 
-// U = Top center
+// U = Top-center
 function runU() {
-  
-  K.magnetX = 50;
-  K.magnetY = 16.5;
+  K.magnetX = 50;   // Center horizontally
+  K.magnetY = 16.5; // Near top
 }
 
-// I = Top right
+// I = Top-right
 function runI() {
-  
-  K.magnetX = 83.5;
+  K.magnetX = 83.5; // ~5/6 from left
   K.magnetY = 16.5;
 }
 
-// H = Middle left
+// H = Middle-left
 function runH() {
-  
   K.magnetX = 16.5;
   K.magnetY = 50;
 }
 
-// J = Middle center
+// J = Middle-center
 function runJ() {
-  
   K.magnetX = 50;
   K.magnetY = 50;
 }
 
-// K = Middle right
+// K = Middle-right
 function runK() {
-  
   K.magnetX = 83.5;
   K.magnetY = 50;
 }
 
-// B = Bottom left
+// B = Bottom-left
 function runB() {
-  
   K.magnetX = 16.5;
   K.magnetY = 83.5;
 }
 
-// N = Bottom center
+// N = Bottom-center
 function runN() {
-  
   K.magnetX = 50;
   K.magnetY = 83.5;
 }
 
-// M = Bottom right
+// M = Bottom-right
 function runM() {
-  
   K.magnetX = 83.5;
   K.magnetY = 83.5;
 }
+
 /* #endregion 3) QUADRANT MAGNETISM */
 
-/*========================================*
-//#region 4) PONG
- *========================================*/
-// R = Paddles left
+
+/*======================================================================
+ * #region 4) PONG
+ *====================================================================*/
+
+/* GROUP: Paddle impulses */
+// These control the paddle overlay and the special “ball star”.
+// paddlesTimer controls visibility fade-out.
+
+// R = Paddle left
 function runR() {
-  K.paddlesTimer = 50;
-  K.paddlesX -= 5;
+  K.paddlesTimer = 50; // Make paddles visible
+  K.paddlesX -= 5;    // Shift paddle center left
 }
 
-// T = Paddles right
+// T = Paddle right
 function runT() {
   K.paddlesTimer = 50;
   K.paddlesX += 5;
 }
 
-// F = Paddles up
+// F = Paddle up
 function runF() {
   K.paddlesTimer = 50;
   K.paddlesY -= 5;
 }
 
-// C = Paddles down
+// C = Paddle down
 function runC() {
   K.paddlesTimer = 50;
   K.paddlesY += 5;
 }
+
 /* #endregion 4) PONG */
 
-/*========================================*
-//#region 5) OTHERS
- *========================================*/
 
-// V = Less (v) speed
+/*======================================================================
+ * #region 5) OTHERS
+ *====================================================================*/
+
+/* GROUP: Velocity scaling */
+// These multiply implied velocity during the next physics step.
+
+// V = Reduce speed
 function runV() {
-  K.multX = 0.6;
-  K.multY = 0.6;
+  K.multX = 0.6; // Horizontal slowdown
+  K.multY = 0.6; // Vertical slowdown
 }
 
-// G = Greater (^) speed
+// G = Increase speed
 function runG() {
-  K.multX = 1.7;
-  K.multY = 1.7;
+  K.multX = 1.7; // Horizontal boost
+  K.multY = 1.7; // Vertical boost
 }
 
-// O = Orbit
+/* GROUP: Orbit mode */
+// Enables pointer-centered magnetism.
+// Active Starfield reads this and clears it every frame.
 function runO() {
   K.magnetPointer = true;
 }
 
-// P = Passive movement inversion
+/* GROUP: Passive drift inversion */
+// Immediately flips base drift velocity for every star.
+// This is a permanent change, not an impulse.
 function runP() {
   for (const STAR of window.STARFIELD.starList) {
-    STAR.vx = -STAR.vx;
-    STAR.vy = -STAR.vy;
+    STAR.vx = -STAR.vx; // Invert X drift
+    STAR.vy = -STAR.vy; // Invert Y drift
   }
 }
 
-// L = Link fade in
+/* GROUP: Link rebuild trigger */
+// Forces links to fade back in over time.
 function runL() {
   window.STARFIELD.linkRebuildTimer = 300;
 }
+
 /* #endregion 5) OTHERS */
