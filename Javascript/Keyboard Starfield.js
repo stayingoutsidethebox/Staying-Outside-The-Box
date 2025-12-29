@@ -149,63 +149,63 @@ function runX() {
  *========================================*/
 // Y = Top left
 function runY() {
-  K.magnetPointer = true;
+  
   K.magnetX = 16.5;
   K.magnetY = 16.5;
 }
 
 // U = Top center
 function runU() {
-  K.magnetPointer = true;
+  
   K.magnetX = 50;
   K.magnetY = 16.5;
 }
 
 // I = Top right
 function runI() {
-  K.magnetPointer = true;
+  
   K.magnetX = 83.5;
   K.magnetY = 16.5;
 }
 
 // H = Middle left
 function runH() {
-  K.magnetPointer = true;
+  
   K.magnetX = 16.5;
   K.magnetY = 50;
 }
 
 // J = Middle center
 function runJ() {
-  K.magnetPointer = true;
+  
   K.magnetX = 50;
   K.magnetY = 50;
 }
 
 // K = Middle right
 function runK() {
-  K.magnetPointer = true;
+  
   K.magnetX = 83.5;
   K.magnetY = 50;
 }
 
 // B = Bottom left
 function runB() {
-  K.magnetPointer = true;
+  
   K.magnetX = 16.5;
   K.magnetY = 83.5;
 }
 
 // N = Bottom center
 function runN() {
-  K.magnetPointer = true;
+  
   K.magnetX = 50;
   K.magnetY = 83.5;
 }
 
 // M = Bottom right
 function runM() {
-  K.magnetPointer = true;
+  
   K.magnetX = 83.5;
   K.magnetY = 83.5;
 }
@@ -257,6 +257,7 @@ function runG() {
 
 // O = Orbit
 function runO() {
+  K.magnetPointer = true;
   K.magnetX = window.STARFIELD.pointerClientX;
   K.magnetY = window.STARFIELD.pointerClientY + 0.001;
 }
