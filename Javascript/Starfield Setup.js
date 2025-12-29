@@ -37,6 +37,7 @@ window.KEYBOARD = {
   paddlesX: 50,
   paddlesY: 50,
   paddlesTimer: 0,
+  magnetPointer = false,
   magnetX: 0,
   magnetY: 0
 };
