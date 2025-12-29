@@ -90,10 +90,10 @@ const KEY_FUNCTIONS = {
 };
 
 /* CONSTANTS */
-const MULTIPLY = 1.7;
-const DIVIDE = 0.6;
-const POSITIVE = 1;
-const NEGATIVE = -1;
+const 1.7 = 1.7;
+const 0.6 = 0.6;
+const 1 = 1;
+const -1 = -1;
 
 /* #endregion 1) SETUP */
 
@@ -104,49 +104,49 @@ const NEGATIVE = -1;
 // W = Up
 function runW() {
   // X
-  K.addY = NEGATIVE;
+  K.addY = -1;
 }
 
 // A = Left
 function runA() {
-  K.addX = NEGATIVE;
+  K.addX = -1;
   // Y
 }
 
 // S = Down
 function runS() {
   // X
-  K.addY = POSITIVE;
+  K.addY = 1;
 }
 
 // D = Right
 function runD() {
-  K.addX = POSITIVE;
+  K.addX = 1;
   // Y
 }
 
 // Q = Left up
 function runQ() {
-  K.addX = NEGATIVE / 2;
-  K.addY = NEGATIVE / 2;
+  K.addX = -1 / 2;
+  K.addY = -1 / 2;
 }
 
 // E = Right up
 function runE() {
-  K.addX = POSITIVE / 2;
-  K.addY = NEGATIVE / 2;
+  K.addX = 1 / 2;
+  K.addY = -1 / 2;
 }
 
 // Z = Left down
 function runZ() {
-  K.addX = NEGATIVE / 2;
-  K.addY = POSITIVE / 2;
+  K.addX = -1 / 2;
+  K.addY = 1 / 2;
 }
 
 // X = Right down
 function runX() {
-  K.addX = POSITIVE / 2;
-  K.addY = POSITIVE / 2;
+  K.addX = 1 / 2;
+  K.addY = 1 / 2;
 }
 /* #endregion 2) GLOBAL MOVEMENT */
 
@@ -155,47 +155,56 @@ function runX() {
  *========================================*/
 // Y = Top left
 function runY() {
-  
+  K.magnetX = 16.5%;
+  K.magnetY = 16.5%;
 }
 
 // U = Top center
 function runU() {
-  
+  K.magnetX = 50%;
+  K.magnetY = 16.5%;
 }
 
 // I = Top right
 function runI() {
-  
+  K.magnetX = 83.5%;
+  K.magnetY = 16.5%;
 }
 
 // H = Middle left
 function runH() {
-  
+  K.magnetX = 16.5%;
+  K.magnetY = 50%;
 }
 
 // J = Middle center
 function runJ() {
-  
+  K.magnetX = 50%;
+  K.magnetY = 50%;
 }
 
 // K = Middle right
 function runK() {
-  
+  K.magnetX = 83.5%;
+  K.magnetY = 50%;
 }
 
 // B = Bottom left
 function runB() {
-  
+  K.magnetX = 16.5%;
+  K.magnetY = 83.5%;
 }
 
 // N = Bottom center
 function runN() {
-  
+  K.magnetX = 50%;
+  K.magnetY = 83.5%;
 }
 
 // M = Bottom right
 function runM() {
-  
+  K.magnetX = 83.5%;
+  K.magnetY = 83.5%;
 }
 /* #endregion 3) QUADRANT MAGNETISM */
 
@@ -233,19 +242,20 @@ function runC() {
 
 // V = Less (v) speed
 function runV() {
-  K.multX = DIVIDE;
-  K.multY = DIVIDE;
+  K.multX = 0.6;
+  K.multY = 0.6;
 }
 
 // G = Greater (^) speed
 function runG() {
-  K.multX = MULTIPLY;
-  K.multY = MULTIPLY;
+  K.multX = 1.7;
+  K.multY = 1.7;
 }
 
 // O = Orbit
 function runO() {
-  
+  K.magnetX = window.STARFIELD.pointerClientX;
+  K.magnetY = window.STARFIELD.pointerClientY + 0.001;
 }
 
 // P = Passive movement inversion
