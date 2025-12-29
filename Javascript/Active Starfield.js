@@ -771,9 +771,9 @@ S.renderStarsAndLinks = function renderStarsAndLinks() {
 
   /* LINKS */
   // Keyboard "L" button
-  if (S.linkRebuildTimer > 0) {
-    S.maxLinkDistance += S.goalLinkDistance / 30;
-    S.linkRebuildTimer--;
+  if (S.linkRebuildTimer > 1) {
+    S.maxLinkDistance += S.goalLinkDistance / S.linkRebuildTimer;
+    S.linkRebuildTimer -= 0.004 * dtMs;
     LINKS_DIRTY = true;
   }
   // Regular link behavior
