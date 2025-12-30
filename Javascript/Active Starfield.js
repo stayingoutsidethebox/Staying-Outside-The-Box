@@ -645,7 +645,7 @@ function bounceVertical(STAR, WALL_X, WALL_SIGN, OUT_VEL_X, OUT_VEL_Y, PUSH_OUT,
 
   STAR.x = WALL_X + WALL_SIGN * PUSH_OUT;                                  // Push star out of wall to avoid re-colliding
 
-  if (IS_PERMANENT) STAR.vy *= -1;                                         // Continue that direction if permanent
+  if (IS_PERMANENT) STAR.vx *= -1;                                         // Continue that direction if permanent
 
   return true;                                                             // Indicate bounce occurred
 }
@@ -665,7 +665,7 @@ function bounceHorizontal(STAR, WALL_Y, WALL_SIGN, OUT_VEL_X, OUT_VEL_Y, PUSH_OU
 
   STAR.y = WALL_Y + WALL_SIGN * PUSH_OUT;                                  // Push star out of wall to avoid re-colliding
   
-  if (IS_PERMANENT) STAR.vx *= -1;                                         // Continue that direction if permanent
+  if (IS_PERMANENT) STAR.vy *= -1;                                         // Continue that direction if permanent
   
   return true;                                                             // Indicate bounce occurred
 }
