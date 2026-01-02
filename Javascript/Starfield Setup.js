@@ -942,11 +942,11 @@ S.resizeStarfieldCanvas = function resizeStarfieldCanvas() {
   S.goalLinkDistance = S.maxLinkDistance;
 
   /* GROUP: Recompute physics scaling powers */
-  S.screenScalePowers.attractionGradient = S.screenScaleUp ** 0.5;
-  S.screenScalePowers.repulsionGradient = S.screenScaleUp ** 0.66;
-  S.screenScalePowers.attractionShape = S.screenScaleDown ** 8.89;
-  S.screenScalePowers.attractionForce = S.screenScaleDown ** 6.46;
-  S.screenScalePowers.repulsionForce = S.screenScaleDown ** 0.89;
+  S.screenScalePowers.attractionGradient = 5.51 * S.screenScaleUp ** 0.5;
+  S.screenScalePowers.repulsionGradient = 2.8 * S.screenScaleUp ** 0.66;
+  S.screenScalePowers.attractionShape = 0.48 * S.screenScaleDown ** 8.89;
+  S.screenScalePowers.attractionForce = 0.0053 * S.screenScaleDown ** 6.46;
+  S.screenScalePowers.repulsionForce = 0.0171 * S.screenScaleDown ** 0.89;
   S.screenScalePowers.forceClamp = S.screenScaleUp ** 1.8;
 
   /* GROUP: Rescale existing stars */
