@@ -597,7 +597,7 @@ button:hover {
 .dave,
 .fireRider,
 .sidecharacter {
-  margin-top: 1em;
+  margin-top: 1dvmin;
   font-weight: bold;
 }
 
