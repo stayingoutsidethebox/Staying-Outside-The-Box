@@ -532,7 +532,7 @@ S.createNewStars = function createNewStars() {
   const MIN_SIZE = 3;
 
   // Define maximum allowed star size (scaled by screen).
-  const MAX_SIZE = S.screenPerimeter / 400 || 3;
+  const MAX_SIZE = Max.min(10, S.screenPerimeter / 400 || 3);
 
   /* GROUP: Build stars */
   // Create each star object (keep fields stable for storage compatibility).
@@ -940,7 +940,7 @@ S.resizeStarfieldCanvas = function resizeStarfieldCanvas() {
   S.screenScaleDown = Math.pow(1200 / S.screenPerimeter, 0.35);
 
   /* GROUP: Recompute caps */
-  S.starCountLimit = Math.min(300, S.screenScaleUp * 70);
+  S.starCountLimit = Math.max(1000, Math.min(300, S.screenScaleUp * 80));
   S.maxLinkDistance = S.screenScaleUp ** 6.5 * 275;
   S.goalLinkDistance = S.maxLinkDistance;
 
