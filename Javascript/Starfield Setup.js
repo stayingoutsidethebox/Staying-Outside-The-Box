@@ -940,7 +940,7 @@ S.resizeStarfieldCanvas = function resizeStarfieldCanvas() {
   S.screenScaleDown = Math.pow(1200 / S.screenPerimeter, 0.35);
 
   /* GROUP: Recompute caps */
-  S.starCountLimit = Math.max(1000, Math.min(300, S.screenScaleUp * 80));
+  S.starCountLimit = Math.min(400, S.screenScaleUp * 80);
   S.maxLinkDistance = S.screenScaleUp ** 6.5 * 275;
   S.goalLinkDistance = S.maxLinkDistance;
 
