@@ -505,7 +505,7 @@ button {
 
   /* Step 2: base layout */
   display: block;
-  margin: 1dvmin auto;
+  margin: 3dvmin auto 1dvmin;
   padding: 0.5em 1.5em;
   height: auto;
 
