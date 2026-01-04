@@ -532,7 +532,7 @@ S.createNewStars = function createNewStars() {
   const MIN_SIZE = 3;
 
   // Define maximum allowed star size (scaled by screen).
-  const MAX_SIZE = Max.min(10, S.screenPerimeter / 400 || 3);
+  const MAX_SIZE = Math.min(10, S.screenPerimeter / 400 || 3);
 
   /* GROUP: Build stars */
   // Create each star object (keep fields stable for storage compatibility).
