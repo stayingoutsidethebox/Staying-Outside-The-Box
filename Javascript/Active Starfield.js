@@ -630,44 +630,84 @@ S.updateStarPhysics = function updateStarPhysics() {                      // Ins
 };                                                                         // End updateStarPhysics
 
 /* GROUP: Bounce helpers (momentum-only, no hard stop) */                  // Group label
-function bounceVertical(STAR, WALL_X, WALL_SIGN, OUT_VEL_X, OUT_VEL_Y, PUSH_OUT, NOW_MS, COOLDOWN_MS = 0, IS_PERMANENT = false) { // Bounce on vertical wall
-  if (COOLDOWN_MS > 0) {                                                   // If cooldown is enabled
-    const LAST = STAR.lastBounceV_Ms || 0;                                 // Read last vertical bounce time
-    if (NOW_MS - LAST < COOLDOWN_MS) return false;                         // Skip if still cooling down
-    STAR.lastBounceV_Ms = NOW_MS;                                          // Record bounce time
+function bounceVertical(
+  STAR,
+  WALL_X,
+  WALL_SIGN,
+  OUT_VEL_X,
+  OUT_VEL_Y,
+  PUSH_OUT,
+  NOW_MS,
+  COOLDOWN_MS = 0,
+  IS_PERMANENT = false
+) {
+  if (COOLDOWN_MS > 0) {
+    const LAST = STAR.lastBounceV_Ms || 0;
+    if (NOW_MS - LAST < COOLDOWN_MS) return false;
+    STAR.lastBounceV_Ms = NOW_MS;
   }
 
-  const BASE_VX = STAR.vx || 0;                                            // Base drift velocity x
-  const BASE_VY = STAR.vy || 0;                                            // Base drift velocity y
+  // Snapshot original base drift
+  const BASE_VX = STAR.vx || 0;
+  const BASE_VY = STAR.vy || 0;
 
-  STAR.momentumX = OUT_VEL_X - BASE_VX;                                    // Set momentum so total vel becomes OUT_VEL_X
-  STAR.momentumY = OUT_VEL_Y - BASE_VY;                                    // Set momentum so total vel becomes OUT_VEL_Y
+  // If permanent, rotate base drift to match the OUT direction (includes angle),
+  // while preserving the original base drift magnitude.
+  if (IS_PERMANENT) {
+    const BASE_SPEED = Math.hypot(BASE_VX, BASE_VY);            // keep drift speed
+    const OUT_SPEED  = Math.hypot(OUT_VEL_X, OUT_VEL_Y) || 1;   // direction source
+    STAR.vx = (OUT_VEL_X / OUT_SPEED) * BASE_SPEED;
+    STAR.vy = (OUT_VEL_Y / OUT_SPEED) * BASE_SPEED;
+  }
 
-  STAR.x = WALL_X + WALL_SIGN * PUSH_OUT;                                  // Push star out of wall to avoid re-colliding
+  // Set momentum so (base + momentum) == OUT exactly
+  STAR.momentumX = OUT_VEL_X - (STAR.vx || 0);
+  STAR.momentumY = OUT_VEL_Y - (STAR.vy || 0);
 
-  if (IS_PERMANENT) STAR.vx *= -1;                                         // Continue that direction if permanent
+  // Push out of wall to avoid re-colliding
+  STAR.x = WALL_X + WALL_SIGN * PUSH_OUT;
 
-  return true;                                                             // Indicate bounce occurred
+  return true;
 }
 
-function bounceHorizontal(STAR, WALL_Y, WALL_SIGN, OUT_VEL_X, OUT_VEL_Y, PUSH_OUT, NOW_MS, COOLDOWN_MS = 0, IS_PERMANENT = false) { // Bounce on horizontal wall
-  if (COOLDOWN_MS > 0) {                                                   // If cooldown is enabled
-    const LAST = STAR.lastBounceH_Ms || 0;                                 // Read last horizontal bounce time
-    if (NOW_MS - LAST < COOLDOWN_MS) return false;                         // Skip if still cooling down
-    STAR.lastBounceH_Ms = NOW_MS;                                          // Record bounce time
+function bounceHorizontal(
+  STAR,
+  WALL_Y,
+  WALL_SIGN,
+  OUT_VEL_X,
+  OUT_VEL_Y,
+  PUSH_OUT,
+  NOW_MS,
+  COOLDOWN_MS = 0,
+  IS_PERMANENT = false
+) {
+  if (COOLDOWN_MS > 0) {
+    const LAST = STAR.lastBounceH_Ms || 0;
+    if (NOW_MS - LAST < COOLDOWN_MS) return false;
+    STAR.lastBounceH_Ms = NOW_MS;
   }
 
-  const BASE_VX = STAR.vx || 0;                                            // Base drift velocity x
-  const BASE_VY = STAR.vy || 0;                                            // Base drift velocity y
+  // Snapshot original base drift
+  const BASE_VX = STAR.vx || 0;
+  const BASE_VY = STAR.vy || 0;
 
-  STAR.momentumX = OUT_VEL_X - BASE_VX;                                    // Set momentum so total vel becomes OUT_VEL_X
-  STAR.momentumY = OUT_VEL_Y - BASE_VY;                                    // Set momentum so total vel becomes OUT_VEL_Y
+  // If permanent, rotate base drift to match the OUT direction (includes angle),
+  // while preserving the original base drift magnitude.
+  if (IS_PERMANENT) {
+    const BASE_SPEED = Math.hypot(BASE_VX, BASE_VY);
+    const OUT_SPEED  = Math.hypot(OUT_VEL_X, OUT_VEL_Y) || 1;
+    STAR.vx = (OUT_VEL_X / OUT_SPEED) * BASE_SPEED;
+    STAR.vy = (OUT_VEL_Y / OUT_SPEED) * BASE_SPEED;
+  }
 
-  STAR.y = WALL_Y + WALL_SIGN * PUSH_OUT;                                  // Push star out of wall to avoid re-colliding
-  
-  if (IS_PERMANENT) STAR.vy *= -1;                                         // Continue that direction if permanent
-  
-  return true;                                                             // Indicate bounce occurred
+  // Set momentum so (base + momentum) == OUT exactly
+  STAR.momentumX = OUT_VEL_X - (STAR.vx || 0);
+  STAR.momentumY = OUT_VEL_Y - (STAR.vy || 0);
+
+  // Push out of wall to avoid re-colliding
+  STAR.y = WALL_Y + WALL_SIGN * PUSH_OUT;
+
+  return true;
 }
 
 /* #endregion 1) PHYSICS */                                                // End region 1
