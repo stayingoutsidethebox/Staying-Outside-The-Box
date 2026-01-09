@@ -227,7 +227,7 @@ p {
   font-size: 6dvmin;
 }
 
-footer p {
+footer p, footer a{
   /* Step 4: footer text is smaller and padded */
   font-size: 3dvmin;
   padding: 2dvmin;
