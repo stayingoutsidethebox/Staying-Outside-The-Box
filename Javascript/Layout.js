@@ -480,6 +480,7 @@ document.addEventListener(
  *====================================================================*/
 
 function injectGlobalFooter() {
+  if (isHomepage()) return;
   const CONTAINER = document.getElementById("transitionContainer");
   if (!CONTAINER) return;
 
