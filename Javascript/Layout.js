@@ -181,26 +181,21 @@ function getReferrerInfo() { // Returns referrer string + internal/menu flags
 // Some layouts temporarily make the container the scroller,
 // but this function restores “normal” page flow.
 function enableDocumentScroll() { // Restore scroll to document instead of container
-
-  const HTML = document.documentElement; // Cache <html> element for overflow control
   const BODY = document.body; // Cache <body> element for overflow/height control
-
-  const SAVED_SCROLL_Y = CONTAINER?.scrollTop ?? window.scrollY ?? 0; // Preserve scroll position across layout changes
-
   BODY.style.overflow = "visible"; // Make body flow normally
 
   if (CONTAINER) { // If the transition container exists
     CONTAINER.style.overflow = "hidden"; // Ensure container does not trap scroll
   }
+}
 
-  S = window.STARFIELD; // Re-alias STARFIELD for optional resize call
-  if (S && typeof S.resizeStarfieldCanvas === "function") { // Only resize if starfield setup is present
-    S.resizeStarfieldCanvas(); // Sync canvas backing store to new layout size
+function disableDocumentScroll() { // Restore scroll to document instead of container
+  const BODY = document.body; // Cache <body> element for overflow/height control
+  BODY.style.overflow = "hidden"; // Make body flow normally
+
+  if (CONTAINER) { // If the transition container exists
+    CONTAINER.style.overflow = "visible"; // Ensure container does not trap scroll
   }
-
-  requestAnimationFrame(() => { // Delay scroll restore until styles have applied
-    try { window.scrollTo(0, SAVED_SCROLL_Y); } catch {} // Restore scroll position safely
-  });
 }
 
 /* #endregion 2) SCROLL OWNERSHIP (DOCUMENT IS SCROLLER) */
@@ -217,6 +212,7 @@ function enableDocumentScroll() { // Restore scroll to document instead of conta
 window.addEventListener("load", () => { // Fires after the page fully loads
 
   if (!CONTAINER) return; // Bail if wrapper is missing on this page
+  disableDocumentScroll();
 
   document.documentElement.style.setProperty( // Publish slide duration to CSS variable
     "--SLIDE_DURATION", // CSS variable name
@@ -300,7 +296,7 @@ function transitionTo(URL) { // Main navigation helper: animate out, then go
 
   clearPendingTransitionTimers(); // Cancel any older transition timers
   IS_TRANSITION_ACTIVE = true; // Lock transitions until this navigation completes
-
+  disableDocumentScroll();
   /* GROUP: "back" keyword support */
   if (URL === "back") { // If caller wants stored internal "back" behavior
 
