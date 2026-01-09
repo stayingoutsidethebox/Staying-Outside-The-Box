@@ -45,6 +45,11 @@
 // This prevents double clicks/taps from stacking multiple navigations.
 let IS_TRANSITION_ACTIVE = false; // True while slide-out is in progress
 
+/* GROUP */
+// Obtain the transition container
+// Used to make the animation in and out scroll properly
+const CONTAINER = document.getElementById("transitionContainer");
+
 /* GROUP: Starfield alias */
 // Create a short alias to the STARFIELD namespace.
 // Used only for freeze/save/resizing helpers.
@@ -114,9 +119,6 @@ document.addEventListener("visibilitychange", () => { // Fires when tab/app beco
 });
 
 /* GROUP: DOM helpers */
-// Get the transition wrapper element.
-// This container receives slide-in/out classes in CSS.
-const getTransitionContainer = () => document.getElementById("transitionContainer"); // Fetch the transition wrapper
 
 // Determine whether this page appears to be the homepage.
 // Used to decide longer animation timing.
@@ -178,7 +180,7 @@ function getReferrerInfo() { // Returns referrer string + internal/menu flags
 // Switch scrolling responsibility back to the document.
 // Some layouts temporarily make the container the scroller,
 // but this function restores “normal” page flow.
-function enableDocumentScroll(CONTAINER = getTransitionContainer()) { // Restore scroll to document instead of container
+function enableDocumentScroll() { // Restore scroll to document instead of container
 
   const HTML = document.documentElement; // Cache <html> element for overflow control
   const BODY = document.body; // Cache <body> element for overflow/height control
@@ -217,7 +219,6 @@ function enableDocumentScroll(CONTAINER = getTransitionContainer()) { // Restore
 // Using "load" ensures fonts/images/layout are settled before slide-in begins.
 window.addEventListener("load", () => { // Fires after the page fully loads
 
-  const CONTAINER = getTransitionContainer(); // Find the transition wrapper
   if (!CONTAINER) return; // Bail if wrapper is missing on this page
 
   document.documentElement.style.setProperty( // Publish slide duration to CSS variable
@@ -248,6 +249,9 @@ window.addEventListener("load", () => { // Fires after the page fully loads
 
   BACK_LINK.style.display = "none"; // Hide back button for external/unknown referrers
   localStorage.removeItem("homepageBackUrl"); // Clear stored back URL so "back" can't point somewhere weird
+
+  // Set scroll for user scrolling
+  enableDocumentScroll();
 });
 
 /* #endregion 3) PAGE LOAD (SLIDE-IN + BACK BUTTON) */
@@ -262,8 +266,6 @@ window.addEventListener("load", () => { // Fires after the page fully loads
 // pageshow fires when a page is shown, including bfcache restores.
 // We repair timers, transition flags, and CSS classes so the UI is stable.
 window.addEventListener("pageshow", (EVENT) => { // Fires on normal show and bfcache restore
-
-  const CONTAINER = getTransitionContainer(); // Find the transition wrapper
   if (!CONTAINER) return; // Bail if wrapper is missing
 
   clearPendingTransitionTimers(); // Cancel any timers resurrected by bfcache
@@ -301,8 +303,6 @@ function transitionTo(URL) { // Main navigation helper: animate out, then go
 
   clearPendingTransitionTimers(); // Cancel any older transition timers
   IS_TRANSITION_ACTIVE = true; // Lock transitions until this navigation completes
-
-  const CONTAINER = getTransitionContainer(); // Get wrapper used for slide-out animation
 
   /* GROUP: "back" keyword support */
   if (URL === "back") { // If caller wants stored internal "back" behavior
@@ -481,7 +481,6 @@ document.addEventListener(
 
 function injectGlobalFooter() {
   if (isHomepage()) return;
-  const CONTAINER = document.getElementById("transitionContainer");
   if (!CONTAINER) return;
 
   // Prevent duplicate footers (important for bfcache/pageshow)
