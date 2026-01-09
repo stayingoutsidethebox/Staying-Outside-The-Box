@@ -135,7 +135,7 @@ body {
   /* Step 3: default is “no body scroll” (JS may change this) */
   height: auto;
   /*overflow-x:hidden;*/
-  overflow: hidden;
+  overflow: visible;
 
   /* Step 4: remove default spacing */
   margin: 0;
