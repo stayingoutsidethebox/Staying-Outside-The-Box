@@ -227,16 +227,26 @@ window.addEventListener("load", () => { // Fires after the page fully loads
   const { REFERRER, IS_INTERNAL_REFERRER, CAME_FROM_MENU_PAGE } = getReferrerInfo(); // Compute back-link rules
 
   const BACK_LINK = document.getElementById("homepageBack"); // Find the homepage back button link
-  if (!BACK_LINK) return; // Bail if this page doesn't have that element
-
+  if (!BACK_LINK) {
+    
+  // Set scroll for user scrolling
+  enableDocumentScroll();
+    return; // Bail if this page doesn't have that element
+}
   if (CAME_FROM_MENU_PAGE) { // If we arrived from the Menu page
     BACK_LINK.style.display = "none"; // Hide the back button (Menu isn't part of back trail)
+    
+  // Set scroll for user scrolling
+  enableDocumentScroll();
     return; // Stop here
   }
 
   if (IS_INTERNAL_REFERRER && REFERRER) { // If referrer is internal and non-empty
     BACK_LINK.style.display = "block"; // Show the back button
     localStorage.setItem("homepageBackUrl", REFERRER); // Store destination for "back" keyword navigation
+    
+  // Set scroll for user scrolling
+  enableDocumentScroll();
     return; // Done
   }
 
