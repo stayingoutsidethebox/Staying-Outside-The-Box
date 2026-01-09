@@ -425,6 +425,19 @@ function wirePointerNavigation(SELECTOR = "a") { // Intercepts touch taps on lin
           try { ELEMENT.blur(); } catch {} // Remove sticky focus outlines on iOS
           return; // Do not navigate
         }
+        
+        const HREF = ELEMENT.getAttribute("href");
+        if (!HREF) return;
+        
+        // Let special links behave normally
+        if (
+          HREF.startsWith("mailto:") ||
+          HREF.startsWith("tel:") ||
+          HREF.startsWith("sms:") ||
+          HREF.startsWith("javascript:")
+        ) {
+          return;
+        }
 
         EVENT.preventDefault(); // Tap: prevent default navigation so we can animate
 
