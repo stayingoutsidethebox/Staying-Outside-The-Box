@@ -335,6 +335,7 @@ function transitionTo(URL) { // Main navigation helper: animate out, then go
     `${SLIDE_DISTANCE_PX}px` // Value: pixels string
   );
   /* GROUP: Start slide-out */
+alert("slide out");
   CONTAINER.classList.add("slide-out"); // Add class that triggers slide-out CSS animation
 alert(CONTAINER.classList);
   /* GROUP: Timer scheduling */
