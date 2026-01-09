@@ -427,7 +427,7 @@ function wirePointerNavigation(SELECTOR = "a") { // Intercepts touch taps on lin
         }
         
         const HREF = ELEMENT.getAttribute("href");
-        if (!HREF) return;
+        if (!HREF) return; // Return if no HREF
         
         // Let special links behave normally
         if (
@@ -445,9 +445,6 @@ function wirePointerNavigation(SELECTOR = "a") { // Intercepts touch taps on lin
           transitionTo("back"); // Use stored back URL behavior
           return; // Done
         }
-
-        const HREF = ELEMENT.getAttribute("href"); // Read destination from href attribute
-        if (!HREF) return; // Guard: no href means nothing to do
 
         transitionTo(HREF); // Trigger slide-out then navigate
       },
