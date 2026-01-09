@@ -187,13 +187,10 @@ function enableDocumentScroll() { // Restore scroll to document instead of conta
 
   const SAVED_SCROLL_Y = CONTAINER?.scrollTop ?? window.scrollY ?? 0; // Preserve scroll position across layout changes
 
-  HTML.style.overflowY = "auto"; // Let the document scroll again
   BODY.style.overflow = "visible"; // Make body flow normally
-  BODY.style.height = "auto"; // Restore natural body height
 
   if (CONTAINER) { // If the transition container exists
-    CONTAINER.style.overflow = "visible"; // Ensure container does not trap scroll
-    CONTAINER.style.height = "auto"; // Ensure container height does not force scrolling
+    CONTAINER.style.overflow = "hidden"; // Ensure container does not trap scroll
   }
 
   S = window.STARFIELD; // Re-alias STARFIELD for optional resize call
