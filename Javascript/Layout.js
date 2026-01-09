@@ -337,7 +337,7 @@ function transitionTo(URL) { // Main navigation helper: animate out, then go
   /* GROUP: Start slide-out */
 alert("slide out");
   CONTAINER.classList.add("slide-out"); // Add class that triggers slide-out CSS animation
-alert(CONTAINER.classList);
+alert(test);
   /* GROUP: Timer scheduling */
   const DURATION_MS = getSlideDurationSeconds() * 1000; // Convert seconds into ms for setTimeout
 
