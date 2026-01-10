@@ -301,7 +301,7 @@ function transitionTo(URL) { // Main navigation helper: animate out, then go
   if (IS_TRANSITION_ACTIVE) return; // Guard: ignore if a transition is already running
   if (!URL) return; // Guard: ignore empty URLs
   //CRUNCH_SOUND.pause(), CRUNCH_SOUND.play().catch(() => {}); // Optional click sound (disabled)
-
+disableDocumentScroll();
   clearPendingTransitionTimers(); // Cancel any older transition timers
   IS_TRANSITION_ACTIVE = true; // Lock transitions until this navigation completes
 
@@ -334,7 +334,6 @@ function transitionTo(URL) { // Main navigation helper: animate out, then go
     `${SLIDE_DISTANCE_PX}px` // Value: pixels string
   );
   /* GROUP: Start slide-out */
-alert(CONTAINER.classList[0]);
   CONTAINER.classList.add("slide-out"); // Add class that triggers slide-out CSS animation
 
   /* GROUP: Timer scheduling */
