@@ -224,9 +224,10 @@ window.addEventListener("load", () => { // Fires after the page fully loads
     "--SLIDE_DURATION", // CSS variable name
     `${getSlideDurationSeconds()}s` // Value: seconds string (ex: "0.6s")
   );
-
+alert("load");
   requestAnimationFrame(() => { // Next frame ensures class change triggers animation
     CONTAINER.classList.add("ready"); // Add class used by CSS to slide in
+alert("ready");
   });
   
   //enableDocumentScroll();
