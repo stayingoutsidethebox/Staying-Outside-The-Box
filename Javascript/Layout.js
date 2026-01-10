@@ -438,7 +438,7 @@ function wirePointerNavigation(SELECTOR = "a") { // Intercepts touch taps on lin
       (EVENT) => {
 
         if (EVENT.pointerId !== ACTIVE_POINTER_ID) return; // Ignore if this isn't our tracked pointer
-
+        
         try { ELEMENT.releasePointerCapture(ACTIVE_POINTER_ID); } catch {} // Release capture now that gesture ended
         ACTIVE_POINTER_ID = null; // Clear pointer id so next gesture starts fresh
 
@@ -460,7 +460,7 @@ function wirePointerNavigation(SELECTOR = "a") { // Intercepts touch taps on lin
           return;
         }
 
-        EVENT.preventDefault(); // Tap: prevent default navigation so we can animate
+
 
         if (ELEMENT.id === "homepageBack") { // Special case: homepage back button
           transitionTo("back"); // Use stored back URL behavior
@@ -471,6 +471,9 @@ function wirePointerNavigation(SELECTOR = "a") { // Intercepts touch taps on lin
       },
       { passive: false } // Non-passive because we call preventDefault for tap behavior
     );
+    
+    // Prevent HREF defaulting
+    ELEMENT.addEventListener("click", e => e.preventDefault(), { passive: false });
 
     /* GROUP: Pointer cancel */
     ELEMENT.addEventListener(
@@ -483,6 +486,8 @@ function wirePointerNavigation(SELECTOR = "a") { // Intercepts touch taps on lin
     );
   });
 }
+
+
 
 /* GROUP: Wire after DOM is ready */
 // Attach touch navigation overrides once elements exist in the DOM.
