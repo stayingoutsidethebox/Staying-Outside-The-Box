@@ -326,26 +326,44 @@ function transitionTo(URL) { // Main navigation helper: animate out, then go
   }
 
   /* GROUP: Slide distance computation */
-  const SLIDE_DISTANCE_PX = (window.innerHeight * 1.1) + (window.scrollY ?? 0); // How far to slide so page fully clears
+  const CONTAINER_SCROLL = CONTAINER ? CONTAINER.scrollTop : 0;
+  const DOC_SCROLL =
+    document.documentElement.scrollTop || document.body.scrollTop || 0;
 
-  document.documentElement.style.setProperty( // Publish slide distance to CSS variable
-    "--SLIDE_DISTANCE", // CSS variable name
-    `${SLIDE_DISTANCE_PX}px` // Value: pixels string
+  const ACTIVE_SCROLL = Math.max(DOC_SCROLL, CONTAINER_SCROLL);
+  const SLIDE_DISTANCE_PX = (window.innerHeight * 1.1) + ACTIVE_SCROLL;
+
+  document.documentElement.style.setProperty(
+    "--SLIDE_DISTANCE",
+    `${SLIDE_DISTANCE_PX}px`
   );
+
   /* GROUP: Start slide-out */
-  CONTAINER.classList.add("slide-out"); // Add class that triggers slide-out CSS animation
+  CONTAINER.classList.add("slide-out");
 
-  /* GROUP: Timer scheduling */
-  const DURATION_MS = getSlideDurationSeconds() * 1000; // Convert seconds into ms for setTimeout
+  /* GROUP: Navigate when the CONTAINER's own transform transition ends */
+  const DURATION_MS = getSlideDurationSeconds() * 1000;
 
-  SAVE_BEFORE_LEAVE_TIMEOUT_ID = setTimeout( // Schedule freeze/save near end of animation
-    freezeAndSaveStarfield, // Callback: freeze + persist starfield state
-    Math.max(0, DURATION_MS - 50) // Run just before navigation (50ms cushion)
+  const onDone = (EVENT) => {
+    // Only accept the container's transform finishing,
+    // not random child transitions bubbling up.
+    if (EVENT && (EVENT.target !== CONTAINER || EVENT.propertyName !== "transform")) return;
+
+    CONTAINER.removeEventListener("transitionend", onDone);
+    clearPendingTransitionTimers(); // kill fallback timer if we got here via transitionend
+    location.href = URL;
+  };
+
+  CONTAINER.addEventListener("transitionend", onDone);
+
+  // Safety net fallback (in case transitionend never fires)
+  NAVIGATE_AFTER_SLIDE_TIMEOUT_ID = setTimeout(() => onDone(), DURATION_MS + 150);
+
+  // Optional: keep your near-end save (recommended)
+  SAVE_BEFORE_LEAVE_TIMEOUT_ID = setTimeout(
+    freezeAndSaveStarfield,
+    Math.max(0, DURATION_MS - 50)
   );
-
-  NAVIGATE_AFTER_SLIDE_TIMEOUT_ID = setTimeout(() => { // Schedule actual navigation
-    location.href = URL; // Navigate to destination URL
-  }, DURATION_MS); // Fire when animation should have completed
 }
 
 /* #endregion 5) TRANSITION NAVIGATION (SLIDE-OUT THEN LEAVE) */
