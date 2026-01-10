@@ -148,8 +148,9 @@ function getReferrerInfo() { // Returns referrer string + internal/menu flags
 
   let IS_INTERNAL_REFERRER = false; // True if referrer is same-origin
   let CAME_FROM_MENU_PAGE = false; // True if referrer path matches /menu
+  let CAME_FROM_HOME_PAGE = false; // True if referrer path matches /menu
 
-  if (!REFERRER) return { REFERRER, IS_INTERNAL_REFERRER, CAME_FROM_MENU_PAGE }; // Early return when referrer is empty
+  if (!REFERRER) return { REFERRER, IS_INTERNAL_REFERRER, CAME_FROM_MENU_PAGE, CAME_FROM_HOME_PAGE }; // Early return when referrer is empty
 
   try { // Parse referrer as URL for safe origin/path checks
     const REFERRER_URL = new URL(REFERRER); // Convert string into URL object
@@ -161,9 +162,15 @@ function getReferrerInfo() { // Returns referrer string + internal/menu flags
       REFERRER_PATH === "/menu" || // /menu
       REFERRER_PATH === "/menu/" || // /menu/
       REFERRER_PATH.endsWith("/menu/index.html"); // /menu/index.html (or nested forms)
+
+CAME_FROM_HOME_PAGE =
+  REFERRER_PATH === "/" ||                  // /
+  REFERRER_PATH === "" ||                   // edge-case empty
+  REFERRER_PATH === "/index.html" ||        // /index.html
+  REFERRER_PATH === "/index.htm";           // /index.htm (rare, but cheap to include)
   } catch {} // Ignore parse errors and keep defaults
 
-  return { REFERRER, IS_INTERNAL_REFERRER, CAME_FROM_MENU_PAGE }; // Return computed referrer info
+  return { REFERRER, IS_INTERNAL_REFERRER, CAME_FROM_MENU_PAGE, CAME_FROM_HOME_PAGE }; // Return computed referrer info
 }
 
 /* #endregion 1) GLOBAL STATE + HELPERS */
@@ -233,12 +240,13 @@ window.addEventListener("load", () => { // Fires after the page fully loads
   //enableDocumentScroll();
 
   /* GROUP: Back button logic */
-  const { REFERRER, IS_INTERNAL_REFERRER, CAME_FROM_MENU_PAGE } = getReferrerInfo(); // Compute back-link rules
+  const { REFERRER, IS_INTERNAL_REFERRER, CAME_FROM_MENU_PAGE, CAME_FROM_HOME_PAGE } = getReferrerInfo(); // Compute back-link rules
 
-  const BACK_LINK = document.getElementById("homepageBack"); // Find the homepage back button link
-  if (!BACK_LINK) return; // Bail if this page doesn't have that element
+  const HOME_BACK = document.getElementById("homepageBack"); // Find the homepage back button link
+    const POLICY_BACK = document.getElementById("policyBack"); // Find the policy back button link
+  if (!HOME_BACK && !POLICY_BACK) return; // Bail if this page doesn't have those elements
 
-  if (CAME_FROM_MENU_PAGE) { // If we arrived from the Menu page
+  if (CAME_FROM_MENU_PAGE || CAME_FROM_HOME_PAGE) { // If we arrived from the Menu page
     BACK_LINK.style.display = "none"; // Hide the back button (Menu isn't part of back trail)
     return; // Stop here
   }
