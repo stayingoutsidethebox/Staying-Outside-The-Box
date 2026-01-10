@@ -118,6 +118,7 @@ const getTransitionContainer = () => document.getElementById("transitionContaine
 // Determine whether this page appears to be the homepage.
 // Used to decide longer animation timing.
 const isHomepage = () => !!document.querySelector("#menuButton");
+const isPolicypage = () => !!document.querySelector("#policyBack");
 
 // Match CSS expectations: homepage is a longer slide than inner pages.
 const getSlideDurationSeconds = () => (isHomepage() ? 1.2 : 0.6);
@@ -487,7 +488,7 @@ document.addEventListener("DOMContentLoaded", () => {
  *====================================================================*/
 
 function injectGlobalFooter() {
-  if (isHomepage()) return;
+  if (isPolicypage() || isHomepage()) return;
 
   const CONTAINER = document.getElementById("transitionContainer");
   if (!CONTAINER) return;
