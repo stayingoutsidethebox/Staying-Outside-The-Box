@@ -188,7 +188,6 @@ function disableDocumentScroll() {
   HTML.style.overflowY = "hidden";
   BODY.style.overflow = "hidden";
 
-  // Optional: allow container overflow if you want internal effects while locked.
   if (CONTAINER) CONTAINER.style.overflow = "visible";
 }
 
@@ -202,7 +201,6 @@ function enableDocumentScroll() {
   HTML.style.overflowY = "auto";
   BODY.style.overflow = "visible";
 
-  // Optional: prevent container from becoming the scroller.
   if (CONTAINER) CONTAINER.style.overflow = "hidden";
 }
 
@@ -231,7 +229,7 @@ window.addEventListener("load", () => { // Fires after the page fully loads
     CONTAINER.classList.add("ready"); // Add class used by CSS to slide in
   });
   
-  enableDocumentScroll();
+  //enableDocumentScroll();
 
   /* GROUP: Back button logic */
   const { REFERRER, IS_INTERNAL_REFERRER, CAME_FROM_MENU_PAGE } = getReferrerInfo(); // Compute back-link rules
@@ -301,7 +299,7 @@ function transitionTo(URL) { // Main navigation helper: animate out, then go
   if (IS_TRANSITION_ACTIVE) return; // Guard: ignore if a transition is already running
   if (!URL) return; // Guard: ignore empty URLs
   //CRUNCH_SOUND.pause(), CRUNCH_SOUND.play().catch(() => {}); // Optional click sound (disabled)
-disableDocumentScroll();
+//disableDocumentScroll();
   clearPendingTransitionTimers(); // Cancel any older transition timers
   IS_TRANSITION_ACTIVE = true; // Lock transitions until this navigation completes
 
@@ -472,7 +470,7 @@ document.addEventListener(
   () => {
     injectGlobalFooter(); // Add footer
     wirePointerNavigation(); // Wire pointer navigation on all links by default
-    disableDocumentScroll();
+   // disableDocumentScroll();
   }
 );
 
