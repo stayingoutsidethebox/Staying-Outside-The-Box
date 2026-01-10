@@ -320,10 +320,11 @@ function transitionTo(URL) { // Main navigation helper: animate out, then go
   }
   
   /* GROUP: No container fallback */
-  if (!CONTAINER) { // If wrapper doesn't exist, we can't animate
-    location.href = URL; // Navigate immediately
-    return; // Done
-  }
+  if (!CONTAINER) {
+  location.href = URL;
+  IS_TRANSITION_ACTIVE = false; // safety unlock (in case navigation is blocked)
+  return;
+}
 
   /* GROUP: Slide distance computation */
   const CONTAINER_SCROLL = CONTAINER ? CONTAINER.scrollTop : 0;
@@ -351,7 +352,8 @@ function transitionTo(URL) { // Main navigation helper: animate out, then go
 
     CONTAINER.removeEventListener("transitionend", onDone);
     clearPendingTransitionTimers(); // kill fallback timer if we got here via transitionend
-    location.href = URL;
+   IS_TRANSITION_ACTIVE = false;
+     location.href = URL;
   };
 
   CONTAINER.addEventListener("transitionend", onDone);
