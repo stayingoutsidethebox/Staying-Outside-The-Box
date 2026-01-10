@@ -430,7 +430,8 @@ ELEMENT.addEventListener("click", (EVENT) => {
   if (!HREF) return;
 
   // Touch swipe? don't navigate.
-  if (DID_MOVE) return;
+if (DID_MOVE) return;
+DID_MOVE = false;
 
   // Special keyword support
   if (HREF === "back") {
@@ -511,7 +512,7 @@ function injectGlobalFooter() {
         admin@&#8203;stayingoutsidethebox&#8203;.com
       </a>
     </p>
-    <a onclick="transitionTo(this.href); return false;" href="/privacy and terms.html">
+<a href="/privacy and terms.html">
       Privacy Policy &amp; Terms of Use
     </a>
   `;
