@@ -109,6 +109,10 @@
  */
 
 /*---------- Root document ----------*/
+@font-face {
+  font-display: swap;
+}
+
 html {
   /* Step 1: eliminate default spacing */
   margin: 0;
