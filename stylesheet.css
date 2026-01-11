@@ -729,3 +729,12 @@ button:hover {
 }
 
 /* #endregion 12) REDUCED-MOTION ACCESSIBILITY */
+
+#homepageBack {
+display:none;
+}
+
+#YouTube {
+padding:1dvmin;
+height:28dvmin;
+}
