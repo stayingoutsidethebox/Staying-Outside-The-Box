@@ -489,7 +489,7 @@ document.addEventListener("DOMContentLoaded", () => {
  *====================================================================*/
 
 function injectGlobalFooter() {
-  if (isPolicypage() || isHomepage()) return;
+  if (is404page() || isPolicypage() || isHomepage()) return;
 
   const CONTAINER = document.getElementById("transitionContainer");
   if (!CONTAINER) return;
