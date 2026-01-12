@@ -247,6 +247,11 @@ h3 {
   font-size: 12dvmin;
 }
 
+.aboveName {
+  /* To remove space in scripts bewteen h3 and name lines */
+  margin-bottom:-2em;
+}
+
 h4 {
   font-size: 7dvmin;
 }
