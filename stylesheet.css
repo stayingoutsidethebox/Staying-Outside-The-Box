@@ -636,6 +636,11 @@ button:hover {
   font-weight: bold;
 }
 
+.characterHeader {
+  margin-top: 0;
+  font-weight:normal;
+}
+
 /* Per-character colors */
 .roman,
 .sage { color: red; }
