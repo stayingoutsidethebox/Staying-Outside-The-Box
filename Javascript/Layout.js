@@ -480,6 +480,12 @@ DID_MOVE = false;
 // Attach navigation overrides once elements exist in the DOM.
 document.addEventListener("DOMContentLoaded", () => {
   //enableDocumentScroll();
+  document.querySelectorAll("button[data-toggle]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const id = btn.getAttribute("data-toggle");
+      toggleElement(id);
+    });
+  });
   injectGlobalFooter();
   wirePointerNavigation();
 });
