@@ -8,6 +8,11 @@
        *   - Number inputs styled like pill buttons
        *   - Shared hover/focus states without the default blue outline
        *==============================================================*/
+#controller{
+      margin: 0 auto;
+      width:6em;
+      }
+
 
       /*==============================================================*
        *                 STEPPER BUTTONS ( + / - )
