@@ -147,7 +147,7 @@ body {
 
   /* Step 4: remove default spacing */
   margin: 0;
-  padding: 0;
+  padding: 2dvmin;
 
   /* Step 5: keep body visually transparent so canvas/background shows */
   background: transparent;
@@ -232,11 +232,6 @@ body {
  *   5) .divider is a narrower hr variant.
  */
 
-main, header {
-  /* Step 1: padding for readability */
-  padding: 0 2dvmin;
-}
-
 h2 {
   /* Step 2: stylized “pulled up” heading positioning */
   margin-top: -7dvmin;
@@ -261,6 +256,7 @@ p {
   margin: 0;
   font-size: 6dvmin;
 }
+
 
 footer p, footer a{
   /* Step 4: footer text is smaller and padded */
@@ -449,8 +445,7 @@ img {
 
 /*---------- Homepage badge-style image buttons ----------*/
 /* Note: .imgButton shares a block with button here on purpose */
-.imgButton,
-button {
+.imgButton {
   /* Step 1: make it a block so it centers cleanly */
   display: block;
 
@@ -536,17 +531,19 @@ button {
  */
 
 button {
-  /* Step 1: remove default iOS button styling */
+
   -webkit-appearance: none;
   appearance: none;
 
-  /* Step 2: base layout */
   display: block;
   margin: 3dvmin auto 1dvmin;
   padding: 0.5em 1.5em;
   height: auto;
+  
+  object-fit: contain;
 
   /* Step 3: pill */
+  border: 3px solid var(--BASE_COLOR);
   border-radius: 9999px;
   background: transparent;
 
@@ -555,10 +552,12 @@ button {
   font-family: 'New Rocker';
   font-size: 5dvmin;
 
-  /* Step 5: transitions */
+  /* Step 8: smooth transitions */
   transition:
     transform var(--SLOW_TRANSFORM),
-    box-shadow var(--SLOW_SHADOW);
+    box-shadow var(--SLOW_SHADOW),
+    border-color var(--SLOW_BORDER),
+    color var(--SLOW_COLOR);
 }
 
 button:hover {
