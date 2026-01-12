@@ -89,7 +89,7 @@
        *  1) FOOTER PANEL POSITIONING
        *==============================*/
 
-      footer{
+      #debugBox{
         position: absolute;
         width: 100%;
         max-width: 100%;
