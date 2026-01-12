@@ -280,7 +280,7 @@ window.addEventListener("pageshow", (EVENT) => {
 
   CONTAINER.classList.remove("slide-out");
   CONTAINER.classList.add("ready");
-  enableDocumentScroll();
+  //enableDocumentScroll();
   IS_TRANSITION_ACTIVE = false;
 
   CONTAINER.scrollTop = 0;
@@ -303,7 +303,7 @@ function transitionTo(URL) {
 
   clearPendingTransitionTimers();
   IS_TRANSITION_ACTIVE = true;
-  disableDocumentScroll();
+  //disableDocumentScroll();
 
   const CONTAINER = getTransitionContainer();
 
