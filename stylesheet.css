@@ -420,7 +420,7 @@ img {
   /* Step 3: remove inline baseline gap */
   line-height: 0;
   
-  margin:2dvmin;
+  margin:4dvmin;
 }
 
 /* The ring frame lives on a pseudo-element behind the image */
