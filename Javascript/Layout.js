@@ -504,9 +504,9 @@ function injectGlobalFooter() {
     <hr>
     <p>I Can’t Stop Dying™ and The I Collection™ are trademarks of Staying Outside The Box™ LLC</p>
     <p>
-      <strong>Contact: </strong>
+      Contact: 
       <a href="mailto:admin@stayingoutsidethebox.com">
-        admin@&#8203;stayingoutsidethebox&#8203;.com
+        Admin@&#8203;StayingOutsideTheBox&#8203;.com
       </a>
     </p>
 <a href="/privacy and terms.html">
