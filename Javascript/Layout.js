@@ -191,6 +191,9 @@ function disableDocumentScroll() {
   if (CONTAINER) CONTAINER.style.overflow = "visible";
 }
 
+// Prevent extra space at the bottom of the page in edge cases
+disableDocumentScroll();
+
 /* GROUP: Restore scroll after transitions/load */
 // Put scroll back on the document.
 function enableDocumentScroll() {
@@ -280,10 +283,11 @@ window.addEventListener("pageshow", (EVENT) => {
 
   CONTAINER.classList.remove("slide-out");
   CONTAINER.classList.add("ready");
-  //enableDocumentScroll();
+  enableDocumentScroll();
   IS_TRANSITION_ACTIVE = false;
 
   CONTAINER.scrollTop = 0;
+  alert("worked?");
 });
 
 /* #endregion 4) BACK/FORWARD CACHE (PAGESHOW) */
@@ -303,7 +307,7 @@ function transitionTo(URL) {
 
   clearPendingTransitionTimers();
   IS_TRANSITION_ACTIVE = true;
-  //disableDocumentScroll();
+  disableDocumentScroll();
 
   const CONTAINER = getTransitionContainer();
 
