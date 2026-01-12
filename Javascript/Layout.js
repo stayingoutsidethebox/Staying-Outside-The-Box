@@ -283,11 +283,9 @@ window.addEventListener("pageshow", (EVENT) => {
 
   CONTAINER.classList.remove("slide-out");
   CONTAINER.classList.add("ready");
-  enableDocumentScroll();
   IS_TRANSITION_ACTIVE = false;
 
   CONTAINER.scrollTop = 0;
-  alert("worked?");
 });
 
 /* #endregion 4) BACK/FORWARD CACHE (PAGESHOW) */
@@ -481,6 +479,8 @@ DID_MOVE = false;
 /* GROUP: Wire after DOM is ready */
 // Attach navigation overrides once elements exist in the DOM.
 document.addEventListener("DOMContentLoaded", () => {
+  enableDocumentScroll();
+  alert("working now?");
   injectGlobalFooter();
   wirePointerNavigation();
 });
