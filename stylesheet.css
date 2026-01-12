@@ -249,7 +249,7 @@ h3 {
 
 .aboveName {
   /* To remove space in scripts bewteen h3 and name lines */
-  margin-bottom:-1em;
+  /*margin-bottom:0em;*/
 }
 
 h4 {
@@ -637,7 +637,7 @@ button:hover {
 }
 
 .characterHeader {
-  margin-top: 1em;
+  margin-top: .8em;
   font-weight:normal;
 }
 
