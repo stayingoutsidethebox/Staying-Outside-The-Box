@@ -192,7 +192,7 @@ function disableDocumentScroll() {
 }
 
 // Prevent extra space at the bottom of the page in edge cases
-disableDocumentScroll();
+//disableDocumentScroll();
 
 /* GROUP: Restore scroll after transitions/load */
 // Put scroll back on the document.
@@ -305,7 +305,7 @@ function transitionTo(URL) {
 
   clearPendingTransitionTimers();
   IS_TRANSITION_ACTIVE = true;
-  disableDocumentScroll();
+  //disableDocumentScroll();
 
   const CONTAINER = getTransitionContainer();
 
@@ -479,8 +479,7 @@ DID_MOVE = false;
 /* GROUP: Wire after DOM is ready */
 // Attach navigation overrides once elements exist in the DOM.
 document.addEventListener("DOMContentLoaded", () => {
-  enableDocumentScroll();
-  alert("working now?");
+  //enableDocumentScroll();
   injectGlobalFooter();
   wirePointerNavigation();
 });
