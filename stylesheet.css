@@ -249,7 +249,7 @@ h3 {
 
 .aboveName {
   /* To remove space in scripts bewteen h3 and name lines */
-  /*margin-bottom:0em;*/
+  margin-bottom:0em;
 }
 
 h4 {
@@ -419,6 +419,8 @@ img {
 
   /* Step 3: remove inline baseline gap */
   line-height: 0;
+  
+  margin:2dvmin;
 }
 
 /* The ring frame lives on a pseudo-element behind the image */
