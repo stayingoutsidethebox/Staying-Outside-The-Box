@@ -147,7 +147,7 @@ body {
 
   /* Step 4: remove default spacing */
   margin: 0;
-  padding: 2dvmin;
+  padding: 0;
 
   /* Step 5: keep body visually transparent so canvas/background shows */
   background: transparent;
@@ -167,6 +167,7 @@ body {
   min-height: 100dvh;
   height: auto;
   width: 100%;
+  padding:2dvmin;
 
   /* DONT TOUCH: JS swaps scroll responsibility */
   /*overflow-x:hidden;*/
