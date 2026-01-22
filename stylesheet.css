@@ -124,7 +124,7 @@ html {
 
   /* Step 2: default scroll behavior (JS may swap this) */
   overflow-y: auto;
-  width: 100%;
+  width: 100dvw;
   overflow-x: hidden;
 
   /* Step 3: edge color visible during transitions */
@@ -143,7 +143,7 @@ body {
 
   /* Step 3: default is “no body scroll” (JS may change this) */
   height: auto;
-  width: 100%;
+  width: 100dvw;
   overflow-x: hidden;
   overflow-y: visible;
 
@@ -172,7 +172,7 @@ body {
   padding:2dvmin;
 
   /* DONT TOUCH: JS swaps scroll responsibility */
-  width: 100%;
+  width: 100dvw;
   overflow-x: hidden;
   overflow-y: visible;
 }
