@@ -123,9 +123,8 @@ html {
   padding: 0;
 
   /* Step 2: default scroll behavior (JS may swap this) */
-  height:100vh;
-  width:100vw;
   overflow-y: auto;
+  width: 100vw;
   overflow-x: hidden;
 
   /* Step 3: edge color visible during transitions */
@@ -139,8 +138,11 @@ body {
   flex-direction: column;
   align-items: stretch;
 
+  /* Step 2: ensure body covers the screen height */
+  min-height: 100vh;
+
   /* Step 3: default is “no body scroll” (JS may change this) */
-  height: 100vh;
+  height: auto;
   width: 100vw;
   overflow-x: hidden;
   overflow-y: visible;
@@ -164,9 +166,10 @@ body {
 /* Main content wrapper (JS toggles who scrolls) */
 #transitionContainer {
   flex: 1;
-  height: 100vh;
-  width: 98vw;
-  padding:2vw;
+  min-height: 96vh;
+  height: auto;
+  width: 96vw;
+  padding:2vh 2vw;
 
   /* DONT TOUCH: JS swaps scroll responsibility */
   overflow-x: hidden;
