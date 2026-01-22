@@ -123,8 +123,9 @@ html {
   padding: 0;
 
   /* Step 2: default scroll behavior (JS may swap this) */
+  height:100vh;
+  width:100vw;
   overflow-y: auto;
-  width: 100dvw;
   overflow-x: hidden;
 
   /* Step 3: edge color visible during transitions */
@@ -138,12 +139,9 @@ body {
   flex-direction: column;
   align-items: stretch;
 
-  /* Step 2: ensure body covers the screen height */
-  min-height: 100dvh;
-
   /* Step 3: default is “no body scroll” (JS may change this) */
-  height: auto;
-  width: 100dvw;
+  height: 100vh;
+  width: 100vw;
   overflow-x: hidden;
   overflow-y: visible;
 
@@ -157,7 +155,7 @@ body {
   /* Step 6: base typography */
   text-align: center;
   font-family: 'New Rocker';
-  font-size: 7dvmin;
+  font-size: 7vmin;
   color: var(--BASE_COLOR);
   user-select: none;
   -webkit-user-select: none;
@@ -166,13 +164,11 @@ body {
 /* Main content wrapper (JS toggles who scrolls) */
 #transitionContainer {
   flex: 1;
-  min-height: 100dvh;
-  height: auto;
-  width: 100%;
-  padding:2dvmin;
+  height: 100vh;
+  width: 98vw;
+  padding:2vw;
 
   /* DONT TOUCH: JS swaps scroll responsibility */
-  width: 100dvw;
   overflow-x: hidden;
   overflow-y: visible;
 }
@@ -238,12 +234,12 @@ body {
 
 h2 {
   /* Step 2: stylized “pulled up” heading positioning */
-  margin-top: -7dvmin;
-  font-size: 4dvmin;
+  margin-top: -7vmin;
+  font-size: 4vmin;
 }
 
 h3 {
-  font-size: 12dvmin;
+  font-size: 12vmin;
 }
 
 .aboveName {
@@ -252,26 +248,26 @@ h3 {
 }
 
 h4 {
-  font-size: 7dvmin;
+  font-size: 7vmin;
 }
 
 p {
   /* Step 3: tight paragraph layout (no extra margin) */
   margin: 0;
-  font-size: 6dvmin;
+  font-size: 6vmin;
 }
 
 
 footer p, footer a{
   /* Step 4: footer text is smaller and padded */
-  font-size: 3dvmin;
-  padding: 2dvmin;
+  font-size: 3vmin;
+  padding: 2vmin;
 }
 
 /* Divider art */
 hr {
   /* Step 5: divider sizing */
-  width: 75dvw;
+  width: 75vw;
   height: 4px;
   border: none;
 
@@ -284,7 +280,7 @@ hr {
 
 /* Smaller divider variant */
 .divider {
-  width: 45dvw;
+  width: 45vw;
 }
 
 /* #endregion 4) PAGE STRUCTURE + TYPOGRAPHY */
@@ -312,7 +308,7 @@ article {
 
   /* Step 2: shrink to content and center on page */
   width: fit-content;
-  margin: 0 auto 3dvmin;
+  margin: 0 auto 3vmin;
 }
 
 /* Hide blocks via [hidden] (chapters, etc.) */
@@ -342,7 +338,7 @@ a {
   /* Step 1: give the link a box so scaling doesn't break layout */
   display: inline-block;
   margin: 0 auto;
-  padding-bottom: 1dvmin;
+  padding-bottom: 1vmin;
 
   /* Step 2: default color */
   color: var(--BASE_COLOR);
@@ -399,8 +395,8 @@ a:hover {
 /*---------- Base circular images ----------*/
 img {
   /* Step 1: default avatar sizing */
-  width: 40dvmin;
-  height: 40dvmin;
+  width: 40vmin;
+  height: 40vmin;
 
   /* Step 2: circular crop */
   border-radius: 50%;
@@ -420,7 +416,7 @@ img {
   /* Step 3: remove inline baseline gap */
   line-height: 0;
   
-  margin:4dvmin;
+  margin:4vmin;
 }
 
 /* The ring frame lives on a pseudo-element behind the image */
@@ -429,7 +425,7 @@ img {
   position: absolute;
 
   /* Step 4: inset controls ring thickness */
-  inset: -2dvmin;
+  inset: -2vmin;
 
   /* Step 5: image-based frame */
   background-image: url("/Resources/Image Border.webp");
@@ -455,23 +451,23 @@ img {
 
   /* Step 2: let width fit content, set consistent height */
   width: auto;
-  height: 20dvmin;
+  height: 20vmin;
 
   /* Step 3: spacing + padding */
-  margin-top: 3dvmin;
-  padding: 5dvmin;
+  margin-top: 3vmin;
+  padding: 5vmin;
 
   /* Step 4: black backing */
   background-color: black;
 
   /* Step 5: fallback font if images fail */
-  font: 1dvmin Arial;
+  font: 1vmin Arial;
 
   /* Step 6: for replaced elements (img), harmless for buttons */
   object-fit: contain;
 
   /* Step 7: pill shape + border */
-  border-radius: 10dvmin;
+  border-radius: 10vmin;
   border: 3px solid var(--BASE_COLOR);
 
   /* Step 8: smooth transitions */
@@ -497,17 +493,17 @@ img {
 
 /* Step 3: spacing between nav links */
 .navButtons a {
-  margin: 0 10dvw;
+  margin: 0 10vw;
 }
 
 /* Step 4: icon sizing and hover-ready styling */
 .navButtons img {
-  width: 12dvmin;
-  height: 12dvmin;
-  padding: 1dvmin;
+  width: 12vmin;
+  height: 12vmin;
+  padding: 1vmin;
 
   /* fallback font (rarely used, but safe) */
-  font: 1dvmin Arial;
+  font: 1vmin Arial;
 
   /* circular icon style */
   border-radius: 50%;
@@ -540,7 +536,7 @@ button {
   appearance: none;
 
   display: block;
-  margin: 3dvmin auto 1dvmin;
+  margin: 3vmin auto 1vmin;
   padding: 0.5em 1.5em;
   height: auto;
   
@@ -554,7 +550,7 @@ button {
   /* Step 4: typography */
   color: var(--BASE_COLOR);
   font-family: 'New Rocker';
-  font-size: 5dvmin;
+  font-size: 5vmin;
 
   /* Step 8: smooth transitions */
   transition:
@@ -754,6 +750,6 @@ display:none;
   }
 
 #YouTube {
-padding:1dvmin;
-height:28dvmin;
+padding:1vmin;
+height:28vmin;
 }
