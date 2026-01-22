@@ -201,8 +201,8 @@ body {
   position: fixed;
 
   /* Step 1: full-screen sizing */
-  width: 100%;
-  height: 100%;
+  width: 100dw;
+  height: 100dh;
 
   /* Step 2: background image settings */
   background-image: url("/Resources/Background.webp");
