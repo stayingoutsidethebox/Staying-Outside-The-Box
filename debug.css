@@ -90,10 +90,9 @@
        *==============================*/
 
       #debugBox{
-        position: absolute;
         width: 100%;
         max-width: 100%;
-        margin-top: calc(100dvh + 50dvw);     /* parks footer below the first viewport with extra room for play */
+        margin-top: 100vh;     /* parks footer below the first viewport with extra room for play */
         display: flex;
         flex-direction: column;
         justify-content: flex-end;
