@@ -644,6 +644,11 @@ button:hover {
   font-weight: bold;
 }
 
+/* Only affects character classes */
+a {
+  margin-top: 0;
+}
+
 .characterHeader {
   margin-top: .8em;
   font-weight:normal;
@@ -667,11 +672,6 @@ button:hover {
 .fireRider { color: firebrick; }
 
 .sidecharacter { color: gray; }
-
-/* Only affects character classes */
-a {
-  margin-top: 0;
-}
 
 /* #endregion 10) SCRIPT CHARACTER NAME COLORS */
 
