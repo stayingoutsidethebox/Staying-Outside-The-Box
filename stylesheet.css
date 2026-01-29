@@ -630,23 +630,20 @@ button:hover {
  *   2) individual colors per character
  */
 
-.roman,
-.sage,
-.elena,
-.iris,
-.darian,
-.walter,
-.trent,
-.dave,
-.fireRider,
-.sidecharacter {
+:is(
+  .roman,
+  .sage,
+  .elena,
+  .iris,
+  .darian,
+  .walter,
+  .trent,
+  .dave,
+  .fireRider,
+  .sidecharacter 
+):not(a) {
   margin-top: 2em;
   font-weight: bold;
-}
-
-/* Only affects character classes */
-a {
-  margin-top: 0;
 }
 
 .characterHeader {
