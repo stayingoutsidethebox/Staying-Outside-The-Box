@@ -641,14 +641,9 @@ button:hover {
   .dave,
   .fireRider,
   .sidecharacter 
-):not(a) {
+):not(a, h1) {
   margin-top: 2em;
   font-weight: bold;
-}
-
-.characterHeader {
-  margin-top: .8em;
-  font-weight:normal;
 }
 
 /* Per-character colors */
