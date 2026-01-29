@@ -668,6 +668,11 @@ button:hover {
 
 .sidecharacter { color: gray; }
 
+/* Only affects character classes */
+a {
+  margin-top: 0;
+}
+
 /* #endregion 10) SCRIPT CHARACTER NAME COLORS */
 
 
