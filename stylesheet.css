@@ -630,7 +630,8 @@ button:hover {
  *   2) individual colors per character
  */
 
-:is(
+/* In-script name labels */
+p:is(
   .roman,
   .sage,
   .elena,
@@ -641,7 +642,7 @@ button:hover {
   .dave,
   .fireRider,
   .sidecharacter 
-):not(a, h1) {
+) {
   margin-top: 2em;
   font-weight: bold;
 }
