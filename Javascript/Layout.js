@@ -476,8 +476,15 @@ DID_MOVE = false;
 }
 
 /* GROUP: Wire after DOM is ready */
+function onDOMReady(fn) {
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", fn, { once: true });
+  } else {
+    fn();
+  }
+}
 // Attach navigation overrides once elements exist in the DOM.
-document.addEventListener("DOMContentLoaded", () => {
+onDOMReady(() => {
   enableDocumentScroll();
   document.querySelectorAll("button[data-toggle]").forEach((btn) => {
     btn.addEventListener("click", () => {
