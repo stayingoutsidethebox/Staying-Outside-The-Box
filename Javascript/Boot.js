@@ -4,7 +4,7 @@
   /* ===============================
    *  0) SITE VERSION (bump per deploy)
    * =============================== */
-  const SITE_VERSION = "01.30.2026.E";
+  const SITE_VERSION = "01.30.2026.F";
   window.SITE_VERSION = SITE_VERSION;
   //alert(SITE_VERSION);
 
@@ -92,7 +92,21 @@
   } else {
     loadPageScripts();
   }
-  document.body
-  ? document.body.insertAdjacentHTML("beforeend", `<div style="position:fixed;bottom:4px;right:6px;font:10px monospace;opacity:.45;z-index:9999;pointer-events:none">v${window.SITE_VERSION}</div>`)
-  : document.addEventListener("DOMContentLoaded", () => document.body.insertAdjacentHTML("beforeend", `<div style="position:fixed;bottom:4px;right:6px;font:10px monospace;opacity:.45;z-index:9999;pointer-events:none">v${window.SITE_VERSION}</div>`), { once:true });
+  
+    /* ===============================
+   *  6) Add version badge
+   * =============================== */
+
+  const badgeHTML = `<div id="versionBadge" style="position:fixed;bottom:4px;right:6px;font:10px monospace;opacity:.45;z-index:9999;pointer-events:none">v${SITE_VERSION}</div>`;
+
+  function addVersionBadge(){
+    if (document.getElementById("versionBadge")) return; // prevent duplicates
+    document.body.insertAdjacentHTML("beforeend", badgeHTML);
+  }
+
+  if (document.body) {
+    addVersionBadge();
+  } else {
+    document.addEventListener("DOMContentLoaded", addVersionBadge, { once: true });
+  }
 })();
