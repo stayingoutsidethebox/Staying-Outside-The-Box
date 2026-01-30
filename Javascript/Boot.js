@@ -4,7 +4,7 @@
   /* ===============================
    *  0) SITE VERSION (bump per deploy)
    * =============================== */
-  const SITE_VERSION = "billy";
+  const SITE_VERSION = "george";
   window.SITE_VERSION = SITE_VERSION;
   alert(SITE_VERSION);
 
