@@ -4,7 +4,7 @@
   /* ===============================
    *  0) SITE VERSION (bump per deploy)
    * =============================== */
-  const SITE_VERSION = "2026.01.30b";
+  const SITE_VERSION = "2026.01.30c";
   window.SITE_VERSION = SITE_VERSION;
 
   function v(url){
