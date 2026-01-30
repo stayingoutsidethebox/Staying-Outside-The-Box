@@ -191,9 +191,6 @@ function disableDocumentScroll() {
   if (CONTAINER) CONTAINER.style.overflow = "visible";
 }
 
-// Prevent extra space at the bottom of the page in edge cases
-disableDocumentScroll();
-
 /* GROUP: Restore scroll after transitions/load */
 // Put scroll back on the document.
 function enableDocumentScroll() {
