@@ -165,6 +165,14 @@ body {
   -webkit-user-select: none;
 }
 
+.htmlEnable {
+  
+}
+
+.htmlDisable {
+  
+}
+
 /* Main content wrapper (JS toggles who scrolls) */
 #transitionContainer {
   flex: 1;
