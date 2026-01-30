@@ -758,3 +758,13 @@ display:none;
 padding:1vmin;
 height:28vmin;
 }
+
+#versionBadge {
+  position:fixed;
+  bottom:4px;
+  right:6px;
+  font:10px monospace;
+  opacity:.45;
+  z-index:9999;
+  pointer-events:none;
+}
