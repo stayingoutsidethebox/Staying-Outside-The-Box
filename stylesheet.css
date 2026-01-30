@@ -123,13 +123,20 @@ html {
   padding: 0;
   inset: 0;
 
-  /* Step 2: default scroll behavior (JS may swap this) */
-  overflow-y: auto;
   width: 100vw;
   overflow-x: hidden;
 
   /* Step 3: edge color visible during transitions */
   background-color: black;
+}
+
+/* Prevent extra space at bottom of pages */
+.htmlEnable {
+    overflow-y: auto;
+}
+
+.htmlDisable {
+    overflow-y: hidden;
 }
 
 /*---------- Body (content wrapper) ----------*/
@@ -146,7 +153,6 @@ body {
   height: auto;
   width: 100vw;
   overflow-x: hidden;
-  overflow-y: visible;
 
   /* Step 4: remove default spacing */
   margin: 0;
@@ -165,12 +171,13 @@ body {
   -webkit-user-select: none;
 }
 
-.htmlEnable {
-  
+/* Prevent extra space at bottom of pages */
+.bodyEnable {
+  overflow-y: visible;
 }
 
-.htmlDisable {
-  
+.bodyDisable {
+  overflow-y: hidden;
 }
 
 /* Main content wrapper (JS toggles who scrolls) */
@@ -184,6 +191,14 @@ body {
 
   /* DONT TOUCH: JS swaps scroll responsibility */
   overflow-x: hidden;
+}
+
+/* Prevent extra space at bottom of pages */
+.TCEnable {
+  overflow-y: hidden;
+}
+
+.TCDisable {
   overflow-y: visible;
 }
 
