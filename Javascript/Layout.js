@@ -203,7 +203,7 @@ function enableDocumentScroll() {
 
   HTML.style.overflowY = "auto";
   BODY.style.overflow = "visible";
-
+alert("enabled");
   if (CONTAINER) CONTAINER.style.overflow = "hidden";
 }
 
@@ -221,7 +221,6 @@ function enableDocumentScroll() {
 window.addEventListener("load", () => {
   const CONTAINER = getTransitionContainer();
   if (!CONTAINER) return;
-alert("layout");
   document.documentElement.style.setProperty(
     "--SLIDE_DURATION",
     `${getSlideDurationSeconds()}s`
