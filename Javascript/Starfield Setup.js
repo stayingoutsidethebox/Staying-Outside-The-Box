@@ -904,7 +904,18 @@ S.initializeGravityControlsIfPresent = function initializeGravityControlsIfPrese
 };
 
 // Wire UI bindings after the DOM is ready.
-document.addEventListener("DOMContentLoaded", S.initializeGravityControlsIfPresent);
+
+onDOMReady(S.initializeGravityControlsIfPresent);
+/* ===============================
+ * DOM READY HELPER
+ * =============================== */
+function onDOMReady(fn) {
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", fn, { once: true });
+  } else {
+    fn();
+  }
+}
 
 /* #endregion 5) UI CONTROLS */
 
