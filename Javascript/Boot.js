@@ -4,7 +4,7 @@
   /* ===============================
    *  0) SITE VERSION (bump per deploy)
    * =============================== */
-  const SITE_VERSION = "2026.01.30";
+  const SITE_VERSION = "2026.01.30a";
   window.SITE_VERSION = SITE_VERSION;
 
   function v(url){
@@ -64,6 +64,7 @@
   /* ===============================
    *  5) Append page scripts at END
    * =============================== */
+  alert("new");
   const GLOBAL_SCRIPTS = [
     "/Javascript/Starfield Setup.js",
     "/Javascript/Active Starfield.js",
