@@ -125,18 +125,10 @@ html {
 
   width: 100vw;
   overflow-x: hidden;
-
+  overflow-y: auto;
+    
   /* Step 3: edge color visible during transitions */
   background-color: black;
-}
-
-/* Prevent extra space at bottom of pages */
-.htmlEnable {
-    overflow-y: auto;
-}
-
-.htmlDisable {
-    overflow-y: hidden;
 }
 
 /*---------- Body (content wrapper) ----------*/
@@ -153,6 +145,7 @@ body {
   height: auto;
   width: 100vw;
   overflow-x: hidden;
+  overflow-y: visible;
 
   /* Step 4: remove default spacing */
   margin: 0;
@@ -171,15 +164,6 @@ body {
   -webkit-user-select: none;
 }
 
-/* Prevent extra space at bottom of pages */
-.bodyEnable {
-  overflow-y: visible;
-}
-
-.bodyDisable {
-  overflow-y: hidden;
-}
-
 /* Main content wrapper (JS toggles who scrolls) */
 #transitionContainer {
   flex: 1;
@@ -191,15 +175,7 @@ body {
 
   /* DONT TOUCH: JS swaps scroll responsibility */
   overflow-x: hidden;
-}
-
-/* Prevent extra space at bottom of pages */
-.TCEnable {
   overflow-y: hidden;
-}
-
-.TCDisable {
-  overflow-y: visible;
 }
 
 /* #endregion 2) DOCUMENT BASE + BACKGROUND */
