@@ -6,6 +6,7 @@
    * =============================== */
   const SITE_VERSION = "2026.01.30c";
   window.SITE_VERSION = SITE_VERSION;
+  alert(SITE_VERSION);
 
   function v(url){
     const joiner = url.includes("?") ? "&" : "?";
