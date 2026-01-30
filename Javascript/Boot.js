@@ -6,7 +6,7 @@
    * =============================== */
   const SITE_VERSION = "daren";
   window.SITE_VERSION = SITE_VERSION;
-  alert(SITE_VERSION);
+  //alert(SITE_VERSION);
 
   function v(url){
     const joiner = url.includes("?") ? "&" : "?";
