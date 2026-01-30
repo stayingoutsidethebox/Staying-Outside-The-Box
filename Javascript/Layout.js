@@ -221,7 +221,7 @@ function enableDocumentScroll() {
 window.addEventListener("load", () => {
   const CONTAINER = getTransitionContainer();
   if (!CONTAINER) return;
-
+alert("layout");
   document.documentElement.style.setProperty(
     "--SLIDE_DURATION",
     `${getSlideDurationSeconds()}s`
