@@ -4,7 +4,7 @@
   /* ===============================
    *  0) SITE VERSION (bump per deploy)
    * =============================== */
-  const SITE_VERSION = "01.30.2026.F";
+  const SITE_VERSION = "01.30.2026.G";
   window.SITE_VERSION = SITE_VERSION;
   //alert(SITE_VERSION);
 
@@ -97,7 +97,7 @@
    *  6) Add version badge
    * =============================== */
 
-  const badgeHTML = `<div id="versionBadge" style="position:fixed;bottom:4px;right:6px;font:10px monospace;opacity:.45;z-index:9999;pointer-events:none">v${SITE_VERSION}</div>`;
+  const badgeHTML = `<div id="versionBadge">v${SITE_VERSION}</div>`;
 
   function addVersionBadge(){
     if (document.getElementById("versionBadge")) return; // prevent duplicates
