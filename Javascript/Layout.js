@@ -203,7 +203,6 @@ function enableDocumentScroll() {
 
   HTML.style.overflowY = "auto";
   BODY.style.overflow = "visible";
-alert("enabled");
   if (CONTAINER) CONTAINER.style.overflow = "hidden";
 }
 
