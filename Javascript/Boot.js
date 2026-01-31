@@ -1,10 +1,10 @@
-(function boot(){
+function boot(){
   "use strict";
 
   /* ===============================
    *  0) SITE VERSION (bump per deploy)
    * =============================== */
-  const SITE_VERSION = "01.30.2026.K";
+  const SITE_VERSION = "01.30.2026.L";
   window.SITE_VERSION = SITE_VERSION;
   //alert(SITE_VERSION);
 
@@ -12,7 +12,7 @@
     const joiner = url.includes("?") ? "&" : "?";
     return `${url}${joiner}v=${encodeURIComponent(SITE_VERSION)}`;
   }
-
+  return;
   /* ===============================
    *  1) PAGE DETECTION
    * =============================== */
