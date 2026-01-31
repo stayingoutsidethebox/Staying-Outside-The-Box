@@ -121,7 +121,10 @@ html {
   /* Step 1: eliminate default spacing */
   margin: 0;
   padding: 0;
-  inset: 0;
+  inset: env(safe-area-inset-top)
+         env(safe-area-inset-right)
+         env(safe-area-inset-bottom)
+         env(safe-area-inset-left);
 
   width: 100vw;
   overflow-x: hidden;
@@ -151,7 +154,10 @@ body {
   /* Step 4: remove default spacing */
   margin: 0;
   padding: 0;
-  inset: 0;
+  inset: env(safe-area-inset-top)
+         env(safe-area-inset-right)
+         env(safe-area-inset-bottom)
+         env(safe-area-inset-left);
 
   /* Step 5: keep body visually transparent so canvas/background shows */
   background: transparent;
@@ -173,7 +179,10 @@ body {
   height: auto;
   width: 96vw;
   padding:2vh 2vw;
-  inset: 0;
+  inset: env(safe-area-inset-top)
+         env(safe-area-inset-right)
+         env(safe-area-inset-bottom)
+         env(safe-area-inset-left);
 
   /* DONT TOUCH: JS swaps scroll responsibility */
   overflow-x: hidden;
