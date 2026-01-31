@@ -129,6 +129,7 @@ html {
     
   /* Step 3: edge color visible during transitions */
   background-color: black;
+  background-attachment: fixed;
 }
 
 /*---------- Body (content wrapper) ----------*/
@@ -154,6 +155,7 @@ body {
 
   /* Step 5: keep body visually transparent so canvas/background shows */
   background: transparent;
+  background-attachment: fixed;
 
   /* Step 6: base typography */
   text-align: center;
@@ -176,6 +178,7 @@ body {
   /* DONT TOUCH: JS swaps scroll responsibility */
   overflow-x: hidden;
   overflow-y: hidden;
+  background-attachment: fixed;
 }
 
 /* #endregion 2) DOCUMENT BASE + BACKGROUND */
