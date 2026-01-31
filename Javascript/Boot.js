@@ -1,4 +1,4 @@
-function boot(){
+(function boot(){
   "use strict";
 
   /* ===============================
