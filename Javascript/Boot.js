@@ -113,10 +113,11 @@
   onDOMReady(() => {
     const HTML = document.documentElement;
     const BODY = document.body;
-    const CONTAINER = getTransitionContainer();
+    const CONTAINER = document.getElementById("transitionContainer");
 
     HTML.style.overflowY = "hidden";
     BODY.style.overflowY = "hidden";
+    CONTAINER.style.overflowY = "visible";
     loadPageScripts();
     addVersionBadge();
   });
