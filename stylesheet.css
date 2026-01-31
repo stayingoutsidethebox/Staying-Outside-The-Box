@@ -213,7 +213,11 @@ body {
 /* Full-screen starfield canvas (above bg, below content) */
 #constellations {
   position: fixed;
-  inset: 0;
+  background-attachment: fixed;
+  inset: env(safe-area-inset-top)
+         env(safe-area-inset-right)
+         env(safe-area-inset-bottom)
+         env(safe-area-inset-left);
 
   /* Step 1: full-screen sizing */
   width: 100lvw;
