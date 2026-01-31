@@ -4,7 +4,7 @@ function boot(){
   /* ===============================
    *  0) SITE VERSION (bump per deploy)
    * =============================== */
-  const SITE_VERSION = "01.30.2026.N";
+  const SITE_VERSION = "01.30.2026.O";
   window.SITE_VERSION = SITE_VERSION;
   //alert(SITE_VERSION);
 
