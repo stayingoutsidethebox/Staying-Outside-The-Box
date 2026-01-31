@@ -186,9 +186,9 @@ function disableDocumentScroll() {
   const CONTAINER = getTransitionContainer();
 
   HTML.style.overflowY = "hidden";
-  BODY.style.overflow = "hidden";
+  BODY.style.overflowY = "hidden";
 
-  if (CONTAINER) CONTAINER.style.overflow = "visible";
+  if (CONTAINER) CONTAINER.style.overflowY = "visible";
 }
 
 /* GROUP: Restore scroll after transitions/load */
@@ -199,8 +199,8 @@ function enableDocumentScroll() {
   const CONTAINER = getTransitionContainer();
 
   HTML.style.overflowY = "auto";
-  BODY.style.overflow = "visible";
-  if (CONTAINER) CONTAINER.style.overflow = "hidden";
+  BODY.style.overflowY = "visible";
+  if (CONTAINER) CONTAINER.style.overflowY = "hidden";
 }
 
 /* #endregion 2) SCROLL OWNERSHIP (DOCUMENT IS SCROLLER) */
