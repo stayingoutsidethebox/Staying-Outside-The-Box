@@ -490,7 +490,9 @@ onDOMReady(() => {
   injectGlobalFooter();
   wirePointerNavigation();
   const CONTAINER = getTransitionContainer();
-  CONTAINER.addEventListener("transitionend", enableDocumentScroll);
+  if (CONTAINER){
+    CONTAINER.addEventListener("transitionend", enableDocumentScroll);
+  }
 });
 
 /* #endregion 6) NAV FIXES (CLICK + TOUCH TAP VS SWIPE) */
@@ -504,7 +506,7 @@ onDOMReady(() => {
 function injectGlobalFooter() {
   if (is404page() || isPolicypage() || isHomepage()) return;
 
-  const CONTAINER = document.getElementById("transitionContainer");
+  const CONTAINER = getTransitionContainer();
   if (!CONTAINER) return;
 
   // Prevent duplicate footers (important for bfcache/pageshow)
