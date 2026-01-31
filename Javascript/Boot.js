@@ -111,6 +111,12 @@
   }
   
   onDOMReady(() => {
+    const HTML = document.documentElement;
+    const BODY = document.body;
+    const CONTAINER = getTransitionContainer();
+
+    HTML.style.overflowY = "hidden";
+    BODY.style.overflowY = "hidden";
     loadPageScripts();
     addVersionBadge();
   });
