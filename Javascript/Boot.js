@@ -86,12 +86,6 @@
       appendScript("/Javascript/Debug.js");
     }
   }
-
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", loadPageScripts, { once: true });
-  } else {
-    loadPageScripts();
-  }
   
     /* ===============================
    *  6) Add version badge
@@ -104,9 +98,20 @@
     document.body.insertAdjacentHTML("beforeend", badgeHTML);
   }
 
-  if (document.body) {
-    addVersionBadge();
-  } else {
-    document.addEventListener("DOMContentLoaded", addVersionBadge, { once: true });
+    /* ===============================
+   *  7) Init
+   * =============================== */
+  
+  function onDOMReady(fn) {
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", fn, { once: true });
+    } else {
+      fn();
+    }
   }
+  
+  onDOMReady(() => {
+    loadPageScripts();
+    addVersionBadge();
+  });
 })();
