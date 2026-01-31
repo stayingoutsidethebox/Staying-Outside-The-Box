@@ -481,7 +481,6 @@ function onDOMReady(fn) {
 }
 // Attach navigation overrides once elements exist in the DOM.
 onDOMReady(() => {
-  enableDocumentScroll();
   document.querySelectorAll("button[data-toggle]").forEach((btn) => {
     btn.addEventListener("click", () => {
       const id = btn.getAttribute("data-toggle");
@@ -490,6 +489,8 @@ onDOMReady(() => {
   });
   injectGlobalFooter();
   wirePointerNavigation();
+  const CONTAINER = getTransitionContainer();
+  CONTAINER.addEventListener("transitionend", enableDocumentScroll);
 });
 
 /* #endregion 6) NAV FIXES (CLICK + TOUCH TAP VS SWIPE) */
