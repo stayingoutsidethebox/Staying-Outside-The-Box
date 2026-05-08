@@ -8,6 +8,33 @@
   window.SITE_VERSION = SITE_VERSION;
   //alert(SITE_VERSION);
 
+(function boot(){
+  "use strict";
+
+  /* ===============================
+   * 0) SITE VERSION (bump per deploy)
+   * =============================== */
+  const SITE_VERSION = "05.08.2026.C";
+  window.SITE_VERSION = SITE_VERSION;
+
+  /* ===============================
+   * 0.5) HTML CACHE BUSTER
+   * =============================== */
+  const storedVersion = localStorage.getItem("LOCAL_SITE_VERSION");
+
+  if (storedVersion !== SITE_VERSION) {
+    // 1. Update local storage so we don't get stuck in an infinite reload loop
+    localStorage.setItem("LOCAL_SITE_VERSION", SITE_VERSION);
+
+    // 2. Force the browser to fetch a fresh HTML file by appending the version to the URL
+    const currentUrl = new URL(window.location.href);
+    currentUrl.searchParams.set('v', SITE_VERSION);
+    
+    // 3. Replace the current URL and stop executing the rest of this script
+    window.location.replace(currentUrl.toString());
+    return; 
+  }
+
   function v(url){
     const joiner = url.includes("?") ? "&" : "?";
     return `${url}${joiner}v=${encodeURIComponent(SITE_VERSION)}`;
