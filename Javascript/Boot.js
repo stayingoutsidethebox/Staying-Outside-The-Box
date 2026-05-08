@@ -4,7 +4,7 @@
   /* ===============================
    * 0) SITE VERSION (bump per deploy)
    * =============================== */
-  const SITE_VERSION = "05.08.2026.D";
+  const SITE_VERSION = "05.08.2026.E";
   window.SITE_VERSION = SITE_VERSION;
 
   /* ===============================
