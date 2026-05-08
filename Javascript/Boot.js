@@ -2,16 +2,6 @@
   "use strict";
 
   /* ===============================
-   *  0) SITE VERSION (bump per deploy)
-   * =============================== */
-  const SITE_VERSION = "05.08.2026.C";
-  window.SITE_VERSION = SITE_VERSION;
-  //alert(SITE_VERSION);
-
-(function boot(){
-  "use strict";
-
-  /* ===============================
    * 0) SITE VERSION (bump per deploy)
    * =============================== */
   const SITE_VERSION = "05.08.2026.C";
